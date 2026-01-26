@@ -11,7 +11,6 @@ import {
   ProjectsIcon,
   RocketIcon,
   StarIcon,
-  TagIcon,
   UserIcon,
 } from "@sanity/icons";
 import type { StructureResolver } from "sanity/structure";
@@ -50,12 +49,6 @@ export const structure: StructureResolver = (S) =>
                 .icon(AsteriskIcon)
                 .schemaType("skill")
                 .child(S.documentTypeList("skill").title("Skills")),
-
-              S.listItem()
-                .title("Services")
-                .icon(TagIcon)
-                .schemaType("service")
-                .child(S.documentTypeList("service").title("Services")),
             ]),
         ),
 
