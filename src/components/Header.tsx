@@ -114,8 +114,9 @@ export default function Header({ nav = [] }: { nav?: NavItem[] }) {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
         <Link
           href="/"
-          className="text-sm font-semibold tracking-tight text-white"
+          className="inline-flex items-center gap-2 text-sm font-semibold tracking-tight text-white"
         >
+          <span className="h-2 w-2 rounded-full bg-gradient-to-r from-violet-400 via-sky-300 to-emerald-300" />
           Anant
         </Link>
 

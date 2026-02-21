@@ -9,6 +9,7 @@ import Header from "@/components/Header";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SanityLive } from "@/sanity/lib/live";
 import "./globals.css";
+import { FloatingShapesBackground } from "@/components/three/FloatingShapes";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
@@ -45,6 +46,7 @@ export default function RootLayout({
             <Header />
             {children}
             <SanityLive />
+            <FloatingShapesBackground />
             <DraftModeHandler />
           </ThemeProvider>
         </body>
