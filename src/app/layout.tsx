@@ -1,21 +1,22 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Inter } from "next/font/google";
 import { draftMode } from "next/headers";
 import Script from "next/script";
 import { VisualEditing } from "next-sanity/visual-editing";
 import { DisableDraftMode } from "@/components/DisableDraftMode";
-import Header from "@/components/Header";
+import { HeaderScrolling } from "@/components/HeaderScrolling";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SanityLive } from "@/sanity/lib/live";
 import "./globals.css";
-import { FloatingShapesBackground } from "@/components/three/FloatingShapes";
+import ObsidianBackground from "@/components/three/ObsidianBackground";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Anant Gupta | Portfolio",
@@ -31,7 +32,7 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-transparent text-white antialiased`}
         >
           <ThemeProvider
             attribute="class"
@@ -43,11 +44,15 @@ export default function RootLayout({
               src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js"
               strategy="afterInteractive"
             />
-            <Header />
-            {children}
-            <SanityLive />
-            <FloatingShapesBackground />
-            <DraftModeHandler />
+            <body className="min-h-screen bg-transparent text-white">
+              <div className="fixed inset-0 -z-10 pointer-events-none">
+                <ObsidianBackground />
+              </div>
+              <HeaderScrolling />
+              {children}
+              <SanityLive />
+              <DraftModeHandler />
+            </body>
           </ThemeProvider>
         </body>
       </html>

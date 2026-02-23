@@ -1,8 +1,25 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 
-const isPublicRoute = createRouteMatcher(["/", "/api/(.*)"]);
+const isPublicRoute = createRouteMatcher([
+  "/",
+  "/api/(.*)",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
+]);
+
+const isStudioRoute = createRouteMatcher(["/studio", "/studio/(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
+  // Protect Studio
+  if (isStudioRoute(req)) {
+    const { userId } = await auth();
+    if (!userId) {
+      return Response.redirect(new URL("/sign-in", req.url));
+    }
+    return;
+  }
+
+  // Protect all non-public routes
   if (!isPublicRoute(req)) {
     await auth.protect();
   }
@@ -10,19 +27,7 @@ export default clerkMiddleware(async (auth, req) => {
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
     "/(api|trpc)(.*)",
   ],
 };
-
-function createRouteMatcher(routes: string[]) {
-  return (req: { nextUrl: { pathname: string } }) => {
-    return routes.some((route) => {
-      const pattern = route.replace(/\(.*\)/g, ".*");
-      const regex = new RegExp(`^${pattern}$`);
-      return regex.test(req.nextUrl.pathname);
-    });
-  };
-}

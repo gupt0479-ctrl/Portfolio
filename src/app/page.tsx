@@ -2,7 +2,7 @@ import PortfolioContent from "@/components/PortfolioContent";
 
 export default async function Home() {
   return (
-    <main className="min-h-screen bg-black">
+    <main className="min-h-screen bg-transparent text-white">
       <PortfolioContent />
     </main>
   );

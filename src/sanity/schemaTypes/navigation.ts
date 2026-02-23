@@ -31,6 +31,13 @@ export const navigation = defineType({
       ],
     }),
     defineField({
+      name: "isExternal",
+      title: "Is External Link",
+      type: "boolean",
+      description: "Opens in new tab/window",
+      initialValue: false,
+    }),
+    defineField({
       name: "linkType",
       title: "Link type",
       type: "string",

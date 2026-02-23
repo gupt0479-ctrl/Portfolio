@@ -1,183 +1,118 @@
 import { Footer } from "@/components/Footer";
-import Header from "@/components/Header";
-import Hero3D from "@/components/sections/Hero3D";
+import { HeaderScrolling } from "@/components/HeaderScrolling";
+import HeroSection from "@/components/sections/HeroSection";
+import { ExperienceSection } from "@/components/sections/ExperienceSection";
+import { ProjectCard3D } from "@/components/three/ProjectCard3D";
 import { sanityFetch } from "@/sanity/lib/live";
 import {
-  EXPERIENCE_QUERY,
   NAVIGATION_QUERY,
-  PROFILE_QUERY,
   PROJECTS_QUERY,
-  SITE_SETTINGS_QUERY,
   SKILLS_QUERY,
 } from "@/sanity/lib/queries";
 import type {
-  EXPERIENCE_QUERYResult,
+  NAVIGATION_QUERYResult,
   PROJECTS_QUERYResult,
   SKILLS_QUERYResult,
 } from "@/sanity/types";
 
 export default async function PortfolioContent() {
-  const [
-    _profile,
-    _siteSettings,
-    { data: nav },
-    { data: projects },
-    { data: skills },
-    { data: experience },
-  ] = await Promise.all([
-    sanityFetch({ query: PROFILE_QUERY }),
-    sanityFetch({ query: SITE_SETTINGS_QUERY }),
-    sanityFetch({ query: NAVIGATION_QUERY }),
-    sanityFetch({ query: PROJECTS_QUERY }),
-    sanityFetch({ query: SKILLS_QUERY }),
-    sanityFetch({ query: EXPERIENCE_QUERY }),
-  ]);
+  const [{ data: nav }, { data: projects }, { data: skills }] =
+    await Promise.all([
+      sanityFetch({ query: NAVIGATION_QUERY }),
+      sanityFetch({ query: PROJECTS_QUERY }),
+      sanityFetch({ query: SKILLS_QUERY }),
+    ]);
+
+  const navItems = ((nav ?? []) as NAVIGATION_QUERYResult)
+    .filter((item) => !!item.title && !!item.href)
+    .map((item) => ({
+      _id: item._id,
+      title: item.title as string,
+      href: item.href as string,
+      isExternal: item.isExternal,
+    }));
 
   return (
     <>
-      <Header
-        nav={(nav ?? [])
-          .filter(
-            (item): item is typeof item & { title: string; href: string } =>
-              typeof item.title === "string" && typeof item.href === "string",
-          )
-          .map((item) => ({
-            _id: item._id,
-            title: item.title,
-            href: item.href,
-            isExternal: item.isExternal ?? undefined,
-          }))}
-      />
-      <main className="min-h-screen bg-black text-white">
-        <Hero3D />
+      {/* Scroll-Reveal Header */}
+      <HeaderScrolling nav={navItems} />
 
-        <section id="projects" className="mx-auto max-w-6xl px-6 py-20">
-          <h2 className="text-2xl font-semibold">Projects</h2>
-          <div className="mt-6 grid gap-4 md:grid-cols-2">
-            {((projects ?? []) as PROJECTS_QUERYResult).slice(0, 6).map((p) => (
-              <div
-                key={p._id}
-                className="rounded-2xl border border-white/10 bg-white/5 p-5"
-              >
-                <div className="text-lg font-medium">
-                  {p.title || "Untitled"}
-                </div>
-                {p.tagline ? (
-                  <div className="mt-1 text-sm text-white/70">{p.tagline}</div>
-                ) : null}
-                <div className="mt-4 flex gap-3 text-sm">
-                  {p.liveUrl ? (
-                    <a
-                      className="text-white/80 hover:text-white"
-                      href={p.liveUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Live
-                    </a>
-                  ) : null}
-                  {p.githubUrl ? (
-                    <a
-                      className="text-white/80 hover:text-white"
-                      href={p.githubUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Code
-                    </a>
-                  ) : null}
-                </div>
-              </div>
-            ))}
+      {/* Main Content */}
+      <main className="min-h-screen text-white">
+        {/* Hero with Obsidian */}
+        <HeroSection />
+
+        {/* Projects with 3D Cards */}
+        <section id="projects" className="mx-auto max-w-6xl px-6 py-24">
+          <div className="mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-white">
+              Projects
+            </h2>
+            <p className="text-lg text-white/60 mt-3">
+              Featured work spanning web, AI, and infrastructure.
+            </p>
           </div>
-        </section>
 
-        {/* Experience */}
-        <section id="experience" className="mx-auto max-w-6xl px-6 py-20">
-          <h2 className="text-2xl font-semibold">Experience</h2>
-
-          <div className="mt-6 grid gap-4">
-            {((experience ?? []) as EXPERIENCE_QUERYResult)
-              .slice(0, 5)
-              .map((e) => (
-                <div
-                  key={e._id}
-                  className="rounded-2xl border border-white/10 bg-white/5 p-5"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div className="font-medium">
-                      {`${e.position ?? ""} · `}
-                      <span className="text-white/80">{e.company ?? ""}</span>
-                    </div>
-
-                    <div className="text-sm text-white/60">
-                      {e.startDate ?? ""}{" "}
-                      {e.endDate
-                        ? `– ${e.endDate}`
-                        : e.current
-                          ? "– Present"
-                          : ""}
-                    </div>
-                  </div>
-
-                  {Array.isArray(e.responsibilities) &&
-                  e.responsibilities.some(
-                    (r) => typeof r === "string" && r.trim().length,
-                  ) ? (
-                    <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-white/70">
-                      {e.responsibilities
-                        .filter(
-                          (r): r is string =>
-                            typeof r === "string" && r.trim().length > 0,
-                        )
-                        .slice(0, 4)
-                        .map((r, i) => (
-                          <li key={`${e._id}-r-${i}`}>{r}</li>
-                        ))}
-                    </ul>
-                  ) : null}
-                </div>
+          <div className="grid gap-6 md:grid-cols-2">
+            {((projects ?? []) as PROJECTS_QUERYResult)
+              .slice(0, 6)
+              .map((p, idx) => (
+                <ProjectCard3D key={p._id} project={p} index={idx} />
               ))}
           </div>
         </section>
 
-        {/* Skills */}
-        <section id="skills" className="mx-auto max-w-6xl px-6 py-20">
-          <h2 className="text-2xl font-semibold">Skills</h2>
+        {/* Experience with Tilt Cards */}
+        <ExperienceSection />
 
-          <div className="mt-6 flex flex-wrap gap-2">
+        {/* Skills */}
+        <section id="skills" className="mx-auto max-w-6xl px-6 py-24">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-16">
+            Skills
+          </h2>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             {((skills ?? []) as SKILLS_QUERYResult)
               .filter(
                 (s) => typeof s?.name === "string" && s.name.trim().length > 0,
               )
               .slice(0, 24)
               .map((s) => (
-                <span
+                <div
                   key={s._id}
-                  className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-sm text-white/80"
+                  className="group text-center p-3 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition"
                 >
-                  {s.name}
-                </span>
+                  <div className="font-medium text-sm text-white">{s.name}</div>
+                  {s.proficiency && (
+                    <div className="text-xs text-white/50 mt-1">
+                      {s.proficiency}
+                    </div>
+                  )}
+                </div>
               ))}
           </div>
         </section>
 
-        <section id="contact" className="mx-auto max-w-6xl px-6 py-20">
-          <h2 className="text-2xl font-semibold">Contact</h2>
-          <div className="mt-6 rounded-2xl border border-white/10 bg-white/5 p-6">
-            <div className="text-white/80">
-              Edit content in{" "}
+        {/* Contact */}
+        <section id="contact" className="mx-auto max-w-6xl px-6 py-24">
+          <h2 className="text-4xl md:text-5xl font-bold text-white mb-16">
+            Contact
+          </h2>
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-8">
+            <p className="text-white/80">
+              Let's work together.{" "}
               <a
-                className="underline decoration-white/20 underline-offset-4 hover:decoration-white/60"
                 href="/studio"
+                className="underline decoration-white/20 underline-offset-4 hover:decoration-white/60 transition"
               >
-                Studio
+                Edit content in Studio
               </a>
               .
-            </div>
+            </p>
           </div>
         </section>
       </main>
+
       <Footer />
     </>
   );

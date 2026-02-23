@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "motion/react";
 import type { PROFILE_QUERYResult } from "@/sanity/types";
-import { ProfileImage } from "./ProfileImage";
 
 type Profile = NonNullable<PROFILE_QUERYResult>;
 
@@ -26,7 +25,7 @@ export function HeroContent({
   return (
     <section
       id="home"
-      className="relative min-h-[88vh] overflow-hidden bg-black"
+      className="relative min-h-[88vh] overflow-hidden bg-transparent inset-0 flex items-center"
     >
       <div className="relative mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-center px-6 py-16">
         <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
@@ -55,7 +54,7 @@ export function HeroContent({
               transition={{ duration: 0.55, delay: 0.08 }}
               className="mt-4 max-w-3xl text-xl leading-snug text-white/80 sm:text-2xl"
             >
-              <span className="bg-gradient-to-r from-violet-300 via-sky-200 to-emerald-200 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-violet-300 via-sky-200 to-emerald-200 bg-clip-text text-transparent">
                 {headline}
               </span>
             </motion.p>

@@ -55,6 +55,13 @@
         },
         "optional": true
       },
+      "isExternal": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "boolean"
+        },
+        "optional": true
+      },
       "linkType": {
         "type": "objectAttribute",
         "value": {

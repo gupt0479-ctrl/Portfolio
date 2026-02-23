@@ -80,7 +80,11 @@ export const NAVIGATION_QUERY = defineQuery(`
   title,
   href,
   icon,
-  isExternal,
+  "isExternal": select(
+    isExternal == true => true,
+    linkType == "external" => true,
+    false
+  ),
   order
 }
 `);

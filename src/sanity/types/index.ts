@@ -737,13 +737,13 @@ export type SITE_SETTINGS_QUERYResult = {
   maintenanceMessage: null;
 } | null;
 // Variable: NAVIGATION_QUERY
-// Query: *[_type == "navigation"] | order(order asc){  _id,  title,  href,  icon,  isExternal,  order}
+// Query: *[_type == "navigation"] | order(order asc){  _id,  title,  href,  icon,  "isExternal": select(    isExternal == true => true,    linkType == "external" => true,    false  ),  order}
 export type NAVIGATION_QUERYResult = Array<{
   _id: string;
   title: string | null;
   href: string | null;
   icon: string | null;
-  isExternal: null;
+  isExternal: false | true;
   order: number | null;
 }>;
 // Variable: PROJECTS_QUERY
@@ -839,7 +839,7 @@ declare module "@sanity/client" {
   interface SanityQueries {
     "\ncoalesce(\n  *[_type == \"profile\" && _id == \"singleton-profile\"][0],\n  *[_type == \"profile\"][0]\n){\n  _id,\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  profileImage,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks{\n    github,\n    linkedin,\n    twitter,\n    website,\n    medium,\n    devto,\n    youtube,\n    stackoverflow\n  },\n  yearsOfExperience,\n  stats[]{\n    label,\n    value\n  }\n}\n": PROFILE_QUERYResult;
     "\ncoalesce(\n  *[_type == \"siteSettings\" && _id == \"singleton-siteSettings\"][0],\n  *[_type == \"siteSettings\"][0]\n){\n  _id,\n  siteTitle,\n  siteDescription,\n  siteKeywords,\n  siteLogo,\n  favicon,\n  ogImage,\n  primaryColor,\n  secondaryColor,\n  accentColor,\n  ctaText,\n  ctaUrl,\n  heroHeadline,\n  heroSubheadline,\n  heroBackground,\n  showBlog,\n  showServices,\n  showTestimonials,\n  googleAnalyticsId,\n  facebookPixelId,\n  twitterHandle,\n  footer{\n    text,\n    copyrightText,\n    links[]{ title, url }\n  },\n  maintenanceMode,\n  maintenanceMessage\n}\n": SITE_SETTINGS_QUERYResult;
-    "\n*[_type == \"navigation\"] | order(order asc){\n  _id,\n  title,\n  href,\n  icon,\n  isExternal,\n  order\n}\n": NAVIGATION_QUERYResult;
+    "\n*[_type == \"navigation\"] | order(order asc){\n  _id,\n  title,\n  href,\n  icon,\n  \"isExternal\": select(\n    isExternal == true => true,\n    linkType == \"external\" => true,\n    false\n  ),\n  order\n}\n": NAVIGATION_QUERYResult;
     "\n*[_type == \"project\"] | order(featured desc, order asc){\n  _id,\n  title,\n  slug{ current },\n  tagline,\n  coverImage,\n  technologies[]->{\n    _id,\n    name,\n    category,\n    proficiency,\n    percentage,\n    yearsOfExperience,\n    color\n  },\n  category,\n  liveUrl,\n  githubUrl,\n  featured,\n  order\n}\n": PROJECTS_QUERYResult;
     "\n*[_type == \"skill\"] | order(category asc, name asc){\n  _id,\n  name,\n  category,\n  proficiency,\n  percentage,\n  yearsOfExperience,\n  color\n}\n": SKILLS_QUERYResult;
     "\n*[_type == \"experience\"] | order(order asc, startDate desc){\n  _id,\n  company,\n  position,\n  employmentType,\n  location,\n  startDate,\n  endDate,\n  current,\n  responsibilities[],\n  achievements[],\n  technologies[]->{\n    _id,\n    name,\n    category,\n    proficiency,\n    percentage,\n    yearsOfExperience,\n    color\n  },\n  companyLogo,\n  companyWebsite,\n  order\n}\n": EXPERIENCE_QUERYResult;

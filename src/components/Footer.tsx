@@ -6,32 +6,41 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-white/10 bg-black/40 backdrop-blur">
-      <div className="mx-auto max-w-6xl px-6 py-12">
+    <footer className="border-t border-white/10 bg-black/10 backdrop-blur-sm">
+      <div className="mx-auto max-w-6xl px-6 py-8">
         <div className="grid gap-8 md:grid-cols-3">
           <div>
             <h3 className="font-semibold text-white">Navigate</h3>
             <ul className="mt-3 space-y-2 text-sm">
               <li>
-                <a href="#projects" className="text-white/70 hover:text-white">
+                <a
+                  href="#projects"
+                  className="text-white/70 hover:text-white underline decoration-white/10 hover:decoration-white/50 underline-offset-4 transition-all duration-200"
+                >
                   Projects
                 </a>
               </li>
               <li>
                 <a
                   href="#experience"
-                  className="text-white/70 hover:text-white"
+                  className="text-white/70 hover:text-white underline decoration-white/10 hover:decoration-white/50 underline-offset-4 transition-all duration-200"
                 >
                   Experience
                 </a>
               </li>
               <li>
-                <a href="#skills" className="text-white/70 hover:text-white">
+                <a
+                  href="#skills"
+                  className="text-white/70 hover:text-white underline decoration-white/10 hover:decoration-white/50 underline-offset-4 transition-all duration-200"
+                >
                   Skills
                 </a>
               </li>
               <li>
-                <a href="#contact" className="text-white/70 hover:text-white">
+                <a
+                  href="#contact"
+                  className="text-white/70 hover:text-white underline decoration-white/10 hover:decoration-white/50 underline-offset-4 transition-all duration-200"
+                >
                   Contact
                 </a>
               </li>
