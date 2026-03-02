@@ -1,8 +1,8 @@
 "use client";
 
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useMemo, useState } from "react";
-import { Moon, Sun } from "lucide-react";
 
 export function ModeToggle() {
   const { resolvedTheme, setTheme } = useTheme();

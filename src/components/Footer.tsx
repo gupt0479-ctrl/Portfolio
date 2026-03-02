@@ -1,127 +1,91 @@
 "use client";
 
-import Link from "next/link";
+import { useEffect, useRef } from "react";
+import { Github, Linkedin, Twitter } from "lucide-react";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("animate-fade-in-up");
+        }
+      },
+      { threshold: 0.3 },
+    );
+
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <footer className="border-t border-white/10 bg-black/10 backdrop-blur-sm">
-      <div className="mx-auto max-w-6xl px-6 py-8">
-        <div className="grid gap-8 md:grid-cols-3">
-          <div>
-            <h3 className="font-semibold text-white">Navigate</h3>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li>
-                <a
-                  href="#projects"
-                  className="text-white/70 hover:text-white underline decoration-white/10 hover:decoration-white/50 underline-offset-4 transition-all duration-200"
-                >
-                  Projects
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#experience"
-                  className="text-white/70 hover:text-white underline decoration-white/10 hover:decoration-white/50 underline-offset-4 transition-all duration-200"
-                >
-                  Experience
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#skills"
-                  className="text-white/70 hover:text-white underline decoration-white/10 hover:decoration-white/50 underline-offset-4 transition-all duration-200"
-                >
-                  Skills
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#contact"
-                  className="text-white/70 hover:text-white underline decoration-white/10 hover:decoration-white/50 underline-offset-4 transition-all duration-200"
-                >
-                  Contact
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold text-white">Tools</h3>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li>
-                <Link href="/studio" className="text-white/70 hover:text-white">
-                  Studio (CMS)
-                </Link>
-              </li>
-              <li>
-                <a
-                  href="https://sanity.io"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-white/70 hover:text-white"
-                >
-                  Sanity
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://nextjs.org"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-white/70 hover:text-white"
-                >
-                  Next.js
-                </a>
-              </li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold text-white">Connect</h3>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li>
+    <footer
+      ref={containerRef}
+      className="w-full py-12 px-6 lg:px-8 border-t border-white/10"
+    >
+      <div className="mx-auto max-w-6xl">
+        {/* Single rounded contact card */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 mb-12">
+          <h3 className="text-xl font-semibold text-white mb-6">
+            Let&apos;s Work Together
+          </h3>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* Email */}
+            <div>
+              <p className="text-sm text-white/60 mb-2">Email</p>
+              <a
+                href="mailto:anant@example.com"
+                className="text-white hover:text-violet-400 transition-colors break-all"
+              >
+                anant@example.com
+              </a>
+            </div>
+
+            {/* Social Links */}
+            <div>
+              <p className="text-sm text-white/60 mb-2">Connect</p>
+              <div className="flex gap-3">
                 <a
                   href="https://github.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-white/70 hover:text-white"
+                  aria-label="GitHub"
+                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 hover:border-white/40 text-white/70 hover:text-white transition-colors"
                 >
-                  GitHub
+                  <Github size={18} />
                 </a>
-              </li>
-              <li>
                 <a
                   href="https://linkedin.com"
                   target="_blank"
                   rel="noreferrer"
-                  className="text-white/70 hover:text-white"
+                  aria-label="LinkedIn"
+                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 hover:border-white/40 text-white/70 hover:text-white transition-colors"
                 >
-                  LinkedIn
+                  <Linkedin size={18} />
                 </a>
-              </li>
-              <li>
                 <a
-                  href="mailto:contact@example.com"
-                  className="text-white/70 hover:text-white"
+                  href="https://twitter.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Twitter / X"
+                  className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 hover:border-white/40 text-white/70 hover:text-white transition-colors"
                 >
-                  Email
+                  <Twitter size={18} />
                 </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="mt-12 border-t border-white/10 pt-8">
-          <div className="flex flex-col items-center justify-between gap-4 text-sm text-white/60 sm:flex-row">
-            <p>&copy; {currentYear} Anant Gupta. All rights reserved.</p>
-            <div className="flex gap-6">
-              <a href="/privacy" className="hover:text-white">
-                Privacy
-              </a>
-              <a href="/terms" className="hover:text-white">
-                Terms
-              </a>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Simple copyright */}
+        <div className="text-center text-sm text-white/50">
+          <p>© {currentYear} Anant Gupta. All rights reserved.</p>
         </div>
       </div>
     </footer>
