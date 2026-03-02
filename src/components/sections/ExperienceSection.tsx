@@ -1,6 +1,6 @@
+import { ExperienceCard } from "@/components/cards/ExperienceCard";
 import { sanityFetch } from "@/sanity/lib/live";
 import { EXPERIENCE_QUERY } from "@/sanity/lib/queries";
-import { ExperienceCard } from "@/components/cards/ExperienceCard";
 import type { EXPERIENCE_QUERYResult } from "@/sanity/types";
 
 export async function ExperienceSection() {

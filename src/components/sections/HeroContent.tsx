@@ -1,11 +1,18 @@
 "use client";
 
-import Link from "next/link";
-import Image from "next/image";
 import { motion } from "motion/react";
+import Link from "next/link";
 import type { PROFILE_QUERYResult } from "@/sanity/types";
+import { ProfileImage } from "./ProfileImage";
+import { LayoutTextFlip } from "../ui/layout-text-flip";
 
 type Profile = NonNullable<PROFILE_QUERYResult>;
+
+interface SocialLink {
+  icon: string;
+  label: string;
+  url: string;
+}
 
 export function HeroContent({
   profile,
@@ -18,14 +25,22 @@ export function HeroContent({
     ? `${profile.firstName} ${profile.lastName || ""}`.trim()
     : "Anant Gupta";
 
-  const headline =
-    profile.headline ??
-    "Full-stack developer building premium web + AI experiences.";
+  const words = profile.headlineAnimatedWords?.length
+    ? (profile.headlineAnimatedWords.filter(Boolean) as string[])
+    : ["scalable systems", "AI products", "clean UIs", "fast web apps"];
+
+  // Social links - configure these with your actual URLs
+  const socials: SocialLink[] = [
+    { icon: "𝕏", label: "Twitter", url: "https://twitter.com" },
+    { icon: "⚡", label: "GitHub", url: "https://github.com" },
+    { icon: "🔗", label: "LinkedIn", url: "https://linkedin.com" },
+    { icon: "✉️", label: "Email", url: "mailto:your@email.com" },
+  ];
 
   return (
     <section
       id="home"
-      className="relative min-h-[88vh] overflow-hidden bg-transparent inset-0 flex items-center"
+      className="relative min-h-[88vh] overflow-hidden bg-transparent flex items-center"
     >
       <div className="relative mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-center px-6 py-16">
         <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
@@ -48,16 +63,18 @@ export function HeroContent({
               {name}
             </motion.h1>
 
-            <motion.p
+            <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.08 }}
-              className="mt-4 max-w-3xl text-xl leading-snug text-white/80 sm:text-2xl"
+              className="mt-4 text-xl sm:text-2xl text-white/80"
             >
-              <span className="bg-linear-to-r from-violet-300 via-sky-200 to-emerald-200 bg-clip-text text-transparent">
-                {headline}
-              </span>
-            </motion.p>
+              <LayoutTextFlip
+                text={profile.headlineStaticText || "I build"}
+                words={words}
+                duration={profile.headlineAnimationDuration || 2600}
+              />
+            </motion.div>
 
             {profile.shortBio && (
               <motion.p
@@ -70,11 +87,12 @@ export function HeroContent({
               </motion.p>
             )}
 
+            {/* CTA Buttons */}
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.14 }}
-              className="mt-9 flex flex-wrap items-center gap-3"
+              className="mt-8 flex flex-wrap items-center gap-3"
             >
               <Link
                 href="#projects"
@@ -98,6 +116,7 @@ export function HeroContent({
               )}
             </motion.div>
 
+            {/* Location & Status */}
             {(profile.location || profile.availability) && (
               <motion.div
                 initial={{ opacity: 0, y: 14 }}
@@ -119,23 +138,42 @@ export function HeroContent({
                 )}
               </motion.div>
             )}
+
+            {/* Social Links */}
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, delay: 0.2 }}
+              className="mt-8 flex gap-4"
+            >
+              {socials.map((social) => (
+                <a
+                  key={social.label}
+                  href={social.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  title={social.label}
+                  className="h-10 w-10 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 hover:border-white/40 transition"
+                >
+                  {social.icon}
+                </a>
+              ))}
+            </motion.div>
           </div>
 
+          {/* Right: Profile Image */}
           {profileImageUrl && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
+              transition={{ duration: 0.6, delay: 0.18 }}
               className="hidden lg:flex lg:justify-end"
             >
-              <div className="relative h-72 w-72 overflow-hidden rounded-2xl border border-white/10 bg-white/5 sm:h-80 sm:w-80 lg:h-96 lg:w-96">
-                <Image
-                  src={profileImageUrl}
-                  alt={`${name} profile photo`}
-                  fill
-                  className="object-cover"
-                  priority
-                  sizes="(min-width: 1024px) 384px, (min-width: 640px) 320px, 288px"
+              <div className="h-80 w-80 lg:h-96 lg:w-96">
+                <ProfileImage
+                  imageUrl={profileImageUrl}
+                  firstName={profile.firstName || ""}
+                  lastName={profile.lastName || ""}
                 />
               </div>
             </motion.div>

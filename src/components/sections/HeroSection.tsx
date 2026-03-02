@@ -5,17 +5,15 @@ import { HeroContent } from "./HeroContent";
 
 export default async function HeroSection() {
   const { data: profile } = await sanityFetch({ query: PROFILE_QUERY });
-
   if (!profile) return null;
 
   const profileImageUrl = profile.profileImage
-    ? urlFor(profile.profileImage).width(600).height(600).url()
+    ? urlFor(profile.profileImage).width(800).height(800).url()
     : null;
 
   return (
     <section className="relative min-h-svh overflow-hidden bg-transparent">
-      {/* Hero Content Overlay */}
-      <div className="relative z-10 mx-auto max-w-6xl px-6 pt-28">
+      <div className="relative z-10 mx-auto max-w-6xl px-6 pt-24 md:pt-12 w-full">
         <HeroContent profile={profile} profileImageUrl={profileImageUrl} />
       </div>
     </section>

@@ -2,8 +2,6 @@
 
 import Link from "next/link";
 import { useShowOnScroll } from "@/hooks/useShowOnScroll";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import { ModeToggle } from "@/components/DarkModeToggle";
 
 type NavItem = {
   _id: string;
@@ -42,11 +40,11 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
       `}
     >
       <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="font-semibold text-white">
+        <Link href="/" className="font-semibold text-white text-sm">
           Anant
         </Link>
 
-        <nav className="hidden md:flex gap-6 text-sm">
+        <nav className="hidden md:flex gap-8 text-sm">
           {items.map((item) =>
             item.isExternal ? (
               <a
@@ -70,15 +68,7 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
           )}
         </nav>
 
-        <div className="flex items-center gap-3">
-          <ModeToggle />
-          <SignedOut>
-            <SignInButton />
-          </SignedOut>
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
-        </div>
+        <div className="text-sm text-white/60">@2025</div>
       </div>
     </header>
   );

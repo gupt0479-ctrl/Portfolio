@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import { NextStudio } from "next-sanity/studio";
+import { useEffect } from "react";
 import config from "../../../../sanity.config";
 
 export default function StudioClient() {
