@@ -79,14 +79,14 @@ function createRing(
     for (let j = 0; j < numMinor; j++) {
       const phi = (j / numMinor) * Math.PI * 2;
 
-      let x = (majorRadius + minorRadius * Math.cos(phi)) * Math.cos(theta);
-      let y = minorRadius * Math.sin(phi);
-      let z = (majorRadius + minorRadius * Math.cos(phi)) * Math.sin(theta);
+      const x = (majorRadius + minorRadius * Math.cos(phi)) * Math.cos(theta);
+      const y = minorRadius * Math.sin(phi);
+      const z = (majorRadius + minorRadius * Math.cos(phi)) * Math.sin(theta);
 
       let y2 = y * Math.cos(tiltX) - z * Math.sin(tiltX);
-      let z2 = y * Math.sin(tiltX) + z * Math.cos(tiltX);
+      const z2 = y * Math.sin(tiltX) + z * Math.cos(tiltX);
 
-      let x2 = x * Math.cos(tiltZ) - y2 * Math.sin(tiltZ);
+      const x2 = x * Math.cos(tiltZ) - y2 * Math.sin(tiltZ);
       y2 = x * Math.sin(tiltZ) + y2 * Math.cos(tiltZ);
 
       points.push([x2, y2, z2]);
@@ -135,7 +135,7 @@ function Graph({ config }: { config: GraphConfig }) {
   const exploded = useRef(false);
   const explosionTimer = useRef(0);
 
-  const { viewport, camera } = useThree();
+  const { camera } = useThree();
 
   const pointTexture = useMemo(() => createPointSprite(), []);
 
@@ -406,8 +406,8 @@ function Graph({ config }: { config: GraphConfig }) {
     let pz = pointerWorldPos.current.z;
 
     if (!pointerActive.current) {
-      px *= Math.pow(releaseProgress, 0.6);
-      py *= Math.pow(releaseProgress, 0.6);
+      px *= releaseProgress ** 0.6;
+      py *= releaseProgress ** 0.6;
       pz = THREE.MathUtils.lerp(pz, -10, 1 - releaseProgress);
     }
 
