@@ -1,60 +1,52 @@
 import {
-  AsteriskIcon,
+  BellIcon,
   BookIcon,
+  BulbOutlineIcon,
   CaseIcon,
-  CogIcon,
+  CheckmarkCircleIcon,
   CommentIcon,
-  ComposeIcon,
+  ControlsIcon,
   DocumentIcon,
-  DocumentsIcon,
-  InlineIcon,
-  ProjectsIcon,
+  MasterDetailIcon,
   RocketIcon,
+  SquareIcon,
   StarIcon,
   UserIcon,
 } from "@sanity/icons";
 import type { StructureResolver } from "sanity/structure";
 
-// https://www.sanity.io/docs/structure-builder-cheat-sheet
 export const structure: StructureResolver = (S) =>
   S.list()
-    .title("Portfolio Content")
+    .title("Content")
     .items([
-      // Profile (Singleton)
       S.listItem()
         .title("Profile")
         .icon(UserIcon)
         .child(
           S.document().schemaType("profile").documentId("singleton-profile"),
         ),
-
       S.divider(),
 
-      // Portfolio Section
       S.listItem()
         .title("Portfolio")
         .icon(RocketIcon)
         .child(
           S.list()
-            .title("Portfolio Content")
+            .title("Portfolio")
             .items([
-              S.listItem()
+              S.documentTypeListItem("project")
                 .title("Projects")
-                .icon(ProjectsIcon)
-                .schemaType("project")
-                .child(S.documentTypeList("project").title("Projects")),
-
-              S.listItem()
+                .icon(BulbOutlineIcon),
+              S.documentTypeListItem("skill")
                 .title("Skills")
-                .icon(AsteriskIcon)
-                .schemaType("skill")
-                .child(S.documentTypeList("skill").title("Skills")),
+                .icon(ControlsIcon),
+              S.documentTypeListItem("service")
+                .title("Services")
+                .icon(SquareIcon),
             ]),
         ),
-
       S.divider(),
 
-      // Professional Background
       S.listItem()
         .title("Professional Background")
         .icon(CaseIcon)
@@ -62,112 +54,76 @@ export const structure: StructureResolver = (S) =>
           S.list()
             .title("Professional Background")
             .items([
-              S.listItem()
+              S.documentTypeListItem("experience")
                 .title("Work Experience")
-                .icon(CaseIcon)
-                .schemaType("experience")
-                .child(
-                  S.documentTypeList("experience").title("Work Experience"),
-                ),
-
-              S.listItem()
+                .icon(CaseIcon),
+              S.documentTypeListItem("education")
                 .title("Education")
-                .icon(BookIcon)
-                .schemaType("education")
-                .child(S.documentTypeList("education").title("Education")),
-
-              S.listItem()
+                .icon(BookIcon),
+              S.documentTypeListItem("certification")
                 .title("Certifications")
-                .icon(DocumentIcon)
-                .schemaType("certification")
-                .child(
-                  S.documentTypeList("certification").title("Certifications"),
-                ),
-
-              S.listItem()
-                .title("Achievements & Awards")
-                .icon(StarIcon)
-                .schemaType("achievement")
-                .child(
-                  S.documentTypeList("achievement").title(
-                    "Achievements & Awards",
-                  ),
-                ),
+                .icon(CheckmarkCircleIcon),
+              S.documentTypeListItem("achievement")
+                .title("Achievements")
+                .icon(StarIcon),
             ]),
         ),
-
       S.divider(),
 
-      // Content & Community
       S.listItem()
         .title("Content & Community")
-        .icon(DocumentsIcon)
+        .icon(DocumentIcon)
         .child(
           S.list()
             .title("Content & Community")
             .items([
-              S.listItem()
-                .title("Blog Posts")
-                .icon(ComposeIcon)
-                .schemaType("blog")
-                .child(S.documentTypeList("blog").title("Blog Posts")),
-
-              S.listItem()
+              S.documentTypeListItem("testimonial")
                 .title("Testimonials")
-                .icon(CommentIcon)
-                .schemaType("testimonial")
-                .child(S.documentTypeList("testimonial").title("Testimonials")),
+                .icon(CommentIcon),
+              S.documentTypeListItem("blog")
+                .title("Blog Posts")
+                .icon(DocumentIcon),
             ]),
         ),
-
       S.divider(),
 
-      // Contact Form Submissions
       S.listItem()
         .title("Contact Form Submissions")
-        .icon(InlineIcon)
+        .icon(MasterDetailIcon)
         .child(
           S.list()
             .title("Contact Form Submissions")
             .items([
               S.listItem()
                 .title("New Submissions")
-                .icon(InlineIcon)
+                .icon(BellIcon)
                 .child(
-                  S.documentTypeList("contact")
+                  S.documentList()
                     .title("New Submissions")
                     .filter('_type == "contact" && status == "new"'),
                 ),
-
               S.listItem()
                 .title("Archived")
-                .icon(InlineIcon)
+                .icon(CheckmarkCircleIcon)
                 .child(
-                  S.documentTypeList("contact")
-                    .title("Archived Submissions")
+                  S.documentList()
+                    .title("Archived")
                     .filter('_type == "contact" && status == "archived"'),
                 ),
             ]),
         ),
-
       S.divider(),
 
-      // Navigation
-      S.listItem()
-        .title("Navigation Links")
-        .icon(DocumentsIcon)
-        .schemaType("navigation")
-        .child(S.documentTypeList("navigation").title("Navigation Links")),
-
-      S.divider(),
-
-      // Site Settings (Singleton)
       S.listItem()
         .title("Site Settings")
-        .icon(CogIcon)
+        .icon(ControlsIcon)
         .child(
           S.document()
             .schemaType("siteSettings")
-            .documentId("singleton-siteSettings"),
+            .documentId("singleton-site-settings"),
         ),
+
+      S.documentTypeListItem("navigation")
+        .title("Navigation Links")
+        .icon(MasterDetailIcon),
     ]);

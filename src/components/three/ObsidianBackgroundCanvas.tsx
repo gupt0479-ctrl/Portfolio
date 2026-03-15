@@ -4,338 +4,317 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
-type GraphConfig = {
-  planetCount?: number;
-  ringCount?: number;
-  starCount?: number;
-  planetLinkRadius?: number;
-  attractRadius?: number;
-  attractStrengthPlanet?: number;
-  attractStrengthRing?: number;
-  baseDrift?: number;
-};
+// ═══════════════════════════════════════════════════════════════════════════════
+// TUNING CONSTANTS — edit these to dial in the feel
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Counts
+const PLANET_COUNT = 2800;
+const RING_COUNT = 2000; // actual count = floor(RING_COUNT/16)*16
+const STAR_COUNT = 5500;
+
+// Geometry
+const PLANET_RADIUS = 0.8;
+const RING_MAJOR_RADIUS = 2.6;
+const RING_MINOR_RADIUS = 0.5;
+
+// Planet edges — smaller = fewer lines, lower overdraw
+const PLANET_LINK_RADIUS = 0.27; // chord distance for edge creation
+const MAX_EDGES_PER_POINT = 3; // hard cap per point
+const MAX_LINE_DIST = 0.42; // hide segment if endpoints drift beyond this
+
+// Hover magnet
+const ATTRACT_RADIUS = 2.0;
+const ATTRACT_STR_PLANET = 0.055; // was 0.18 — reduced
+const ATTRACT_STR_RING = 0.035;
+const TANGENTIAL_BLEND = 0.82; // 1 = fully tangential, 0 = radial pull
+const MAX_DISPLACE = 0.2; // hard cap on displacement from rest position
+
+// Click burst
+const BURST_STRENGTH = 0.2;
+const BURST_DURATION = 1.8; // seconds
+const BURST_SHELL_MAX = PLANET_RADIUS * 1.12;
+
+// Spring / damping
+const SPRING_K = 0.09;
+const DAMPING = 0.91;
+const BASE_DRIFT = 0.005;
+
+// Camera — scroll start → end
+const CAM_START: [number, number, number] = [3.5, 2.8, 5.2];
+const CAM_END: [number, number, number] = [0.5, 0.3, 3.1]; // z raised from 2.0 → 3.1
+
+// Line opacities — (rest, max-scroll) × fade-during-burst
+const PLINE_OP_LOW = 0.055;
+const PLINE_OP_HIGH = 0.12;
+const RLINE_OP_LOW = 0.025;
+const RLINE_OP_HIGH = 0.06;
+
+// Colors — muted lavender / gray-violet
+const COL_PLANET = "#9D8BBF";
+const COL_RING = "#8A7AAE";
+const COL_PLINE = "#8A7AAE";
+const COL_RLINE = "#8A7AAE";
+const COL_STAR = "#C8C2DC";
+
+// ═══════════════════════════════════════════════════════════════════════════════
 
 function clamp01(x: number) {
   return Math.max(0, Math.min(1, x));
 }
 
 function createPointSprite(): THREE.CanvasTexture {
-  const canvas = document.createElement("canvas");
-  canvas.width = 64;
-  canvas.height = 64;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("Could not get canvas context");
-
+  const c = document.createElement("canvas");
+  c.width = 64;
+  c.height = 64;
+  const ctx = c.getContext("2d")!;
   ctx.fillStyle = "rgba(0,0,0,0)";
   ctx.fillRect(0, 0, 64, 64);
-
-  const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-  gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-  gradient.addColorStop(0.5, "rgba(255, 255, 255, 0.8)");
-  gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
-
-  ctx.fillStyle = gradient;
+  const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.4, "rgba(255,255,255,0.65)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
   ctx.fillRect(0, 0, 64, 64);
-
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.magFilter = THREE.LinearFilter;
-  texture.minFilter = THREE.LinearFilter;
-  return texture;
+  const tex = new THREE.CanvasTexture(c);
+  tex.magFilter = THREE.LinearFilter;
+  tex.minFilter = THREE.LinearFilter;
+  return tex;
 }
 
-function fibonacciSphere(N: number, radius: number) {
-  const points = [];
-  const golden_angle = Math.PI * (3 - Math.sqrt(5));
-
+function fibonacciSphere(N: number, radius: number): number[][] {
+  const pts: number[][] = [];
+  const ga = Math.PI * (3 - Math.sqrt(5));
   for (let i = 0; i < N; i++) {
     const y = ((i / (N - 1)) * 2 - 1) * radius;
-    const radiusAtY = Math.sqrt(Math.max(0, radius * radius - y * y));
-
-    const theta = golden_angle * i;
-    const x = Math.cos(theta) * radiusAtY;
-    const z = Math.sin(theta) * radiusAtY;
-
-    const noise =
-      (Math.sin(theta * 3) * 0.02 + Math.cos(theta * 5) * 0.015) * radius;
-    points.push([x + noise * 0.3, y, z + noise * 0.3]);
+    const r = Math.sqrt(Math.max(0, radius * radius - y * y));
+    const th = ga * i;
+    const x = Math.cos(th) * r;
+    const z = Math.sin(th) * r;
+    const n = (Math.sin(th * 3) * 0.02 + Math.cos(th * 5) * 0.015) * radius;
+    pts.push([x + n * 0.3, y, z + n * 0.3]);
   }
-
-  return points;
+  return pts;
 }
 
 function createRing(
-  majorRadius: number,
-  minorRadius: number,
-  numMajor: number,
-  numMinor: number,
+  major: number,
+  minor: number,
+  nMajor: number,
+  nMinor: number,
   tiltX: number,
   tiltZ: number,
-) {
-  const points = [];
-
-  for (let i = 0; i < numMajor; i++) {
-    const theta = (i / numMajor) * Math.PI * 2;
-
-    for (let j = 0; j < numMinor; j++) {
-      const phi = (j / numMinor) * Math.PI * 2;
-
-      const x = (majorRadius + minorRadius * Math.cos(phi)) * Math.cos(theta);
-      const y = minorRadius * Math.sin(phi);
-      const z = (majorRadius + minorRadius * Math.cos(phi)) * Math.sin(theta);
-
+): number[][] {
+  const pts: number[][] = [];
+  for (let i = 0; i < nMajor; i++) {
+    const th = (i / nMajor) * Math.PI * 2;
+    for (let j = 0; j < nMinor; j++) {
+      const ph = (j / nMinor) * Math.PI * 2;
+      const x = (major + minor * Math.cos(ph)) * Math.cos(th);
+      const y = minor * Math.sin(ph);
+      const z = (major + minor * Math.cos(ph)) * Math.sin(th);
       let y2 = y * Math.cos(tiltX) - z * Math.sin(tiltX);
       const z2 = y * Math.sin(tiltX) + z * Math.cos(tiltX);
-
       const x2 = x * Math.cos(tiltZ) - y2 * Math.sin(tiltZ);
       y2 = x * Math.sin(tiltZ) + y2 * Math.cos(tiltZ);
-
-      points.push([x2, y2, z2]);
+      pts.push([x2, y2, z2]);
     }
   }
-
-  return points;
+  return pts;
 }
 
-function createStars(N: number, volume: number = 30) {
-  const points = [];
+function createStars(N: number, vol = 30): number[][] {
+  const pts: number[][] = [];
   for (let i = 0; i < N; i++) {
-    const x = (Math.random() - 0.5) * volume;
-    const y = (Math.random() - 0.5) * volume;
-    const z = (Math.random() - 0.5) * volume - 10;
-    points.push([x, y, z]);
+    pts.push([
+      (Math.random() - 0.5) * vol,
+      (Math.random() - 0.5) * vol,
+      (Math.random() - 0.5) * vol - 10,
+    ]);
   }
-  return points;
+  return pts;
 }
 
-function Graph({ config }: { config: GraphConfig }) {
-  const {
-    planetCount = 3000,
-    ringCount = 2400,
-    starCount = 5000,
-    planetLinkRadius = 0.32,
-    attractRadius = 2.2,
-    attractStrengthPlanet = 0.18,
-    attractStrengthRing = 0.1,
-    baseDrift = 0.006,
-  } = config;
+// ─── Graph ──────────────────────────────────────────────────────────────────
 
+function Graph() {
   const planetPointsRef = useRef<THREE.Points>(null);
   const ringPointsRef = useRef<THREE.Points>(null);
   const starPointsRef = useRef<THREE.Points>(null);
-  const planetGlowRef = useRef<THREE.Points>(null);
   const planetLinesRef = useRef<THREE.LineSegments>(null);
   const ringLinesRef = useRef<THREE.LineSegments>(null);
+  const iMeshRef = useRef<THREE.Mesh>(null);
 
-  const pointer = useRef(new THREE.Vector2(0, 0));
-  const pointerWorldPos = useRef(new THREE.Vector3(0, 0, -10));
-  const pointerActive = useRef(true);
+  const pointerWorld = useRef(new THREE.Vector3(0, 0, -10));
+  const pointerActive = useRef(false);
   const releaseTimer = useRef(0);
   const scroll01 = useRef(0);
-
-  const exploded = useRef(false);
-  const explosionTimer = useRef(0);
+  const burstTimer = useRef(-1);
+  const burstActive = useRef(false);
 
   const { camera } = useThree();
+  const pointTex = useMemo(() => createPointSprite(), []);
 
-  const pointTexture = useMemo(() => createPointSprite(), []);
+  // ── Precompute all per-point constants once ────────────────────────────────
+  const data = useMemo(() => {
+    // Planet
+    const pPts = fibonacciSphere(PLANET_COUNT, PLANET_RADIUS);
+    const pPos0 = new Float32Array(PLANET_COUNT * 3);
+    const pPos = new Float32Array(PLANET_COUNT * 3);
+    const pVel = new Float32Array(PLANET_COUNT * 3);
+    const pNorm = new Float32Array(PLANET_COUNT * 3);
+    const pPhase = new Float32Array(PLANET_COUNT);
 
-  const {
-    planetPositions0,
-    planetPositions,
-    planetVelocities,
-    planetNormals,
-    ringPositions0,
-    ringPositions,
-    ringVelocities,
-    ringAngles0,
-    starPositions,
-    planetEdges,
-    ringEdges,
-  } = useMemo(() => {
-    // PLANET
-    const planetPts = fibonacciSphere(planetCount, 0.8);
-    const planetPositions0 = new Float32Array(planetCount * 3);
-    const planetPositions = new Float32Array(planetCount * 3);
-    const planetVelocities = new Float32Array(planetCount * 3);
-    const planetNormals = new Float32Array(planetCount * 3);
-
-    for (let i = 0; i < planetCount; i++) {
-      planetPositions0[i * 3] = planetPts[i][0];
-      planetPositions0[i * 3 + 1] = planetPts[i][1];
-      planetPositions0[i * 3 + 2] = planetPts[i][2];
-      planetPositions[i * 3] = planetPts[i][0];
-      planetPositions[i * 3 + 1] = planetPts[i][1];
-      planetPositions[i * 3 + 2] = planetPts[i][2];
-
-      const nx = planetPts[i][0];
-      const ny = planetPts[i][1];
-      const nz = planetPts[i][2];
-      const len = Math.sqrt(nx * nx + ny * ny + nz * nz) || 1;
-      planetNormals[i * 3] = nx / len;
-      planetNormals[i * 3 + 1] = ny / len;
-      planetNormals[i * 3 + 2] = nz / len;
+    for (let i = 0; i < PLANET_COUNT; i++) {
+      const i3 = i * 3;
+      pPos0[i3] = pPos[i3] = pPts[i][0];
+      pPos0[i3 + 1] = pPos[i3 + 1] = pPts[i][1];
+      pPos0[i3 + 2] = pPos[i3 + 2] = pPts[i][2];
+      const len =
+        Math.sqrt(pPts[i][0] ** 2 + pPts[i][1] ** 2 + pPts[i][2] ** 2) || 1;
+      pNorm[i3] = pPts[i][0] / len;
+      pNorm[i3 + 1] = pPts[i][1] / len;
+      pNorm[i3 + 2] = pPts[i][2] / len;
+      pPhase[i] = (i / PLANET_COUNT) * Math.PI * 2;
     }
 
-    // Planet edges
-    const planetLinks: number[] = [];
-    for (let i = 0; i < planetCount; i++) {
-      const ix = planetPositions0[i * 3];
-      const iy = planetPositions0[i * 3 + 1];
-      const iz = planetPositions0[i * 3 + 2];
-
-      const candidates: { j: number; d2: number }[] = [];
-      for (let j = i + 1; j < planetCount; j++) {
-        const jx = planetPositions0[j * 3];
-        const jy = planetPositions0[j * 3 + 1];
-        const jz = planetPositions0[j * 3 + 2];
-        const dx = ix - jx;
-        const dy = iy - jy;
-        const dz = iz - jz;
-        const d2 = dx * dx + dy * dy + dz * dz;
-        if (d2 <= planetLinkRadius * planetLinkRadius) {
-          candidates.push({ j, d2 });
+    // Planet edges — capped at MAX_EDGES_PER_POINT
+    const pLinks: number[] = [];
+    for (let i = 0; i < PLANET_COUNT; i++) {
+      const i3 = i * 3;
+      const ix = pPos0[i3];
+      const iy = pPos0[i3 + 1];
+      const iz = pPos0[i3 + 2];
+      let taken = 0;
+      for (
+        let j = i + 1;
+        j < PLANET_COUNT && taken < MAX_EDGES_PER_POINT;
+        j++
+      ) {
+        const j3 = j * 3;
+        const dx = ix - pPos0[j3];
+        const dy = iy - pPos0[j3 + 1];
+        const dz = iz - pPos0[j3 + 2];
+        if (
+          dx * dx + dy * dy + dz * dz <=
+          PLANET_LINK_RADIUS * PLANET_LINK_RADIUS
+        ) {
+          pLinks.push(i, j);
+          taken++;
         }
       }
-      candidates.sort((a, b) => a.d2 - b.d2);
-      const take = Math.min(4, candidates.length);
-      for (let k = 0; k < take; k++) {
-        planetLinks.push(i, candidates[k].j);
-      }
     }
 
-    // RING
-    const ringPts = createRing(
-      2.6,
-      0.5,
-      150,
-      16,
+    // Ring
+    const nMajor = Math.floor(RING_COUNT / 16);
+    const nMinor = 16;
+    const rPts = createRing(
+      RING_MAJOR_RADIUS,
+      RING_MINOR_RADIUS,
+      nMajor,
+      nMinor,
       Math.PI * 0.3,
       Math.PI * 0.12,
     );
-    const ringPositions0 = new Float32Array(ringCount * 3);
-    const ringPositions = new Float32Array(ringCount * 3);
-    const ringVelocities = new Float32Array(ringCount * 3);
-    const ringAngles0 = new Float32Array(ringCount);
+    const rc = Math.min(RING_COUNT, rPts.length);
+    const rPos0 = new Float32Array(rc * 3);
+    const rPos = new Float32Array(rc * 3);
+    const rVel = new Float32Array(rc * 3);
+    const rAngle = new Float32Array(rc);
 
-    for (let i = 0; i < ringCount; i++) {
-      ringPositions0[i * 3] = ringPts[i][0];
-      ringPositions0[i * 3 + 1] = ringPts[i][1];
-      ringPositions0[i * 3 + 2] = ringPts[i][2];
-      ringPositions[i * 3] = ringPts[i][0];
-      ringPositions[i * 3 + 1] = ringPts[i][1];
-      ringPositions[i * 3 + 2] = ringPts[i][2];
-
-      ringAngles0[i] = Math.atan2(ringPts[i][2], ringPts[i][0]);
+    for (let i = 0; i < rc; i++) {
+      const i3 = i * 3;
+      rPos0[i3] = rPos[i3] = rPts[i][0];
+      rPos0[i3 + 1] = rPos[i3 + 1] = rPts[i][1];
+      rPos0[i3 + 2] = rPos[i3 + 2] = rPts[i][2];
+      rAngle[i] = Math.atan2(rPts[i][2], rPts[i][0]);
     }
 
-    // Ring edges: sparse, mostly boundary only
-    const ringLinks: number[] = [];
-    const numMajor = 150;
-    const numMinor = 16;
-    const innerEdgeIdx: number[] = [];
-    const outerEdgeIdx: number[] = [];
-
-    for (let i = 0; i < numMajor; i++) {
-      innerEdgeIdx.push(i * numMinor);
-      outerEdgeIdx.push(i * numMinor + (numMinor - 1));
+    // Ring edges — inner + outer loops + sparse spokes
+    const rLinks: number[] = [];
+    for (let i = 0; i < nMajor; i++) {
+      const next = (i + 1) % nMajor;
+      rLinks.push(i * nMinor, next * nMinor);
+      rLinks.push(i * nMinor + nMinor - 1, next * nMinor + nMinor - 1);
+    }
+    for (let i = 0; i < nMajor; i += 16) {
+      rLinks.push(i * nMinor, i * nMinor + nMinor - 1);
     }
 
-    for (let i = 0; i < innerEdgeIdx.length - 1; i++) {
-      ringLinks.push(innerEdgeIdx[i], innerEdgeIdx[i + 1]);
-    }
-    ringLinks.push(innerEdgeIdx[innerEdgeIdx.length - 1], innerEdgeIdx[0]);
-
-    for (let i = 0; i < outerEdgeIdx.length - 1; i++) {
-      ringLinks.push(outerEdgeIdx[i], outerEdgeIdx[i + 1]);
-    }
-    ringLinks.push(outerEdgeIdx[outerEdgeIdx.length - 1], outerEdgeIdx[0]);
-
-    for (let i = 0; i < numMajor; i += 10) {
-      ringLinks.push(innerEdgeIdx[i], outerEdgeIdx[i]);
-    }
-
-    // STARS
-    const starPts = createStars(starCount);
-    const starPositions = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount; i++) {
-      starPositions[i * 3] = starPts[i][0];
-      starPositions[i * 3 + 1] = starPts[i][1];
-      starPositions[i * 3 + 2] = starPts[i][2];
+    // Stars
+    const sPts = createStars(STAR_COUNT);
+    const sPos = new Float32Array(STAR_COUNT * 3);
+    for (let i = 0; i < STAR_COUNT; i++) {
+      sPos[i * 3] = sPts[i][0];
+      sPos[i * 3 + 1] = sPts[i][1];
+      sPos[i * 3 + 2] = sPts[i][2];
     }
 
     return {
-      planetPositions0,
-      planetPositions,
-      planetVelocities,
-      planetNormals,
-      ringPositions0,
-      ringPositions,
-      ringVelocities,
-      ringAngles0,
-      starPositions,
-      planetEdges: new Uint32Array(planetLinks),
-      ringEdges: new Uint32Array(ringLinks),
+      pPos0,
+      pPos,
+      pVel,
+      pNorm,
+      pPhase,
+      rPos0,
+      rPos,
+      rVel,
+      rAngle,
+      rc,
+      sPos,
+      pEdges: new Uint32Array(pLinks),
+      rEdges: new Uint32Array(rLinks),
     };
-  }, [planetCount, ringCount, starCount, planetLinkRadius]);
+  }, []);
 
+  // ── Geometries ─────────────────────────────────────────────────────────────
   const planetGeo = useMemo(() => {
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(planetPositions, 3));
+    g.setAttribute("position", new THREE.BufferAttribute(data.pPos, 3));
     return g;
-  }, [planetPositions]);
+  }, [data.pPos]);
 
   const ringGeo = useMemo(() => {
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(ringPositions, 3));
+    g.setAttribute("position", new THREE.BufferAttribute(data.rPos, 3));
     return g;
-  }, [ringPositions]);
+  }, [data.rPos]);
 
   const starsGeo = useMemo(() => {
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(starPositions, 3));
+    g.setAttribute("position", new THREE.BufferAttribute(data.sPos, 3));
     return g;
-  }, [starPositions]);
+  }, [data.sPos]);
 
-  const planetLinesGeo = useMemo(() => {
-    const segCount = planetEdges.length / 2;
-    const linePositions = new Float32Array(segCount * 2 * 3);
+  const pLinesGeo = useMemo(() => {
+    const lp = new Float32Array((data.pEdges.length / 2) * 6);
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(linePositions, 3));
+    g.setAttribute("position", new THREE.BufferAttribute(lp, 3));
     return g;
-  }, [planetEdges]);
+  }, [data.pEdges]);
 
-  const ringLinesGeo = useMemo(() => {
-    const segCount = ringEdges.length / 2;
-    const linePositions = new Float32Array(segCount * 2 * 3);
+  const rLinesGeo = useMemo(() => {
+    const lp = new Float32Array((data.rEdges.length / 2) * 6);
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.BufferAttribute(linePositions, 3));
+    g.setAttribute("position", new THREE.BufferAttribute(lp, 3));
     return g;
-  }, [ringEdges]);
+  }, [data.rEdges]);
 
+  // ── Events ─────────────────────────────────────────────────────────────────
   useEffect(() => {
     const onMove = (e: PointerEvent) => {
-      const x = (e.clientX / window.innerWidth) * 2 - 1;
-      const y = -(e.clientY / window.innerHeight) * 2 + 1;
-      pointer.current.set(x, y);
+      const nx = (e.clientX / window.innerWidth) * 2 - 1;
+      const ny = -(e.clientY / window.innerHeight) * 2 + 1;
       pointerActive.current = true;
       releaseTimer.current = 0;
-
-      const vec = new THREE.Vector3(x, y, 0.5);
-      vec.unproject(camera);
-      const dir = vec.sub(camera.position).normalize();
-      pointerWorldPos.current.copy(camera.position).addScaledVector(dir, 5);
+      const v = new THREE.Vector3(nx, ny, 0.5).unproject(camera);
+      const d = v.sub(camera.position).normalize();
+      pointerWorld.current.copy(camera.position).addScaledVector(d, 5);
     };
-
     const onLeave = () => {
       pointerActive.current = false;
       releaseTimer.current = 0.5;
     };
-
-    const onClick = () => {
-      exploded.current = !exploded.current;
-      explosionTimer.current = 0;
-    };
-
     const onScroll = () => {
       const max = Math.max(
         1,
@@ -343,318 +322,408 @@ function Graph({ config }: { config: GraphConfig }) {
       );
       scroll01.current = clamp01(window.scrollY / max);
     };
-
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerleave", onLeave, { passive: true });
-    window.addEventListener("click", onClick, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
     onScroll();
-
     return () => {
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerleave", onLeave);
-      window.removeEventListener("click", onClick);
       window.removeEventListener("scroll", onScroll);
     };
   }, [camera]);
 
+  // Click handler — mesh only, stops propagation so UI buttons are not affected
+  const handleClick = (e: { stopPropagation: () => void }) => {
+    e.stopPropagation();
+    burstActive.current = true;
+    burstTimer.current = 0;
+  };
+
+  // ── useFrame — no allocations ───────────────────────────────────────────────
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
+    const dt = Math.min(state.clock.getDelta(), 0.05);
     const s = scroll01.current;
-    const dt = state.clock.getDelta();
 
+    // Release fade
     if (!pointerActive.current && releaseTimer.current > 0) {
-      releaseTimer.current -= dt;
+      releaseTimer.current = Math.max(0, releaseTimer.current - dt);
     }
-    const releaseProgress = Math.max(
-      0,
-      Math.min(1, releaseTimer.current / 0.5),
-    );
+    const relF = pointerActive.current
+      ? 1.0
+      : clamp01(releaseTimer.current / 0.5);
 
-    if (exploded.current) {
-      explosionTimer.current += dt;
+    // Burst progress
+    let burstP = 0;
+    if (burstActive.current) {
+      burstTimer.current =
+        (burstTimer.current < 0 ? 0 : burstTimer.current) + dt;
+      burstP = Math.min(1, burstTimer.current / BURST_DURATION);
+      if (burstP >= 1) {
+        burstActive.current = false;
+        burstTimer.current = -1;
+        burstP = 0;
+      }
     }
-    const explosionProgress = Math.min(1, explosionTimer.current / 2.0);
-    if (explosionProgress >= 1) {
-      exploded.current = false;
-    }
 
-    const easeS = s < 0.3 ? 2 * s * s : -1 + (4 - 2 * s) * s;
+    // Scroll ease
+    const easeS = s < 0.5 ? 2 * s * s : -1 + (4 - 2 * s) * s;
 
-    camera.position.x = THREE.MathUtils.lerp(3.5, 0.2, easeS);
-    camera.position.y = THREE.MathUtils.lerp(2.8, 0.1, easeS);
-    camera.position.z = THREE.MathUtils.lerp(5.2, 2.0, easeS);
+    // Camera
+    camera.position.x = THREE.MathUtils.lerp(CAM_START[0], CAM_END[0], easeS);
+    camera.position.y = THREE.MathUtils.lerp(CAM_START[1], CAM_END[1], easeS);
+    camera.position.z = THREE.MathUtils.lerp(CAM_START[2], CAM_END[2], easeS);
     camera.lookAt(0, 0, 0);
 
-    if (planetGlowRef.current) {
-      const mat = planetGlowRef.current.material as THREE.PointsMaterial;
-      mat.size = 0.028 + Math.sin(t * 1.8) * 0.01;
-      mat.opacity = 0.1 + Math.sin(t * 1.3) * 0.05;
-    }
-
+    // Line opacity — fades mid-burst
+    const burstFade = burstActive.current
+      ? 1 - Math.sin(clamp01(burstP) * Math.PI) * 0.55
+      : 1;
     if (planetLinesRef.current) {
-      const mat = planetLinesRef.current.material as THREE.LineBasicMaterial;
-      mat.opacity = THREE.MathUtils.lerp(0.1, 0.4, easeS);
+      (planetLinesRef.current.material as THREE.LineBasicMaterial).opacity =
+        THREE.MathUtils.lerp(PLINE_OP_LOW, PLINE_OP_HIGH, easeS) * burstFade;
     }
     if (ringLinesRef.current) {
-      const mat = ringLinesRef.current.material as THREE.LineBasicMaterial;
-      mat.opacity = THREE.MathUtils.lerp(0.05, 0.2, easeS);
+      (ringLinesRef.current.material as THREE.LineBasicMaterial).opacity =
+        THREE.MathUtils.lerp(RLINE_OP_LOW, RLINE_OP_HIGH, easeS) * burstFade;
     }
 
-    let px = pointerWorldPos.current.x;
-    let py = pointerWorldPos.current.y;
-    let pz = pointerWorldPos.current.z;
-
-    if (!pointerActive.current) {
-      px *= releaseProgress ** 0.6;
-      py *= releaseProgress ** 0.6;
-      pz = THREE.MathUtils.lerp(pz, -10, 1 - releaseProgress);
+    // Star subtle global twinkle based on hover presence
+    if (starPointsRef.current) {
+      const mat = starPointsRef.current.material as THREE.PointsMaterial;
+      const twinkle = Math.sin(t * 0.7) * 0.04;
+      mat.opacity = 0.38 + twinkle + relF * 0.06;
     }
 
-    const drift = baseDrift * (1 + easeS * 0.5);
-    const springK = 0.08;
-    const damping = 0.92;
+    // Effective pointer world (fades when released)
+    const pw = pointerWorld.current;
+    const px = pw.x * relF;
+    const py = pw.y * relF;
+    const pz = pointerActive.current
+      ? pw.z
+      : THREE.MathUtils.lerp(pw.z, -10, 1 - relF);
 
-    // UPDATE PLANET
-    for (let i = 0; i < planetPositions.length / 3; i++) {
-      const idx = i * 3;
-      const x0 = planetPositions0[idx];
-      const y0 = planetPositions0[idx + 1];
-      const z0 = planetPositions0[idx + 2];
+    const drift = BASE_DRIFT * (1 + easeS * 0.35);
+    const ar2 = ATTRACT_RADIUS * ATTRACT_RADIUS;
+    const md2 = MAX_DISPLACE * MAX_DISPLACE;
+    const shell2 = BURST_SHELL_MAX * BURST_SHELL_MAX;
 
-      let x = planetPositions[idx];
-      let y = planetPositions[idx + 1];
-      let z = planetPositions[idx + 2];
+    const {
+      pPos0,
+      pPos,
+      pVel,
+      pNorm,
+      pPhase,
+      pEdges,
+      rPos0,
+      rPos,
+      rVel,
+      rAngle,
+      rc,
+      rEdges,
+    } = data;
 
-      let vx = planetVelocities[idx];
-      let vy = planetVelocities[idx + 1];
-      let vz = planetVelocities[idx + 2];
+    // ── Planet ──────────────────────────────────────────────────────────────
+    for (let i = 0; i < PLANET_COUNT; i++) {
+      const i3 = i * 3;
+      const x0 = pPos0[i3];
+      const y0 = pPos0[i3 + 1];
+      const z0 = pPos0[i3 + 2];
+      let x = pPos[i3];
+      let y = pPos[i3 + 1];
+      let z = pPos[i3 + 2];
+      let vx = pVel[i3];
+      let vy = pVel[i3 + 1];
+      let vz = pVel[i3 + 2];
 
-      const nx = Math.sin(t * 0.4 + x0 * 3) * drift;
-      const ny = Math.cos(t * 0.35 + y0 * 2.8) * drift;
+      // Gentle drift
+      vx += Math.sin(t * 0.4 + x0 * 3.0) * drift;
+      vy += Math.cos(t * 0.35 + y0 * 2.8) * drift;
 
-      if (exploded.current) {
-        const nX = planetNormals[idx];
-        const nY = planetNormals[idx + 1];
-        const nZ = planetNormals[idx + 2];
-        const explosionStr = 1.5 * (1 - explosionProgress);
-        vx += nX * explosionStr;
-        vy += nY * explosionStr;
-        vz += nZ * explosionStr;
+      // Hover magnet — tangential biased to prevent silhouette collapse
+      if (relF > 0.01) {
+        const dx = px - x;
+        const dy = py - y;
+        const dz = pz - z;
+        const d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 < ar2) {
+          const falloff = 1 - d2 / ar2;
+          const str = ATTRACT_STR_PLANET * falloff * relF;
+          const nx = pNorm[i3];
+          const ny = pNorm[i3 + 1];
+          const nz = pNorm[i3 + 2];
+          const radComp = dx * nx + dy * ny + dz * nz; // radial projection
+          const tax = dx - radComp * nx;
+          const tay = dy - radComp * ny;
+          const taz = dz - radComp * nz;
+          const tb = TANGENTIAL_BLEND;
+          vx += (tax * tb + dx * (1 - tb)) * str;
+          vy += (tay * tb + dy * (1 - tb)) * str;
+          vz += (taz * tb + dz * (1 - tb)) * str;
+        }
       }
 
-      const dx = px - x;
-      const dy = py - y;
-      const dz = pz - z;
-      const d2 = dx * dx + dy * dy + dz * dz;
-      const r2 = attractRadius * attractRadius;
-      if (d2 < r2 && pointerActive.current) {
-        const falloff = 1 - d2 / r2;
-        const attractStr = attractStrengthPlanet * falloff;
-        vx += dx * attractStr;
-        vy += dy * attractStr;
-        vz += dz * attractStr;
+      // Click burst — deterministic ripple wave along normal
+      if (burstActive.current && burstP > 0) {
+        const wave = Math.sin(pPhase[i] - burstP * Math.PI * 4) * (1 - burstP);
+        const bStr = BURST_STRENGTH * wave;
+        vx += pNorm[i3] * bStr;
+        vy += pNorm[i3 + 1] * bStr;
+        vz += pNorm[i3 + 2] * bStr;
       }
 
-      const dx0 = x0 * (1 - easeS * 0.05) - x;
-      const dy0 = y0 * (1 - easeS * 0.05) - y;
-      const dz0 = z0 * (1 - easeS * 0.05) - z;
-      vx += dx0 * springK + nx;
-      vy += dy0 * springK + ny;
-      vz += dz0 * springK;
+      // Spring back to rest
+      vx += (x0 - x) * SPRING_K;
+      vy += (y0 - y) * SPRING_K;
+      vz += (z0 - z) * SPRING_K;
 
-      vx *= damping;
-      vy *= damping;
-      vz *= damping;
+      vx *= DAMPING;
+      vy *= DAMPING;
+      vz *= DAMPING;
 
       x += vx;
       y += vy;
       z += vz;
 
-      planetPositions[idx] = x;
-      planetPositions[idx + 1] = y;
-      planetPositions[idx + 2] = z;
-      planetVelocities[idx] = vx;
-      planetVelocities[idx + 1] = vy;
-      planetVelocities[idx + 2] = vz;
-    }
-
-    const planetPAttr = planetGeo.getAttribute(
-      "position",
-    ) as THREE.BufferAttribute;
-    planetPAttr.needsUpdate = true;
-
-    const planetLAttr = planetLinesGeo.getAttribute(
-      "position",
-    ) as THREE.BufferAttribute;
-    const planetLinePos = planetLAttr.array as Float32Array;
-    for (let e = 0; e < planetEdges.length; e += 2) {
-      const a = planetEdges[e];
-      const b = planetEdges[e + 1];
-      const a3 = a * 3;
-      const b3 = b * 3;
-      const v = (e / 2) * 6;
-      planetLinePos[v] = planetPositions[a3];
-      planetLinePos[v + 1] = planetPositions[a3 + 1];
-      planetLinePos[v + 2] = planetPositions[a3 + 2];
-      planetLinePos[v + 3] = planetPositions[b3];
-      planetLinePos[v + 4] = planetPositions[b3 + 1];
-      planetLinePos[v + 5] = planetPositions[b3 + 2];
-    }
-    planetLAttr.needsUpdate = true;
-
-    // UPDATE RING
-    for (let i = 0; i < ringPositions.length / 3; i++) {
-      const idx = i * 3;
-      const x0 = ringPositions0[idx];
-      const y0 = ringPositions0[idx + 1];
-      const z0 = ringPositions0[idx + 2];
-
-      let x = ringPositions[idx];
-      let y = ringPositions[idx + 1];
-      let z = ringPositions[idx + 2];
-
-      let vx = ringVelocities[idx];
-      let vy = ringVelocities[idx + 1];
-      let vz = ringVelocities[idx + 2];
-
-      const angle = ringAngles0[i] + t * 0.08;
-      const orbitalRadius = Math.sqrt(x0 * x0 + z0 * z0);
-      const orbitX = Math.cos(angle) * orbitalRadius;
-      const orbitZ = Math.sin(angle) * orbitalRadius;
-
-      const wobble = Math.sin(t * 0.3 + i * 0.1) * 0.08;
-      const wobbleY = y0 + wobble;
-
-      const dx = px - x;
-      const dy = py - y;
-      const dz = pz - z;
-      const d2 = dx * dx + dy * dy + dz * dz;
-      const r2 = attractRadius * attractRadius;
-      if (d2 < r2 && pointerActive.current) {
-        const falloff = 1 - d2 / r2;
-        const attractStr = attractStrengthRing * falloff;
-        vx += dx * attractStr;
-        vy += dy * attractStr;
-        vz += dz * attractStr;
+      // ── Hard displacement clamp — prevent core collapse ──────────────────
+      const ddx = x - x0;
+      const ddy = y - y0;
+      const ddz = z - z0;
+      const disp2 = ddx * ddx + ddy * ddy + ddz * ddz;
+      if (disp2 > md2) {
+        const sc = MAX_DISPLACE / Math.sqrt(disp2);
+        x = x0 + ddx * sc;
+        y = y0 + ddy * sc;
+        z = z0 + ddz * sc;
+        vx *= 0.4;
+        vy *= 0.4;
+        vz *= 0.4;
       }
 
-      vx += (orbitX - x) * springK * 0.6;
-      vy += (wobbleY - y) * springK * 0.5;
-      vz += (orbitZ - z) * springK * 0.6;
+      // ── Burst shell clamp ────────────────────────────────────────────────
+      if (burstActive.current) {
+        const r2 = x * x + y * y + z * z;
+        if (r2 > shell2) {
+          const sc = BURST_SHELL_MAX / Math.sqrt(r2);
+          x *= sc;
+          y *= sc;
+          z *= sc;
+        }
+      }
 
-      vx *= damping;
-      vy *= damping;
-      vz *= damping;
+      pPos[i3] = x;
+      pPos[i3 + 1] = y;
+      pPos[i3 + 2] = z;
+      pVel[i3] = vx;
+      pVel[i3 + 1] = vy;
+      pVel[i3 + 2] = vz;
+    }
 
+    (planetGeo.getAttribute("position") as THREE.BufferAttribute).needsUpdate =
+      true;
+
+    // ── Planet lines (hide stretched segments) ──────────────────────────────
+    const plAttr = pLinesGeo.getAttribute("position") as THREE.BufferAttribute;
+    const plPos = plAttr.array as Float32Array;
+    const pEdLen = pEdges.length;
+    const mld2 = MAX_LINE_DIST * MAX_LINE_DIST;
+    for (let e = 0; e < pEdLen; e += 2) {
+      const a = pEdges[e];
+      const b = pEdges[e + 1];
+      const a3 = a * 3;
+      const b3 = b * 3;
+      const v = (e >> 1) * 6;
+      const ax = pPos[a3];
+      const ay = pPos[a3 + 1];
+      const az = pPos[a3 + 2];
+      const bx = pPos[b3];
+      const by = pPos[b3 + 1];
+      const bz = pPos[b3 + 2];
+      const ddx = ax - bx;
+      const ddy = ay - by;
+      const ddz = az - bz;
+      if (ddx * ddx + ddy * ddy + ddz * ddz > mld2) {
+        // Degenerate — both to same point = invisible
+        plPos[v] = ax;
+        plPos[v + 1] = ay;
+        plPos[v + 2] = az;
+        plPos[v + 3] = ax;
+        plPos[v + 4] = ay;
+        plPos[v + 5] = az;
+      } else {
+        plPos[v] = ax;
+        plPos[v + 1] = ay;
+        plPos[v + 2] = az;
+        plPos[v + 3] = bx;
+        plPos[v + 4] = by;
+        plPos[v + 5] = bz;
+      }
+    }
+    plAttr.needsUpdate = true;
+
+    // ── Ring ─────────────────────────────────────────────────────────────────
+    for (let i = 0; i < rc; i++) {
+      const i3 = i * 3;
+      const x0 = rPos0[i3];
+      const y0 = rPos0[i3 + 1];
+      const z0 = rPos0[i3 + 2];
+      let x = rPos[i3];
+      let y = rPos[i3 + 1];
+      let z = rPos[i3 + 2];
+      let vx = rVel[i3];
+      let vy = rVel[i3 + 1];
+      let vz = rVel[i3 + 2];
+
+      const angle = rAngle[i] + t * 0.07;
+      const orb = Math.sqrt(x0 * x0 + z0 * z0);
+      const orbitX = Math.cos(angle) * orb;
+      const orbitZ = Math.sin(angle) * orb;
+      const wobY = y0 + Math.sin(t * 0.28 + i * 0.1) * 0.055;
+
+      if (relF > 0.01) {
+        const dx = px - x;
+        const dy = py - y;
+        const dz = pz - z;
+        const d2 = dx * dx + dy * dy + dz * dz;
+        if (d2 < ar2) {
+          const str = ATTRACT_STR_RING * (1 - d2 / ar2) * relF;
+          vx += dx * str;
+          vy += dy * str;
+          vz += dz * str;
+        }
+      }
+
+      vx += (orbitX - x) * SPRING_K * 0.5;
+      vy += (wobY - y) * SPRING_K * 0.4;
+      vz += (orbitZ - z) * SPRING_K * 0.5;
+
+      vx *= DAMPING;
+      vy *= DAMPING;
+      vz *= DAMPING;
       x += vx;
       y += vy;
       z += vz;
 
-      ringPositions[idx] = x;
-      ringPositions[idx + 1] = y;
-      ringPositions[idx + 2] = z;
-      ringVelocities[idx] = vx;
-      ringVelocities[idx + 1] = vy;
-      ringVelocities[idx + 2] = vz;
+      rPos[i3] = x;
+      rPos[i3 + 1] = y;
+      rPos[i3 + 2] = z;
+      rVel[i3] = vx;
+      rVel[i3 + 1] = vy;
+      rVel[i3 + 2] = vz;
     }
 
-    const ringPAttr = ringGeo.getAttribute("position") as THREE.BufferAttribute;
-    ringPAttr.needsUpdate = true;
+    (ringGeo.getAttribute("position") as THREE.BufferAttribute).needsUpdate =
+      true;
 
-    const ringLAttr = ringLinesGeo.getAttribute(
-      "position",
-    ) as THREE.BufferAttribute;
-    const ringLinePos = ringLAttr.array as Float32Array;
-    for (let e = 0; e < ringEdges.length; e += 2) {
-      const a = ringEdges[e];
-      const b = ringEdges[e + 1];
+    // ── Ring lines (hide stretched segments) ────────────────────────────────
+    const rlAttr = rLinesGeo.getAttribute("position") as THREE.BufferAttribute;
+    const rlPos = rlAttr.array as Float32Array;
+    const rEdLen = rEdges.length;
+    for (let e = 0; e < rEdLen; e += 2) {
+      const a = rEdges[e];
+      const b = rEdges[e + 1];
       const a3 = a * 3;
       const b3 = b * 3;
-      const v = (e / 2) * 6;
-      ringLinePos[v] = ringPositions[a3];
-      ringLinePos[v + 1] = ringPositions[a3 + 1];
-      ringLinePos[v + 2] = ringPositions[a3 + 2];
-      ringLinePos[v + 3] = ringPositions[b3];
-      ringLinePos[v + 4] = ringPositions[b3 + 1];
-      ringLinePos[v + 5] = ringPositions[b3 + 2];
+      const v = (e >> 1) * 6;
+      const ax = rPos[a3];
+      const ay = rPos[a3 + 1];
+      const az = rPos[a3 + 2];
+      const bx = rPos[b3];
+      const by = rPos[b3 + 1];
+      const bz = rPos[b3 + 2];
+      const ddx = ax - bx;
+      const ddy = ay - by;
+      const ddz = az - bz;
+      if (ddx * ddx + ddy * ddy + ddz * ddz > mld2) {
+        rlPos[v] = ax;
+        rlPos[v + 1] = ay;
+        rlPos[v + 2] = az;
+        rlPos[v + 3] = ax;
+        rlPos[v + 4] = ay;
+        rlPos[v + 5] = az;
+      } else {
+        rlPos[v] = ax;
+        rlPos[v + 1] = ay;
+        rlPos[v + 2] = az;
+        rlPos[v + 3] = bx;
+        rlPos[v + 4] = by;
+        rlPos[v + 5] = bz;
+      }
     }
-    ringLAttr.needsUpdate = true;
+    rlAttr.needsUpdate = true;
   });
 
   return (
     <>
-      <lineSegments ref={planetLinesRef} geometry={planetLinesGeo}>
+      {/* Lines */}
+      <lineSegments ref={planetLinesRef} geometry={pLinesGeo}>
         <lineBasicMaterial
           transparent
-          opacity={0.14}
-          color="#A78BFA"
-          linewidth={1}
+          opacity={PLINE_OP_LOW}
+          color={COL_PLINE}
+          depthWrite={false}
         />
       </lineSegments>
 
-      <lineSegments ref={ringLinesRef} geometry={ringLinesGeo}>
+      <lineSegments ref={ringLinesRef} geometry={rLinesGeo}>
         <lineBasicMaterial
           transparent
-          opacity={0.07}
-          color="#C08FFF"
-          linewidth={1}
+          opacity={RLINE_OP_LOW}
+          color={COL_RLINE}
+          depthWrite={false}
         />
       </lineSegments>
 
+      {/* Stars */}
       <points ref={starPointsRef} geometry={starsGeo}>
         <pointsMaterial
-          size={0.006}
-          color="#FFFFFF"
+          size={0.005}
+          color={COL_STAR}
+          transparent
+          opacity={0.38}
+          depthWrite={false}
+          sizeAttenuation={true}
+          alphaMap={pointTex}
+        />
+      </points>
+
+      {/* Ring */}
+      <points ref={ringPointsRef} geometry={ringGeo}>
+        <pointsMaterial
+          size={0.017}
+          color={COL_RING}
           transparent
           opacity={0.5}
           depthWrite={false}
           sizeAttenuation={true}
-          alphaMap={pointTexture}
+          alphaMap={pointTex}
         />
       </points>
 
-      <points ref={ringPointsRef} geometry={ringGeo}>
+      {/* Planet */}
+      <points ref={planetPointsRef} geometry={planetGeo}>
         <pointsMaterial
-          size={0.02}
-          color="#B19CD9"
+          size={0.022}
+          color={COL_PLANET}
           transparent
           opacity={0.68}
           depthWrite={false}
           sizeAttenuation={true}
-          alphaMap={pointTexture}
+          alphaMap={pointTex}
         />
       </points>
 
-      <points ref={planetPointsRef} geometry={planetGeo}>
-        <pointsMaterial
-          size={0.028}
-          color="#A78BFA"
-          transparent
-          opacity={0.85}
-          depthWrite={false}
-          sizeAttenuation={true}
-          alphaMap={pointTexture}
-        />
-      </points>
-
-      <points ref={planetGlowRef} geometry={planetGeo}>
-        <pointsMaterial
-          size={0.045}
-          color="#C08FFF"
-          transparent
-          opacity={0.1}
-          depthWrite={false}
-          sizeAttenuation={true}
-          alphaMap={pointTexture}
-        />
-      </points>
-
-      <ambientLight intensity={0.45} />
-      <directionalLight position={[6, 9, 4]} intensity={0.55} />
+      {/* Invisible interaction sphere — click detection only */}
+      <mesh ref={iMeshRef} onClick={handleClick}>
+        <sphereGeometry args={[PLANET_RADIUS * 1.08, 16, 12]} />
+        <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+      </mesh>
     </>
   );
 }
+
+// ─── Root export ─────────────────────────────────────────────────────────────
 
 export default function ObsidianBackground({
   className,
@@ -662,36 +731,51 @@ export default function ObsidianBackground({
   className?: string;
 }) {
   const [mounted, setMounted] = useState(false);
-
   useEffect(() => {
     setMounted(true);
   }, []);
-
   if (!mounted) return null;
+
+  const dpr: [number, number] = [
+    1,
+    Math.min(
+      1.25,
+      typeof window !== "undefined" ? window.devicePixelRatio : 1.25,
+    ),
+  ];
 
   return (
     <div
       className={className}
       style={{ position: "absolute", inset: 0, zIndex: 0 }}
     >
+      {/* Near-black base */}
+      <div style={{ position: "absolute", inset: 0, background: "#05040A" }} />
+
+      {/* Vignette overlay — radial darken at edges to protect text readability */}
       <div
         style={{
           position: "absolute",
           inset: 0,
-          background: "#0F0A1A",
+          pointerEvents: "none",
+          zIndex: 2,
+          background:
+            "radial-gradient(ellipse 72% 58% at 50% 50%, transparent 28%, rgba(3,2,9,0.62) 100%)",
         }}
       />
+
       <Suspense fallback={null}>
         <Canvas
-          dpr={[1, 1.5]}
-          camera={{ position: [3.5, 2.8, 5.2], fov: 55 }}
+          dpr={dpr}
+          camera={{ position: CAM_START, fov: 55 }}
           gl={{
             alpha: true,
-            antialias: true,
+            antialias: false, // slight perf win; dots don't need MSAA
             powerPreference: "high-performance",
           }}
+          style={{ position: "absolute", inset: 0, zIndex: 1 }}
         >
-          <Graph config={{}} />
+          <Graph />
         </Canvas>
       </Suspense>
     </div>

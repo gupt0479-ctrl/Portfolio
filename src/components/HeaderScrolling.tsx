@@ -31,7 +31,7 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
       className={`
         fixed left-0 right-0 top-0 z-40
         transition-all duration-500 ease-out
-        border-b border-white/10 backdrop-blur-md bg-black/30
+        border-b border-white/10 backdrop-blur-md bg-black/20
         ${
           show
             ? "translate-y-0 opacity-100 shadow-lg"
@@ -39,8 +39,11 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
         }
       `}
     >
-      <div className="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-        <Link href="/" className="font-semibold text-white text-sm">
+      <div className="mx-auto max-w-6xl px-6 py-3.5 flex items-center justify-between">
+        <Link
+          href="/"
+          className="font-display font-semibold tracking-tight text-white text-sm"
+        >
           Anant
         </Link>
 
@@ -52,7 +55,7 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
                 href={item.href}
                 target="_blank"
                 rel="noreferrer"
-                className="text-white/70 hover:text-white transition"
+                className="text-white/70 hover:text-white transition-colors duration-200"
               >
                 {item.title}
               </a>
@@ -60,7 +63,7 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
               <a
                 key={item._id}
                 href={item.href}
-                className="text-white/70 hover:text-white transition"
+                className="text-white/70 hover:text-white transition-colors duration-200"
               >
                 {item.title}
               </a>
@@ -68,7 +71,7 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
           )}
         </nav>
 
-        <div className="text-sm text-white/60">@2025</div>
+        <div className="text-sm text-white/50">@2025</div>
       </div>
     </header>
   );

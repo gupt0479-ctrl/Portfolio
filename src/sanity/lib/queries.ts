@@ -125,6 +125,12 @@ export const SKILLS_QUERY = defineQuery(`
 }
 `);
 
+export const CHAT_PROFILE_QUERY = defineQuery(`
+  *[_id == "singleton-profile"][0]{
+    firstName, lastName, headline
+  }
+`);
+
 export const EXPERIENCE_QUERY = defineQuery(`
 *[_type == "experience"] | order(order asc, startDate desc){
   _id,
@@ -150,4 +156,40 @@ export const EXPERIENCE_QUERY = defineQuery(`
   companyWebsite,
   order
 }
+`);
+
+export const EDUCATION_QUERY = defineQuery(`
+  *[_type == "education"] | order(startDate desc){
+    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa
+  }
+`);
+
+export const TESTIMONIALS_QUERY = defineQuery(`
+  *[_type == "testimonial"] | order(order asc){
+    _id, testimonial, name, position, avatar, order
+  }
+`);
+
+export const CERTIFICATIONS_QUERY = defineQuery(`
+  *[_type == "certification"] | order(issueDate desc){
+    _id, name, issuer, issueDate, credentialId, credentialUrl, logo
+  }
+`);
+
+export const ACHIEVEMENTS_QUERY = defineQuery(`
+  *[_type == "achievement"] | order(date desc){
+    _id, title, description, date, type, featured
+  }
+`);
+
+export const SERVICES_QUERY = defineQuery(`
+  *[_type == "service"] | order(order asc){
+    _id, title, description, features, price, priceType, featured, icon, order
+  }
+`);
+
+export const BLOG_QUERY = defineQuery(`
+  *[_type == "blog"] | order(publishedAt desc)[0...6]{
+    _id, title, slug, excerpt, publishedAt, readTime, category, featuredImage
+  }
 `);

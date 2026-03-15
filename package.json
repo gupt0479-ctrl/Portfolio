@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "pnpm typegen && pnpm typecheck && next build",
     "start": "next start",
-    "lint": "biome check",
+    "lint": "npx @biomejs/biome check .",
     "format": "biome format --write",
     "typegen": "mkdir -p src/sanity/types && sanity schema extract --path ./src/sanity/schema.json && sanity typegen generate --enforce-required-fields && mv sanity.types.ts src/sanity/types/index.ts",
     "typecheck": "tsc --noEmit"
@@ -20,6 +20,8 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.7",
+    "@openai/chatkit-react": "^1.5.0",
+    "@portabletext/react": "^6.0.3",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-separator": "^1.1.8",
@@ -31,6 +33,7 @@
     "@sanity/client": "^7.15.0",
     "@sanity/icons": "^3.7.4",
     "@sanity/image-url": "^1.2.0",
+    "@sanity/presentation": "^2.0.0",
     "@sanity/vision": "^4.22.0",
     "@tabler/icons-react": "^3.36.1",
     "class-variance-authority": "^0.7.1",

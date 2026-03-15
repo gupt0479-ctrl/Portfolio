@@ -8,6 +8,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-poppins);
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -47,7 +48,36 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
-/* Tilt Card System */
+/* ─── Typography hierarchy ─────────────────────────────────────────── */
+h1,
+.h1 {
+  @apply font-display font-extrabold tracking-tight;
+}
+
+h2,
+.h2 {
+  @apply font-display font-bold tracking-tight;
+}
+
+h3,
+.h3 {
+  @apply font-display font-bold;
+}
+
+h4,
+.h4,
+h5,
+.h5,
+h6,
+.h6 {
+  @apply font-display font-semibold;
+}
+
+body {
+  @apply font-sans;
+}
+
+/* ─── Tilt Card System ──────────────────────────────────────────────── */
 .tiltCard {
   --rx: 0deg;
   --ry: 0deg;
@@ -95,7 +125,7 @@
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
 }
 
-/* Animations */
+/* ─── Animations ────────────────────────────────────────────────────── */
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -107,7 +137,6 @@
   }
 }
 
-/* Fade in animation */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -117,7 +146,6 @@
   }
 }
 
-/* Fade in up animation */
 @keyframes fade-in-up {
   from {
     opacity: 0;
@@ -129,7 +157,6 @@
   }
 }
 
-/* Scale in animation */
 @keyframes scale-in {
   from {
     opacity: 0;
@@ -141,7 +168,6 @@
   }
 }
 
-/* Reveal on hover animation */
 @keyframes revealOnHover {
   from {
     opacity: 0;
@@ -153,7 +179,6 @@
   }
 }
 
-/* Click surprise - pop effect */
 @keyframes clickSurprise {
   0% {
     transform: scale(1);
@@ -166,7 +191,6 @@
   }
 }
 
-/* Fall from sky */
 @keyframes fallFromSky {
   from {
     opacity: 0;
@@ -178,24 +202,31 @@
   }
 }
 
-/* Apply animations to skill buttons */
+/* ─── Animation utility classes ─────────────────────────────────────── */
+.animate-fade-in {
+  animation: fade-in 0.8s ease-out;
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out;
+}
+.animate-scale-in {
+  animation: scale-in 0.8s ease-out;
+}
+
 .skill-button {
   animation: slideUp 0.6s ease-out forwards;
 }
-
 .reveal-on-hover {
   animation: revealOnHover 0.4s ease-out;
 }
-
+.fall-from-sky {
+  animation: fallFromSky 0.6s ease-out;
+}
 .click-surprise:active {
   animation: clickSurprise 0.3s ease-out;
 }
 
-.fall-from-sky {
-  animation: fallFromSky 0.6s ease-out;
-}
-
-/* Enhanced glow effect */
+/* ─── Glow utilities ────────────────────────────────────────────────── */
 @keyframes glow-pulse {
   0%,
   100% {
@@ -210,38 +241,20 @@
   animation: glow-pulse 2s ease-in-out infinite;
 }
 
-/* Smooth fade-in-up */
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.glow-text {
+  text-shadow:
+    0 0 20px rgba(168, 85, 247, 0.5),
+    0 0 40px rgba(168, 85, 247, 0.3);
 }
 
-@keyframes skillBurst {
-  0% {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-  20% {
-    opacity: 0.65;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.25);
-  }
+/* ─── Glassmorphism ─────────────────────────────────────────────────── */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.skillBtn {
-  --mx: 0;
-  --my: 0;
-  transform: translate(calc(var(--mx) * 4px), calc(var(--my) * 4px));
-}
-
+/* ─── Skills animation tokens ───────────────────────────────────────── */
 @keyframes skillPulse {
   0% {
     opacity: 0;
@@ -256,13 +269,13 @@
   }
 }
 
-.skill-drop {
-  will-change: transform, opacity, filter;
-}
-.skill-drop[style*="opacity: 0"] {
-  transform: translateY(18px) scale(0.98);
+.skillBtn {
+  --mx: 0;
+  --my: 0;
+  transform: translate(calc(var(--mx) * 4px), calc(var(--my) * 4px));
 }
 
+/* Orbit */
 .skill-orbit::after {
   content: "";
   position: absolute;
@@ -290,26 +303,7 @@ button[data-skill-effect="orbit"]:hover::after {
   }
 }
 
-.skill-scanline {
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(255, 255, 255, 0.14),
-    transparent
-  );
-  transform: translateY(-120%);
-  animation: skillScan 1.35s ease-in-out infinite;
-  mix-blend-mode: overlay;
-}
-@keyframes skillScan {
-  0% {
-    transform: translateY(-120%);
-  }
-  100% {
-    transform: translateY(120%);
-  }
-}
-
+/* Shimmer */
 .skill-shimmer {
   background: linear-gradient(
     110deg,
@@ -330,159 +324,7 @@ button[data-skill-effect="orbit"]:hover::after {
   }
 }
 
-/* glitch layers */
-.skill-glitch-a,
-.skill-glitch-b {
-  pointer-events: none;
-  opacity: 0;
-  mix-blend-mode: screen;
-}
-button[data-skill-effect="glitch"]:hover .skill-glitch-a,
-button[data-skill-effect="glitch"]:hover .skill-glitch-b {
-  opacity: 0.9;
-}
-
-button[data-skill-effect="glitch"]:hover .skill-glitch-a {
-  color: rgba(34, 211, 238, 0.9);
-  animation: skillGlitchA 420ms steps(2, end) infinite;
-}
-button[data-skill-effect="glitch"]:hover .skill-glitch-b {
-  color: rgba(167, 139, 250, 0.9);
-  animation: skillGlitchB 360ms steps(2, end) infinite;
-}
-
-@keyframes skillGlitchA {
-  0% {
-    transform: translate(0, 0);
-    clip-path: inset(0 0 75% 0);
-  }
-  25% {
-    transform: translate(1px, -1px);
-    clip-path: inset(20% 0 45% 0);
-  }
-  50% {
-    transform: translate(-1px, 1px);
-    clip-path: inset(55% 0 20% 0);
-  }
-  75% {
-    transform: translate(2px, 0);
-    clip-path: inset(10% 0 60% 0);
-  }
-  100% {
-    transform: translate(0, 0);
-    clip-path: inset(0 0 75% 0);
-  }
-}
-@keyframes skillGlitchB {
-  0% {
-    transform: translate(0, 0);
-    clip-path: inset(65% 0 0 0);
-  }
-  25% {
-    transform: translate(-2px, 0);
-    clip-path: inset(40% 0 15% 0);
-  }
-  50% {
-    transform: translate(1px, -1px);
-    clip-path: inset(15% 0 40% 0);
-  }
-  75% {
-    transform: translate(-1px, 1px);
-    clip-path: inset(55% 0 10% 0);
-  }
-  100% {
-    transform: translate(0, 0);
-    clip-path: inset(65% 0 0 0);
-  }
-}
-
-/* flip */
-.skill-flip {
-  perspective: 900px;
-}
-.skill-flip-inner {
-  position: relative;
-  height: 28px;
-  transform-style: preserve-3d;
-  transition: transform 0.45s ease;
-}
-button[data-skill-effect="flip"]:hover .skill-flip-inner {
-  transform: rotateY(180deg);
-}
-.skill-flip-face {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  backface-visibility: hidden;
-}
-.skill-flip-back {
-  transform: rotateY(180deg);
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 0.8s ease-out;
-}
-
-/* Tilt Card System */
-.tiltCard {
-  --rx: 0deg;
-  --ry: 0deg;
-  --s: 1;
-  --hx: 50%;
-  --hy: 50%;
-
-  border-radius: 16px;
-  position: relative;
-  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry))
-    scale(var(--s));
-  transition: box-shadow 180ms ease;
-  will-change: transform;
-}
-
-.tiltInner {
-  border-radius: 16px;
-  padding: 24px;
-  background:
-    radial-gradient(
-      500px 300px at var(--hx) var(--hy),
-      rgba(192, 143, 255, 0.18),
-      transparent 55%
-    ), rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-}
-
-.tiltCard:hover {
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-.animate-fade-in {
-  animation: fade-in 0.8s ease-out;
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 1s ease-out;
-}
-
-.animate-scale-in {
-  animation: scale-in 0.8s ease-out;
-}
-
-/* Glow effect for hero elements */
-.glow-text {
-  text-shadow:
-    0 0 20px rgba(168, 85, 247, 0.5),
-    0 0 40px rgba(168, 85, 247, 0.3);
-}
-
-/* Glassmorphism effect */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
+/* ─── CSS custom properties ─────────────────────────────────────────── */
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);

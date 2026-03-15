@@ -2,6 +2,9 @@
 
 sanity.types.ts
 
+# mcp
+.cursor/
+
 # dependencies
 /node_modules
 /.pnp

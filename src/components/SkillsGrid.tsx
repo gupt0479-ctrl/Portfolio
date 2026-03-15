@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { SKILLS_QUERYResult } from "@/sanity/types";
 import { SkillButton } from "@/components/SkillsButton";
+import type { SKILLS_QUERYResult } from "@/sanity/types";
 
 interface SkillsGridProps {
   skills: SKILLS_QUERYResult;
@@ -14,8 +14,6 @@ export function SkillsGrid({ skills }: SkillsGridProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [hoverId, setHoverId] = useState<string | null>(null);
-  const [burstId, setBurstId] = useState<string | null>(null);
-
   const pointsRef = useRef<Pt[]>([]);
   const rafRef = useRef<number | null>(null);
   const tRef = useRef(0);
@@ -35,7 +33,10 @@ export function SkillsGrid({ skills }: SkillsGridProps) {
       canvas.width = Math.max(1, Math.floor(r.width));
       canvas.height = Math.max(1, Math.floor(r.height));
 
-      const btns = wrap.querySelectorAll<HTMLButtonElement>("button.skillBtn");
+      // Use data-skill-effect attribute selector (matches all rendered skill buttons)
+      const btns = wrap.querySelectorAll<HTMLButtonElement>(
+        "button[data-skill-effect]",
+      );
       const wr = wrap.getBoundingClientRect();
 
       const pts: Pt[] = [];
@@ -66,9 +67,8 @@ export function SkillsGrid({ skills }: SkillsGridProps) {
       }
 
       const hover = hoverId ? pts.find((p) => p.id === hoverId) : null;
-      const burst = burstId ? pts.find((p) => p.id === burstId) : null;
 
-      // base constellation lines
+      // Base constellation lines — restrained density
       for (let i = 0; i < pts.length; i++) {
         for (let j = i + 1; j < pts.length; j++) {
           const a = pts[i];
@@ -76,14 +76,14 @@ export function SkillsGrid({ skills }: SkillsGridProps) {
           const dx = a.x - b.x;
           const dy = a.y - b.y;
           const d = Math.hypot(dx, dy);
-          if (d > 260) continue;
+          if (d > 220) continue;
 
-          let alpha = 0.12;
-          let w = 1;
+          let alpha = 0.07;
+          let w = 0.8;
 
-          if (hover && (a.id === hover.id || b.id === hover.id) && d < 320) {
-            alpha = 0.35 + 0.08 * Math.sin(t / 12);
-            w = 1.6;
+          if (hover && (a.id === hover.id || b.id === hover.id) && d < 280) {
+            alpha = 0.28 + 0.06 * Math.sin(t / 14);
+            w = 1.4;
           }
 
           ctx.strokeStyle = `rgba(167, 139, 250, ${alpha})`;
@@ -95,9 +95,9 @@ export function SkillsGrid({ skills }: SkillsGridProps) {
         }
       }
 
-      // hover node glow
+      // Hover node glow
       if (hover) {
-        const r = 10 + 2 * Math.sin(t / 10);
+        const r = 8 + 2 * Math.sin(t / 12);
         const g = ctx.createRadialGradient(
           hover.x,
           hover.y,
@@ -106,24 +106,12 @@ export function SkillsGrid({ skills }: SkillsGridProps) {
           hover.y,
           r * 3,
         );
-        g.addColorStop(0, "rgba(56,189,248,0.35)");
-        g.addColorStop(1, "rgba(56,189,248,0)");
+        g.addColorStop(0, "rgba(167,139,250,0.3)");
+        g.addColorStop(1, "rgba(167,139,250,0)");
         ctx.fillStyle = g;
         ctx.beginPath();
         ctx.arc(hover.x, hover.y, r * 3, 0, Math.PI * 2);
         ctx.fill();
-      }
-
-      // click burst ring
-      if (burst) {
-        const p = ((t % 60) / 60) * 1.0;
-        const radius = 8 + p * 80;
-        const alpha = Math.max(0, 0.35 - p * 0.35);
-        ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(burst.x, burst.y, radius, 0, Math.PI * 2);
-        ctx.stroke();
       }
 
       rafRef.current = requestAnimationFrame(draw);
@@ -135,13 +123,7 @@ export function SkillsGrid({ skills }: SkillsGridProps) {
       window.removeEventListener("resize", measure);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [hoverId, burstId, skillIds]);
-
-  useEffect(() => {
-    if (!burstId) return;
-    const to = setTimeout(() => setBurstId(null), 650);
-    return () => clearTimeout(to);
-  }, [burstId]);
+  }, [hoverId, skillIds]);
 
   return (
     <div ref={wrapRef} className="relative">
@@ -150,14 +132,13 @@ export function SkillsGrid({ skills }: SkillsGridProps) {
         className="absolute inset-0 pointer-events-none"
       />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 relative z-10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 relative z-10">
         {skills.map((skill, idx) => (
           <SkillButton
             key={skill._id}
             skill={skill}
             index={idx}
             onHoverChange={(id) => setHoverId(id)}
-            onClickBurst={(id) => setBurstId(id)}
           />
         ))}
       </div>
