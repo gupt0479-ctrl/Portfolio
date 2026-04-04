@@ -1,17 +1,46 @@
 "use client";
 
+import type { LucideIcon } from "lucide-react";
+import { Github, Globe, Linkedin, Mail, MapPin, Twitter } from "lucide-react";
 import { motion } from "motion/react";
-import Link from "next/link";
+import { useState } from "react";
 import type { PROFILE_QUERYResult } from "@/sanity/types";
-import { ProfileImage } from "./ProfileImage";
 import { LayoutTextFlip } from "../ui/layout-text-flip";
+import { ProfileImage } from "./ProfileImage";
 
 type Profile = NonNullable<PROFILE_QUERYResult>;
 
-interface SocialLink {
-  icon: string;
+type SocialLink = {
   label: string;
   url: string;
+  Icon: LucideIcon;
+};
+
+type SocialLinkDefinition = {
+  label: string;
+  url: string | null | undefined;
+  Icon: LucideIcon;
+};
+
+const CTA_BUTTONS = [
+  { label: "View Projects", href: "#projects", primary: true },
+  { label: "View Experience", href: "#experience", primary: false },
+  { label: "Contact", href: "#contact", primary: false },
+] as const;
+
+function cta3dStyle(hovered: boolean, primary: boolean) {
+  return {
+    transition: "transform 180ms ease, box-shadow 180ms ease",
+    willChange: "transform" as const,
+    transform: hovered
+      ? "perspective(600px) rotateX(8deg) translateY(-4px) scale(1.03)"
+      : "none",
+    boxShadow: hovered
+      ? primary
+        ? "0 16px 32px rgba(255,255,255,0.12)"
+        : "0 8px 20px rgba(167,139,250,0.15)"
+      : "none",
+  };
 }
 
 export function HeroContent({
@@ -21,6 +50,8 @@ export function HeroContent({
   profile: Profile;
   profileImageUrl: string | null;
 }) {
+  const [hoveredCta, setHoveredCta] = useState<string | null>(null);
+
   const name = profile.firstName
     ? `${profile.firstName} ${profile.lastName || ""}`.trim()
     : "Anant Gupta";
@@ -29,20 +60,28 @@ export function HeroContent({
     ? (profile.headlineAnimatedWords.filter(Boolean) as string[])
     : ["scalable systems", "AI products", "clean UIs", "fast web apps"];
 
-  // Social links - configure these with your actual URLs
-  const socials: SocialLink[] = [
-    { icon: "𝕏", label: "Twitter", url: "https://twitter.com" },
-    { icon: "⚡", label: "GitHub", url: "https://github.com" },
-    { icon: "🔗", label: "LinkedIn", url: "https://linkedin.com" },
-    { icon: "✉️", label: "Email", url: "mailto:your@email.com" },
+  const socialDefinitions: SocialLinkDefinition[] = [
+    { label: "GitHub", url: profile.socialLinks?.github, Icon: Github },
+    { label: "LinkedIn", url: profile.socialLinks?.linkedin, Icon: Linkedin },
+    { label: "Twitter/X", url: profile.socialLinks?.twitter, Icon: Twitter },
+    { label: "Website", url: profile.socialLinks?.website, Icon: Globe },
+    {
+      label: "Email",
+      url: profile.email ? `mailto:${profile.email}` : null,
+      Icon: Mail,
+    },
   ];
+
+  const socials: SocialLink[] = socialDefinitions.filter(
+    (social): social is SocialLink => Boolean(social.url),
+  );
 
   return (
     <section
       id="home"
       className="relative min-h-[88vh] overflow-hidden bg-transparent flex items-center"
     >
-      <div className="relative mx-auto flex min-h-[88vh] max-w-6xl flex-col justify-center px-6 py-16">
+      <div className="relative mx-auto flex min-h-[88vh] w-full max-w-6xl flex-col justify-center px-6 py-16">
         <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
           <div>
             <motion.p
@@ -87,81 +126,86 @@ export function HeroContent({
               </motion.p>
             )}
 
-            {/* CTA Buttons */}
+            {/* CTA row */}
             <motion.div
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.55, delay: 0.14 }}
               className="mt-8 flex flex-wrap items-center gap-3"
             >
-              <Link
-                href="#projects"
-                className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-black transition hover:opacity-90"
-              >
-                View Projects
-              </Link>
-              <Link
-                href="/studio"
-                className="rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white/90 transition hover:bg-white/10"
-              >
-                Edit Content
-              </Link>
-              {profile.email && (
-                <Link
-                  href={`mailto:${profile.email}`}
-                  className="rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-semibold text-white/90 transition hover:bg-white/10"
+              {CTA_BUTTONS.map(({ label, href, primary }) => (
+                <a
+                  key={label}
+                  href={href}
+                  onMouseEnter={() => setHoveredCta(label)}
+                  onMouseLeave={() => setHoveredCta(null)}
+                  style={cta3dStyle(hoveredCta === label, primary)}
+                  className={
+                    primary
+                      ? "rounded-full bg-white px-5 py-3 text-sm font-medium text-black"
+                      : "rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-white/90 hover:border-white/25 hover:bg-white/10 transition-colors duration-200"
+                  }
                 >
-                  Contact
-                </Link>
-              )}
+                  {label}
+                </a>
+              ))}
             </motion.div>
 
-            {/* Location & Status */}
-            {(profile.location || profile.availability) && (
+            {/* Social icons — above location/availability */}
+            {socials.length > 0 && (
               <motion.div
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: 0.17 }}
-                className="mt-6 flex flex-wrap gap-4 text-sm text-white/60"
+                className="mt-6 flex gap-3"
+              >
+                {socials.map(({ label, url, Icon }) => (
+                  <a
+                    key={label}
+                    href={url}
+                    target={url.startsWith("mailto:") ? undefined : "_blank"}
+                    rel={
+                      url.startsWith("mailto:")
+                        ? undefined
+                        : "noopener noreferrer"
+                    }
+                    title={label}
+                    aria-label={label}
+                    className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white/70 transition-colors duration-200 hover:border-white/40 hover:bg-white/10 hover:text-white"
+                  >
+                    <Icon className="h-[15px] w-[15px]" />
+                  </a>
+                ))}
+              </motion.div>
+            )}
+
+            {/* Location + availability — below socials */}
+            {(profile.location || profile.availability) && (
+              <motion.div
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, delay: 0.2 }}
+                className="mt-4 flex flex-wrap gap-4 text-sm text-white/60"
               >
                 {profile.location && (
-                  <div className="flex items-center gap-2">
-                    <span>📍</span>
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="h-3.5 w-3.5 shrink-0 text-white/40" />
                     {profile.location}
                   </div>
                 )}
                 {profile.availability && (
                   <div className="flex items-center gap-2">
-                    <span>✅</span>
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+                    </span>
                     {profile.availability}
                   </div>
                 )}
               </motion.div>
             )}
-
-            {/* Social Links */}
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.55, delay: 0.2 }}
-              className="mt-8 flex gap-4"
-            >
-              {socials.map((social) => (
-                <a
-                  key={social.label}
-                  href={social.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  title={social.label}
-                  className="h-10 w-10 rounded-full border border-white/20 bg-white/5 flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 hover:border-white/40 transition"
-                >
-                  {social.icon}
-                </a>
-              ))}
-            </motion.div>
           </div>
 
-          {/* Right: Profile Image */}
           {profileImageUrl && (
             <motion.div
               initial={{ opacity: 0, scale: 0.96 }}

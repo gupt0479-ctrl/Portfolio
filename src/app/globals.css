@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-display: var(--font-poppins);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-ubuntu);
+  --font-display: var(--font-lora);
+  --font-mono: var(--font-ubuntu);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,283 +48,6 @@
   --radius-4xl: calc(var(--radius) + 16px);
 }
 
-/* ─── Typography hierarchy ─────────────────────────────────────────── */
-h1,
-.h1 {
-  @apply font-display font-extrabold tracking-tight;
-}
-
-h2,
-.h2 {
-  @apply font-display font-bold tracking-tight;
-}
-
-h3,
-.h3 {
-  @apply font-display font-bold;
-}
-
-h4,
-.h4,
-h5,
-.h5,
-h6,
-.h6 {
-  @apply font-display font-semibold;
-}
-
-body {
-  @apply font-sans;
-}
-
-/* ─── Tilt Card System ──────────────────────────────────────────────── */
-.tiltCard {
-  --rx: 0deg;
-  --ry: 0deg;
-  --s: 1;
-  --hx: 50%;
-  --hy: 50%;
-
-  border-radius: 16px;
-  position: relative;
-  transform: perspective(900px) rotateX(var(--rx)) rotateY(var(--ry))
-    scale(var(--s));
-  transition: box-shadow 180ms ease;
-  will-change: transform;
-}
-
-.tiltInner {
-  border-radius: 16px;
-  padding: 24px;
-  background:
-    radial-gradient(
-      500px 300px at var(--hx) var(--hy),
-      rgba(192, 143, 255, 0.18),
-      transparent 55%
-    ), rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-}
-
-.tiltCard:hover {
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
-
-/* Light mode */
-:root[data-theme="light"] .tiltInner {
-  background:
-    radial-gradient(
-      500px 300px at var(--hx) var(--hy),
-      rgba(107, 91, 149, 0.16),
-      transparent 55%
-    ), rgba(0, 0, 0, 0.03);
-  border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-:root[data-theme="light"] .tiltCard:hover {
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
-}
-
-/* ─── Animations ────────────────────────────────────────────────────── */
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(40px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes revealOnHover {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes clickSurprise {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-@keyframes fallFromSky {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ─── Animation utility classes ─────────────────────────────────────── */
-.animate-fade-in {
-  animation: fade-in 0.8s ease-out;
-}
-.animate-fade-in-up {
-  animation: fade-in-up 0.8s ease-out;
-}
-.animate-scale-in {
-  animation: scale-in 0.8s ease-out;
-}
-
-.skill-button {
-  animation: slideUp 0.6s ease-out forwards;
-}
-.reveal-on-hover {
-  animation: revealOnHover 0.4s ease-out;
-}
-.fall-from-sky {
-  animation: fallFromSky 0.6s ease-out;
-}
-.click-surprise:active {
-  animation: clickSurprise 0.3s ease-out;
-}
-
-/* ─── Glow utilities ────────────────────────────────────────────────── */
-@keyframes glow-pulse {
-  0%,
-  100% {
-    box-shadow: 0 0 10px rgba(192, 143, 255, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 20px rgba(192, 143, 255, 0.6);
-  }
-}
-
-.glow-effect {
-  animation: glow-pulse 2s ease-in-out infinite;
-}
-
-.glow-text {
-  text-shadow:
-    0 0 20px rgba(168, 85, 247, 0.5),
-    0 0 40px rgba(168, 85, 247, 0.3);
-}
-
-/* ─── Glassmorphism ─────────────────────────────────────────────────── */
-.glass-effect {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* ─── Skills animation tokens ───────────────────────────────────────── */
-@keyframes skillPulse {
-  0% {
-    opacity: 0;
-    transform: scale(0.92);
-  }
-  20% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.2);
-  }
-}
-
-.skillBtn {
-  --mx: 0;
-  --my: 0;
-  transform: translate(calc(var(--mx) * 4px), calc(var(--my) * 4px));
-}
-
-/* Orbit */
-.skill-orbit::after {
-  content: "";
-  position: absolute;
-  inset: -30%;
-  background: conic-gradient(
-    from 180deg,
-    rgba(167, 139, 250, 0),
-    rgba(167, 139, 250, 0.35),
-    rgba(14, 165, 233, 0.18),
-    rgba(167, 139, 250, 0)
-  );
-  opacity: 0;
-  transition: opacity 0.2s ease;
-  filter: blur(10px);
-  animation: skillOrbit 2.8s linear infinite;
-  pointer-events: none;
-}
-button[data-skill-effect="orbit"]:hover::after {
-  opacity: 0.9;
-}
-
-@keyframes skillOrbit {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Shimmer */
-.skill-shimmer {
-  background: linear-gradient(
-    110deg,
-    transparent 0%,
-    rgba(255, 255, 255, 0.16) 35%,
-    transparent 70%
-  );
-  transform: translateX(-120%);
-  animation: skillShimmer 1.25s ease-in-out infinite;
-  mix-blend-mode: screen;
-}
-@keyframes skillShimmer {
-  0% {
-    transform: translateX(-120%);
-  }
-  100% {
-    transform: translateX(120%);
-  }
-}
-
-/* ─── CSS custom properties ─────────────────────────────────────────── */
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
@@ -398,7 +121,183 @@ button[data-skill-effect="orbit"]:hover::after {
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
   }
+
+  h1,
+  .h1,
+  h2,
+  .h2,
+  h3,
+  .h3,
+  h4,
+  .h4,
+  h5,
+  .h5,
+  h6,
+  .h6 {
+    @apply font-display;
+  }
+
+  h1,
+  .h1 {
+    @apply font-extrabold tracking-tight;
+  }
+
+  h2,
+  .h2 {
+    @apply font-bold tracking-tight;
+  }
+
+  h3,
+  .h3 {
+    @apply font-bold;
+  }
+
+  h4,
+  .h4,
+  h5,
+  .h5,
+  h6,
+  .h6 {
+    @apply font-semibold;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.8s ease-out;
+}
+
+.portfolio-main {
+  transform-origin: center left;
+  transition:
+    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 280ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 240ms ease,
+    width 220ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-slot="sidebar-wrapper"][data-chat-open="true"] .portfolio-main {
+  opacity: 0.7;
+  filter: saturate(0.9);
+  pointer-events: none;
+  transform: translateX(-1.5rem) scale(0.965);
+}
+
+[data-slot="sidebar-wrapper"][data-chat-mobile-open="true"] .portfolio-main {
+  opacity: 0.8;
+  filter: saturate(0.95);
+  transform: scale(0.98);
+}
+
+[data-sidebar="sidebar"] {
+  background-color: #07070d;
+}
+
+[data-sidebar="sidebar"] > * {
+  background: transparent;
+}
+
+/* FIX 1 — Remove the blur/dim overlay that covers the page when sidebar opens.
+   shadcn's SidebarProvider always renders a [data-sidebar="overlay"] backdrop
+   div. On desktop it should not exist; hiding it stops the full-page blur. */
+[data-sidebar="overlay"] {
+  display: none !important;
+}
+
+/* FIX 2 — Stop shadcn's peer selectors from adding top-padding to the page.
+   When SidebarProvider is mounted, peer group classes add `pt-` on the inner
+   container on some viewport widths, pushing content down. Zero it out. */
+[data-slot="sidebar-wrapper"],
+.peer\/sidebar-wrapper {
+  padding-top: 0 !important;
+}
+
+/* FIX 3 — Smooth the sidebar open/close slide so content compresses cleanly. */
+[data-sidebar="sidebar"] {
+  transition:
+    width 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.chat-wrapper,
+.chatkit-shell {
+  background:
+    linear-gradient(180deg, rgba(20, 20, 31, 0.92) 0%, rgba(7, 7, 13, 1) 18%),
+    radial-gradient(
+      circle at top left,
+      rgba(143, 124, 247, 0.12),
+      transparent 42%
+    );
+}
+
+.chatkit-root,
+[class*="ChatKit"],
+[data-chatkit] {
+  background: transparent !important;
+  color-scheme: dark;
+}
+
+.chatkit-root {
+  --ck-surface-background: #10101a;
+  --ck-composer-background: #141421;
+  --ck-input-background: #141421;
+  --ck-input-foreground: rgba(255, 255, 255, 0.92);
+  --ck-composer-foreground: rgba(255, 255, 255, 0.92);
+  --ck-send-button-background: #191927;
+  --ck-send-button-foreground: #f5f2ff;
+  --ck-accent-color: #8f7cf7;
+}
+
+openai-chatkit::part(composer),
+openai-chatkit::part(composer-input),
+openai-chatkit::part(composer-textarea),
+openai-chatkit::part(input),
+openai-chatkit::part(textarea) {
+  background: #141421 !important;
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+openai-chatkit::part(send-button),
+openai-chatkit::part(composer-send-button) {
+  background: #191927 !important;
+  color: #f5f2ff !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+openai-chatkit::part(panel),
+openai-chatkit::part(container),
+openai-chatkit::part(header) {
+  background: transparent !important;
+}
+
+[data-collapsible="offcanvas"][data-state="closed"],
+[data-collapsible="offcanvas"][data-state="expanded"] {
+  transition:
+    width 220ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1) !important;
 }

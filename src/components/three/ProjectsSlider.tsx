@@ -1,8 +1,15 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, ExternalLink, Github } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import { useIridescentEffect } from "@/lib/hooks/useIridescentEffect";
 import type { PROJECTS_QUERYResult } from "@/sanity/types";
 
 type Project = PROJECTS_QUERYResult[number];
@@ -18,6 +25,70 @@ function getTechTags(project: Project): string[] {
     .slice(0, 4);
 }
 
+function cta3dStyle(hovered: boolean, primary: boolean): CSSProperties {
+  return {
+    transition: "transform 180ms ease, box-shadow 180ms ease",
+    willChange: "transform",
+    transform: hovered
+      ? "perspective(600px) rotateX(8deg) translateY(-4px) scale(1.03)"
+      : "none",
+    boxShadow: hovered
+      ? primary
+        ? "0 16px 32px rgba(255,255,255,0.12)"
+        : "0 8px 20px rgba(167,139,250,0.15)"
+      : "none",
+  };
+}
+
+function ViewLiveButton({ href }: { href: string }) {
+  const [hovered, setHovered] = useState(false);
+  const { ref, overlayStyle } = useIridescentEffect({ gradientAlpha: 0.14 });
+
+  return (
+    <div
+      ref={ref}
+      className="relative inline-flex overflow-hidden rounded-full"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <span
+        className="pointer-events-none absolute inset-0 z-10 rounded-full"
+        style={overlayStyle}
+        aria-hidden
+      />
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={(e) => e.stopPropagation()}
+        style={cta3dStyle(hovered, true)}
+        className="relative z-20 inline-flex items-center rounded-full bg-white px-4 py-1.5 text-xs font-medium text-black"
+      >
+        View Live
+      </a>
+    </div>
+  );
+}
+
+function SourceButton({ href }: { href: string }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={(e) => e.stopPropagation()}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={cta3dStyle(hovered, false)}
+      className="inline-flex items-center rounded-full border border-white/20 px-4 py-1.5 text-xs font-medium text-white/70"
+    >
+      Source
+    </a>
+  );
+}
+
 interface ProjectCardProps {
   project: Project;
   isCenter: boolean;
@@ -26,6 +97,7 @@ interface ProjectCardProps {
 function ProjectCard({ project, isCenter }: ProjectCardProps) {
   const [hovered, setHovered] = useState(false);
   const tags = getTechTags(project);
+  const title = project.title?.trim() || "Untitled";
 
   return (
     <article
@@ -38,41 +110,15 @@ function ProjectCard({ project, isCenter }: ProjectCardProps) {
       onMouseEnter={() => isCenter && setHovered(true)}
       onMouseLeave={() => isCenter && setHovered(false)}
     >
-      {/* Base content — always visible */}
       <div className="p-5">
-        <div className="flex items-start justify-between gap-3 mb-2">
-          <h3 className="text-base font-display font-semibold text-white leading-snug">
-            {project.title ?? "Untitled"}
-          </h3>
-          {project.liveUrl || project.githubUrl ? (
-            <div className="flex gap-1.5 shrink-0">
-              {project.liveUrl && (
-                <a
-                  href={project.liveUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label="Live site"
-                  className="p-1.5 rounded-lg bg-white/[0.06] border border-white/15 text-white/60 hover:text-white hover:bg-white/10 transition-colors duration-200"
-                >
-                  <ExternalLink size={13} />
-                </a>
-              )}
-              {project.githubUrl && (
-                <a
-                  href={project.githubUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label="GitHub repository"
-                  className="p-1.5 rounded-lg bg-white/[0.06] border border-white/15 text-white/60 hover:text-white hover:bg-white/10 transition-colors duration-200"
-                >
-                  <Github size={13} />
-                </a>
-              )}
-            </div>
-          ) : null}
-        </div>
+        <h3 className="font-display text-lg font-semibold text-white leading-snug">
+          {title}
+        </h3>
+        {project.tagline && (
+          <p className="mt-2 line-clamp-2 text-sm text-white/55 font-sans leading-relaxed">
+            {project.tagline}
+          </p>
+        )}
 
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
@@ -88,20 +134,25 @@ function ProjectCard({ project, isCenter }: ProjectCardProps) {
         )}
       </div>
 
-      {/* Hover reveal — tagline + description */}
       {isCenter && (
         <div
-          className={[
-            "overflow-hidden transition-[max-height,opacity] duration-400 ease-in-out",
-            hovered ? "max-h-48 opacity-100" : "max-h-0 opacity-0",
-          ].join(" ")}
+          className="overflow-hidden transition-[max-height] duration-[320ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+          style={{ maxHeight: hovered ? 320 : 0 }}
         >
-          <div className="px-5 pb-5 border-t border-white/10 pt-4 space-y-2">
-            {project.tagline && (
-              <p className="text-sm text-white/80 font-sans leading-relaxed">
-                {project.tagline}
-              </p>
-            )}
+          <div className="px-5 pb-5 border-t border-white/10 pt-4">
+            <p className="text-sm text-white/55 font-sans leading-relaxed">
+              {project.tagline}
+            </p>
+            {/* TODO: replace with project.description when schema field added */}
+            <div className="my-3 border-t border-white/10" />
+            <div className="flex flex-wrap items-center gap-2 mt-3">
+              {project.liveUrl ? (
+                <ViewLiveButton href={project.liveUrl} />
+              ) : null}
+              {project.githubUrl ? (
+                <SourceButton href={project.githubUrl} />
+              ) : null}
+            </div>
           </div>
         </div>
       )}
@@ -189,16 +240,13 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* 3-card layout */}
-      <div className="flex items-center gap-3">
-        {/* Ghost left card */}
+      <div className="flex items-start gap-3">
         {showSideCards && (
-          <div className="hidden md:block w-[220px] shrink-0 opacity-40 scale-95 -translate-y-1.5 transition-all duration-300">
+          <div className="hidden md:block w-[220px] max-h-48 shrink-0 self-start overflow-hidden scale-[0.93] opacity-40 transition-transform duration-300">
             <ProjectCard project={safeProjects[prevIndex]} isCenter={false} />
           </div>
         )}
 
-        {/* Prev button */}
         <button
           type="button"
           onClick={goPrev}
@@ -208,8 +256,7 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
           <ChevronLeft size={18} />
         </button>
 
-        {/* Center card */}
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 scale-[1.04]">
           <AnimatePresence mode="wait">
             <motion.div
               key={safeProjects[currentIndex]._id}
@@ -226,7 +273,6 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
           </AnimatePresence>
         </div>
 
-        {/* Next button */}
         <button
           type="button"
           onClick={goNext}
@@ -236,15 +282,13 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
           <ChevronRight size={18} />
         </button>
 
-        {/* Ghost right card */}
         {showSideCards && (
-          <div className="hidden md:block w-[220px] shrink-0 opacity-40 scale-95 -translate-y-1.5 transition-all duration-300">
+          <div className="hidden md:block w-[220px] max-h-48 shrink-0 self-start overflow-hidden scale-[0.93] opacity-40 transition-transform duration-300">
             <ProjectCard project={safeProjects[nextIndex]} isCenter={false} />
           </div>
         )}
       </div>
 
-      {/* Dot indicators */}
       <div className="mt-6 flex items-center justify-center gap-2">
         {safeProjects.map((p, idx) => (
           <button
