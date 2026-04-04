@@ -3,16 +3,21 @@ import Link from "next/link";
 import { defineQuery } from "next-sanity";
 import { sanityFetch } from "@/sanity/lib/live";
 
-const ABOUT_QUERY = defineQuery(`*[_id == "singleton-profile"][0]{
-  firstName,
-  lastName,
-  fullBio,
-  yearsOfExperience,
-  stats,
-  email,
-  phone,
-  location
-}`);
+const ABOUT_QUERY = defineQuery(`
+  coalesce(
+    *[_type == "profile" && _id == "singleton-profile"][0],
+    *[_type == "profile"][0]
+  ){
+    firstName,
+    lastName,
+    fullBio,
+    yearsOfExperience,
+    stats,
+    email,
+    phone,
+    location
+  }
+`);
 
 export async function AboutSection() {
   const { data: profile } = await sanityFetch({ query: ABOUT_QUERY });
@@ -22,7 +27,7 @@ export async function AboutSection() {
   }
 
   return (
-    <section id="about" className="py-20 px-6">
+    <section id="about" className="py-10 px-6">
       <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-12">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">About Me</h2>

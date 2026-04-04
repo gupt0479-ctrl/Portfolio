@@ -9,7 +9,6 @@ import { EducationSection } from "@/components/sections/EducationSection";
 import { ExperienceSection } from "@/components/sections/ExperienceSection";
 import HeroSection from "@/components/sections/HeroSection";
 import { SkillsSection } from "@/components/sections/SkillsSection";
-import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import ObsidianBackground from "@/components/three/ObsidianBackground";
 import { ProjectsSlider } from "@/components/three/ProjectsSlider";
 import { sanityFetch } from "@/sanity/lib/live";
@@ -43,7 +42,6 @@ export default async function PortfolioContent() {
       <main className="relative z-10 min-h-screen text-white">
         <HeroSection />
         <AboutSection />
-        <TestimonialsSection />
         <ExperienceSection />
         <section id="projects" className="mx-auto max-w-6xl px-6 py-24">
           <div className="mb-16">

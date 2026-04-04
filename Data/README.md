@@ -15,14 +15,13 @@ The following data files are available for import:
 | `education.ndjson` | Educational background | 2 degrees |
 | `projects.ndjson` | Portfolio projects | 6 projects |
 | `blog.ndjson` | Blog posts | 6 articles |
-| `services.ndjson` | Services offered | 5 services |
 | `achievements.ndjson` | Awards and achievements | 7 achievements |
 | `certifications.ndjson` | Professional certifications | 5 certifications |
-| `testimonials.ndjson` | Client testimonials | 6 testimonials |
+| `navigation.ndjson` | Navigation links | 10 links |
 | `siteSettings.ndjson` | Site configuration | 1 settings document |
 | `contact.ndjson` | Sample contact submissions | 3 contacts |
 
-**Total: 61 sample documents** ready to populate your portfolio!
+**Total: 50 sample documents** ready to populate your portfolio!
 
 ## ⚠️ Important: Singleton Documents
 
@@ -66,10 +65,9 @@ sanity dataset import education.ndjson production --replace
 sanity dataset import experience.ndjson production --replace
 sanity dataset import projects.ndjson production --replace
 sanity dataset import blog.ndjson production --replace
-sanity dataset import services.ndjson production --replace
 sanity dataset import achievements.ndjson production --replace
 sanity dataset import certifications.ndjson production --replace
-sanity dataset import testimonials.ndjson production --replace
+sanity dataset import navigation.ndjson production --replace
 sanity dataset import siteSettings.ndjson production --replace
 sanity dataset import contact.ndjson production --replace
 ```
@@ -82,7 +80,7 @@ You can also use this one-liner to import all files sequentially:
 
 ```bash
 # From the project root
-cd Data && for file in skills.ndjson profile.ndjson education.ndjson experience.ndjson projects.ndjson blog.ndjson services.ndjson achievements.ndjson certifications.ndjson testimonials.ndjson siteSettings.ndjson contact.ndjson; do sanity dataset import $file production --replace; done
+cd Data && for file in skills.ndjson profile.ndjson education.ndjson experience.ndjson projects.ndjson blog.ndjson achievements.ndjson certifications.ndjson navigation.ndjson siteSettings.ndjson contact.ndjson; do sanity dataset import $file production --replace; done
 ```
 
 ### Method 3: Import Specific Files Only
@@ -140,12 +138,11 @@ The import order matters because some documents reference others. Follow this or
 4. **Experience** - Work history (references skills)
 5. **Projects** - Portfolio projects (references skills)
 6. **Blog** - Blog posts (references profile as author)
-7. **Services** - Service offerings (references skills)
-8. **Achievements** - Awards and recognitions
-9. **Certifications** - Professional certifications (references skills)
-10. **Testimonials** - Client testimonials (references projects)
-11. **Site Settings** - Site configuration
-12. **Contact** - Contact form submissions
+7. **Achievements** - Awards and recognitions
+8. **Certifications** - Professional certifications (references skills)
+9. **Navigation** - Section links and external destinations
+10. **Site Settings** - Site configuration
+11. **Contact** - Contact form submissions
 
 ## 🎨 Customizing the Data
 
@@ -257,10 +254,9 @@ After successful import, you should have:
 - ✅ 2 educational qualifications
 - ✅ 6 portfolio projects with descriptions and tech stacks
 - ✅ 6 blog posts across different categories
-- ✅ 5 service offerings with pricing
 - ✅ 7 achievements and awards
 - ✅ 5 professional certifications
-- ✅ 6 client testimonials
+- ✅ 10 navigation links across portfolio sections and socials
 - ✅ 1 site settings configuration
 - ✅ 3 sample contact submissions
 
@@ -344,4 +340,3 @@ If you encounter any issues:
 **Happy importing! 🚀**
 
 Once imported, your Sanity Studio will be fully populated with professional-looking portfolio data that you can customize to match your actual experience and projects.
-

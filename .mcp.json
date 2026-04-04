@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "obsidian": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["obsidian-mcp-server"],
+      "env": {
+        "OBSIDIAN_API_KEY": "bb7145f6d6c2d0684869f3b8f4d7a6bd342e47329194bbf117d503f42bd639a1",
+        "OBSIDIAN_BASE_URL": "http://127.0.0.1:27123"
+      }
+    }
+  }
+}

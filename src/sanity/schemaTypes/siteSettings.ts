@@ -27,16 +27,6 @@ export const siteSettings = defineType({
       type: "boolean",
       initialValue: true,
     }),
-    defineField({
-      name: "showServices",
-      type: "boolean",
-      initialValue: true,
-    }),
-    defineField({
-      name: "showTestimonials",
-      type: "boolean",
-      initialValue: true,
-    }),
   ],
   preview: {
     select: {

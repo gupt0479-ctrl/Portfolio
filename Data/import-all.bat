@@ -50,13 +50,13 @@ echo Starting import...
 echo.
 
 REM Import files in order
-set FILES=skills.ndjson profile.ndjson education.ndjson experience.ndjson projects.ndjson blog.ndjson services.ndjson achievements.ndjson certifications.ndjson testimonials.ndjson navigation.ndjson siteSettings.ndjson contact.ndjson
+set FILES=skills.ndjson profile.ndjson education.ndjson experience.ndjson projects.ndjson blog.ndjson achievements.ndjson certifications.ndjson navigation.ndjson siteSettings.ndjson contact.ndjson
 
 set COUNT=0
 for %%F in (%FILES%) do (
     set /a COUNT+=1
     if exist "%%F" (
-        echo [!COUNT!/13] Importing %%F...
+        echo Importing %%F...
         call sanity dataset import "%%F" "%DATASET%" --replace
         if errorlevel 1 (
             echo [ERROR] Failed to import %%F
@@ -82,4 +82,3 @@ echo   3. Customize the content with your actual information
 echo   4. Test your frontend application
 echo.
 echo Happy building! 🚀
-

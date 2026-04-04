@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "npx @biomejs/biome check .",
     "format": "biome format --write",
-    "typegen": "mkdir -p src/sanity/types && sanity schema extract --path ./src/sanity/schema.json && sanity typegen generate --enforce-required-fields && mv sanity.types.ts src/sanity/types/index.ts",
+    "typegen": "mkdir -p src/sanity/types && sanity schema extract --path ./src/sanity/schema.json && sanity typegen generate --enforce-required-fields",
     "typecheck": "tsc --noEmit"
   },
   "pnpm": {

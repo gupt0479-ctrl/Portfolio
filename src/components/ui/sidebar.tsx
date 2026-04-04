@@ -125,11 +125,28 @@ function SidebarProvider({
     [state, open, setOpen, isMobile, openMobile, toggleSidebar],
   );
 
+  const isSidebarVisible = isMobile ? openMobile : open;
+
+  React.useEffect(() => {
+    if (!isMobile) return;
+
+    const previousOverflow = document.body.style.overflow;
+    if (openMobile) {
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isMobile, openMobile]);
+
   return (
     <SidebarContext.Provider value={contextValue}>
       <TooltipProvider delayDuration={0}>
         <div
           data-slot="sidebar-wrapper"
+          data-chat-open={isSidebarVisible ? "true" : "false"}
+          data-chat-mobile-open={isMobile && openMobile ? "true" : "false"}
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH,
@@ -186,7 +203,7 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
-          className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
+          className="bg-sidebar text-sidebar-foreground inset-y-0 h-svh w-(--sidebar-width) max-w-none rounded-none border-l-0 p-0 shadow-2xl [&>button]:hidden"
           style={
             {
               "--sidebar-width": SIDEBAR_WIDTH_MOBILE,

@@ -1,6 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Poppins } from "next/font/google";
+import { Lora, Ubuntu } from "next/font/google";
 import Script from "next/script";
 import { SanityLive } from "@/sanity/lib/live";
 import "./globals.css";
@@ -8,15 +8,18 @@ import { AppSidebar } from "@/components/app-sidebar";
 import Providers from "@/components/Providers";
 import SidebarToggle from "@/components/SidebarToggle";
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const ubuntu = Ubuntu({
+  variable: "--font-ubuntu",
   subsets: ["latin"],
+  weight: ["300", "400", "500", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
 });
-const poppins = Poppins({
-  variable: "--font-poppins",
+const lora = Lora({
+  variable: "--font-lora",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -34,16 +37,16 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
         <body
-          className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} min-h-screen antialiased`}
+          className={`${ubuntu.variable} ${lora.variable} min-h-screen overflow-x-hidden bg-[#07070d] antialiased`}
         >
           <Script
-            src="https://chatkit.studio/chatkit.js"
+            src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js"
             strategy="afterInteractive"
           />
           <Providers>
-            <div className="flex min-h-svh w-full">
+            <div className="flex min-h-svh w-full overflow-x-hidden">
+              <main className="relative min-w-0 flex-1">{children}</main>
               <AppSidebar side="right" />
-              <main className="flex-1 relative">{children}</main>
             </div>
             <SidebarToggle />
           </Providers>

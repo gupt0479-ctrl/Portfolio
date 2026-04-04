@@ -4,12 +4,10 @@ import {
   BulbOutlineIcon,
   CaseIcon,
   CheckmarkCircleIcon,
-  CommentIcon,
   ControlsIcon,
   DocumentIcon,
   MasterDetailIcon,
   RocketIcon,
-  SquareIcon,
   StarIcon,
   UserIcon,
 } from "@sanity/icons";
@@ -40,9 +38,6 @@ export const structure: StructureResolver = (S) =>
               S.documentTypeListItem("skill")
                 .title("Skills")
                 .icon(ControlsIcon),
-              S.documentTypeListItem("service")
-                .title("Services")
-                .icon(SquareIcon),
             ]),
         ),
       S.divider(),
@@ -71,15 +66,12 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
 
       S.listItem()
-        .title("Content & Community")
+        .title("Content")
         .icon(DocumentIcon)
         .child(
           S.list()
-            .title("Content & Community")
+            .title("Content")
             .items([
-              S.documentTypeListItem("testimonial")
-                .title("Testimonials")
-                .icon(CommentIcon),
               S.documentTypeListItem("blog")
                 .title("Blog Posts")
                 .icon(DocumentIcon),

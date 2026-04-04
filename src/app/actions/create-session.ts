@@ -1,25 +1,41 @@
 "use server";
 
 import { auth } from "@clerk/nextjs/server";
+import { WORKFLOW_ID } from "@/lib/config";
 
-export async function createSession(): Promise<string> {
+export async function createSession() {
   const { userId } = await auth();
 
-  const response = await fetch("https://api.openai.com/v1/realtime/sessions", {
+  if (!userId) {
+    throw new Error("Unauthorized - Please sign in");
+  }
+
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY not configured");
+  }
+
+  if (!WORKFLOW_ID) {
+    throw new Error("WORKFLOW_ID not configured");
+  }
+
+  // Create ChatKit session with Clerk user ID
+  const response = await fetch("https://api.openai.com/v1/chatkit/sessions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      Authorization: `Bearer ${apiKey}`,
+      "OpenAI-Beta": "chatkit_beta=v1",
     },
     body: JSON.stringify({
-      workflow_id: process.env.NEXT_PUBLIC_CHATKIT_WORKFLOW_ID,
-      external_user_id: userId ?? "anonymous",
+      workflow: { id: WORKFLOW_ID },
+      user: userId,
     }),
   });
 
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Failed to create session: ${response.status} ${err}`);
+    const error = await response.text();
+    throw new Error(`Failed to create session: ${error}`);
   }
 
   const data = await response.json();

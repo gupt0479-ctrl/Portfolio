@@ -27,10 +27,9 @@ count(*)
   "blog": count(*[_type == "blog"]),
   "experience": count(*[_type == "experience"]),
   "education": count(*[_type == "education"]),
-  "services": count(*[_type == "service"]),
   "achievements": count(*[_type == "achievement"]),
   "certifications": count(*[_type == "certification"]),
-  "testimonials": count(*[_type == "testimonial"])
+  "navigation": count(*[_type == "navigation"])
 }
 ```
 
@@ -313,48 +312,6 @@ count(*)
 
 ---
 
-## 🛠️ Services Queries
-
-### Get all services
-```groq
-*[_type == "service"] | order(order asc){
-  title,
-  slug,
-  shortDescription,
-  features,
-  pricing,
-  timeline,
-  featured,
-  icon{asset->{url}},
-  technologies[]->{name, category}
-}
-```
-
-### Get featured services
-```groq
-*[_type == "service" && featured == true] | order(order asc){
-  title,
-  shortDescription,
-  features,
-  pricing,
-  icon{asset->{url}}
-}
-```
-
-### Get service by slug with full details
-```groq
-*[_type == "service" && slug.current == $slug][0]{
-  ...,
-  fullDescription[]{
-    ...,
-    children[]{...}
-  },
-  technologies[]->{name, category, icon}
-}
-```
-
----
-
 ## 🏆 Achievements Queries
 
 ### Get all achievements (newest first)
@@ -415,39 +372,6 @@ count(*)
 
 ---
 
-## 💬 Testimonials Queries
-
-### Get all testimonials
-```groq
-*[_type == "testimonial"] | order(order asc){
-  name,
-  position,
-  company,
-  testimonial,
-  rating,
-  date,
-  featured,
-  avatar{asset->{url}},
-  companyLogo{asset->{url}},
-  linkedinUrl,
-  project->{title, slug}
-}
-```
-
-### Get featured testimonials
-```groq
-*[_type == "testimonial" && featured == true] | order(order asc){
-  name,
-  position,
-  company,
-  testimonial,
-  rating,
-  avatar{asset->{url}}
-}
-```
-
----
-
 ## ⚙️ Site Settings Query
 
 ### Get site settings
@@ -468,8 +392,6 @@ count(*)
   heroSubheadline,
   heroBackground{asset->{url}},
   showBlog,
-  showServices,
-  showTestimonials,
   footer
 }
 ```
@@ -555,14 +477,6 @@ count(*)
     readTime,
     featuredImage{asset->{url}}
   },
-  "testimonials": *[_type == "testimonial" && featured == true] | order(order asc){
-    name,
-    position,
-    company,
-    testimonial,
-    rating,
-    avatar{asset->{url}}
-  },
   "siteSettings": *[_type == "siteSettings"][0]{
     heroHeadline,
     heroSubheadline,
@@ -643,7 +557,7 @@ count(*)
 ### Search across multiple document types
 ```groq
 *[
-  _type in ["project", "blog", "service"] 
+  _type in ["project", "blog"]
   && (
     title match "*AI*" 
     || tagline match "*AI*"
@@ -655,8 +569,7 @@ count(*)
   "slug": slug.current,
   "preview": select(
     _type == "project" => tagline,
-    _type == "blog" => excerpt,
-    _type == "service" => shortDescription
+    _type == "blog" => excerpt
   )
 }
 ```
@@ -715,4 +628,3 @@ count(*)
 - [GROQ Arcade (Practice)](https://www.sanity.io/docs/groq-arcade)
 
 Happy querying! 🚀
-

@@ -1,6 +1,6 @@
+import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 import { PROFILE_QUERY } from "@/sanity/lib/queries";
-import { urlFor } from "@/sanity/lib/image";
 import { HeroContent } from "./HeroContent";
 
 export default async function HeroSection() {

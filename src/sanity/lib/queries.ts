@@ -40,37 +40,17 @@ coalesce(
 
 export const SITE_SETTINGS_QUERY = defineQuery(`
 coalesce(
+  *[_type == "siteSettings" && _id == "singleton-site-settings"][0],
   *[_type == "siteSettings" && _id == "singleton-siteSettings"][0],
   *[_type == "siteSettings"][0]
 ){
   _id,
   siteTitle,
   siteDescription,
-  siteKeywords,
   siteLogo,
-  favicon,
-  ogImage,
-  primaryColor,
-  secondaryColor,
-  accentColor,
-  ctaText,
-  ctaUrl,
-  heroHeadline,
-  heroSubheadline,
-  heroBackground,
   showBlog,
-  showServices,
-  showTestimonials,
-  googleAnalyticsId,
-  facebookPixelId,
-  twitterHandle,
-  footer{
-    text,
-    copyrightText,
-    links[]{ title, url }
-  },
-  maintenanceMode,
-  maintenanceMessage
+  _createdAt,
+  _updatedAt
 }
 `);
 
@@ -90,7 +70,7 @@ export const NAVIGATION_QUERY = defineQuery(`
 `);
 
 export const PROJECTS_QUERY = defineQuery(`
-*[_type == "project"] | order(featured desc, order asc){
+*[_type == "project"] | order(order asc, title asc){
   _id,
   title,
   slug{ current },
@@ -103,12 +83,21 @@ export const PROJECTS_QUERY = defineQuery(`
     proficiency,
     percentage,
     yearsOfExperience,
-    color
+    tone
   },
   category,
   liveUrl,
   githubUrl,
-  featured,
+  "featured": select(
+    featured == true => true,
+    visibility == "featured" => true,
+    false
+  ),
+  "visibility": select(
+    defined(visibility) => visibility,
+    featured == true => "featured",
+    "standard"
+  ),
   order
 }
 `);
@@ -121,14 +110,19 @@ export const SKILLS_QUERY = defineQuery(`
   proficiency,
   percentage,
   yearsOfExperience,
-  color
+  "tone": coalesce(tone, "neutral")
 }
 `);
 
 export const CHAT_PROFILE_QUERY = defineQuery(`
-  *[_id == "singleton-profile"][0]{
-    firstName, lastName, headline
-  }
+coalesce(
+  *[_type == "profile" && _id == "singleton-profile"][0],
+  *[_type == "profile"][0]
+){
+  firstName,
+  lastName,
+  headline
+}
 `);
 
 export const EXPERIENCE_QUERY = defineQuery(`
@@ -140,7 +134,17 @@ export const EXPERIENCE_QUERY = defineQuery(`
   location,
   startDate,
   endDate,
-  current,
+  "current": select(
+    current == true => true,
+    tenure == "current" => true,
+    false
+  ),
+  "tenure": select(
+    defined(tenure) => tenure,
+    current == true => "current",
+    "past"
+  ),
+  description,
   responsibilities[],
   achievements[],
   technologies[]->{
@@ -150,7 +154,7 @@ export const EXPERIENCE_QUERY = defineQuery(`
     proficiency,
     percentage,
     yearsOfExperience,
-    color
+    tone
   },
   companyLogo,
   companyWebsite,
@@ -164,12 +168,6 @@ export const EDUCATION_QUERY = defineQuery(`
   }
 `);
 
-export const TESTIMONIALS_QUERY = defineQuery(`
-  *[_type == "testimonial"] | order(order asc){
-    _id, testimonial, name, position, avatar, order
-  }
-`);
-
 export const CERTIFICATIONS_QUERY = defineQuery(`
   *[_type == "certification"] | order(issueDate desc){
     _id, name, issuer, issueDate, credentialId, credentialUrl, logo
@@ -179,12 +177,6 @@ export const CERTIFICATIONS_QUERY = defineQuery(`
 export const ACHIEVEMENTS_QUERY = defineQuery(`
   *[_type == "achievement"] | order(date desc){
     _id, title, description, date, type, featured
-  }
-`);
-
-export const SERVICES_QUERY = defineQuery(`
-  *[_type == "service"] | order(order asc){
-    _id, title, description, features, price, priceType, featured, icon, order
   }
 `);
 

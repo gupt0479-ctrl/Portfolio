@@ -12,13 +12,12 @@ This document provides a detailed overview of all the dummy data available for y
 | `education.ndjson` | 2 KB | 2 | ✅ Ready |
 | `projects.ndjson` | 8 KB | 6 | ✅ Ready |
 | `blog.ndjson` | 4 KB | 6 | ✅ Ready |
-| `services.ndjson` | 6 KB | 5 | ✅ Ready |
 | `achievements.ndjson` | 3 KB | 7 | ✅ Ready |
 | `certifications.ndjson` | 3 KB | 5 | ✅ Ready |
-| `testimonials.ndjson` | 4 KB | 6 | ✅ Ready |
+| `navigation.ndjson` | 2 KB | 10 | ✅ Ready |
 | `siteSettings.ndjson` | 2 KB | 1 | ✅ Ready |
 | `contact.ndjson` | 2 KB | 3 | ✅ Ready |
-| **Total** | **~43 KB** | **61** | ✅ |
+| **Total** | **~35 KB** | **50** | ✅ |
 
 ---
 
@@ -172,37 +171,6 @@ This document provides a detailed overview of all the dummy data available for y
 
 ---
 
-## 🛠️ Services Data (5 services)
-
-### Featured Services (3):
-1. **Full-Stack Web Development** 🌟
-   - Starting at $5,000
-   - 4-12 weeks timeline
-
-2. **AI & Machine Learning Integration** 🌟
-   - Starting at $3,000
-   - 2-8 weeks timeline
-
-3. **Technical Consulting & Code Review** 🌟
-   - $150/hour
-   - 1-4 weeks timeline
-
-### Other Services (2):
-4. **API Development & Integration** - Starting at $2,500
-5. **Mobile App Development** - Starting at $8,000
-
-**Each includes:**
-- ✅ Title, slug, and descriptions
-- ✅ Key features (5-6 bullet points)
-- ✅ Deliverables list
-- ✅ Pricing structure
-- ✅ Typical timeline
-- ✅ Technologies used
-- ✅ Featured status
-- ⚠️ Service icons (placeholders - need upload)
-
----
-
 ## 🏆 Achievements Data (7 achievements)
 
 ### Featured Achievements (4):
@@ -258,31 +226,6 @@ This document provides a detailed overview of all the dummy data available for y
 - ✅ Description
 - ✅ Related skills references
 - ⚠️ Certification badges/logos (placeholders - need upload)
-
----
-
-## 💬 Testimonials Data (6 testimonials)
-
-### Featured Testimonials (3):
-1. **Sarah Johnson** - CTO at TechStartup Inc ⭐⭐⭐⭐⭐
-2. **Michael Chen** - Product Manager at InnovateHub ⭐⭐⭐⭐⭐
-3. **Emily Rodriguez** - Founder & CEO at EcoSolutions ⭐⭐⭐⭐⭐
-
-### Other Testimonials (3):
-4. **David Kim** - Engineering Manager at DataCorp ⭐⭐⭐⭐⭐
-5. **Lisa Thompson** - VP of Engineering at CloudScale ⭐⭐⭐⭐⭐
-6. **Robert Martinez** - Director at FinanceFlow ⭐⭐⭐⭐⭐
-
-**Each includes:**
-- ✅ Client name, position, and company
-- ✅ Detailed testimonial text
-- ✅ 5-star rating
-- ✅ Date received
-- ✅ LinkedIn profile URL
-- ✅ Featured status
-- ✅ Related project reference
-- ⚠️ Avatar photos (placeholders - need upload)
-- ⚠️ Company logos (placeholders - need upload)
 
 ---
 
@@ -348,11 +291,7 @@ Profile
 Skills
   ├─ Referenced by: Projects (technologies)
   ├─ Referenced by: Experience (technologies)
-  ├─ Referenced by: Services (technologies)
   └─ Referenced by: Certifications (skills)
-
-Projects
-  └─ Referenced by: Testimonials (related project)
 
 Blog
   ├─ References: Profile (author)
@@ -372,14 +311,13 @@ Blog
 ### Medium Priority:
 5. **Add Blog Content** - Write actual blog post content
 6. **Configure Site Settings** - Update colors, CTAs, analytics IDs
-7. **Review Services** - Adjust pricing and service offerings
-8. **Check URLs** - Update placeholder URLs with real links
+7. **Check URLs** - Update placeholder URLs with real links
 
 ### Optional:
-9. **Add More Data** - Create additional projects, blog posts, etc.
-10. **Test Queries** - Use the GROQ examples to test data retrieval
-11. **Customize Styling** - Adjust colors and branding
-12. **Set Up Related Posts** - Link blog posts together
+8. **Add More Data** - Create additional projects, blog posts, etc.
+9. **Test Queries** - Use the GROQ examples to test data retrieval
+10. **Customize Styling** - Adjust colors and branding
+11. **Set Up Related Posts** - Link blog posts together
 
 ---
 
@@ -422,4 +360,3 @@ Use the README.md for step-by-step import instructions!
 **Last Updated:** October 2024  
 **Data Version:** 1.0  
 **Compatible With:** Sanity v3+
-
