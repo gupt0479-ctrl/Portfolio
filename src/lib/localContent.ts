@@ -11,7 +11,6 @@ import type {
   CONTACT_QUERYResult,
   EDUCATION_SECTION_QUERYResult,
   EXPERIENCE_QUERYResult,
-  FOOTER_QUERYResult,
   NAVIGATION_QUERYResult,
   PROFILE_QUERYResult,
   PROJECTS_QUERYResult,
@@ -21,7 +20,6 @@ import type {
 
 type JsonRecord = Record<string, unknown>;
 type ProfileResult = NonNullable<PROFILE_QUERYResult>;
-type OptionalSocialLinks = NonNullable<FOOTER_QUERYResult>["socialLinks"];
 
 const DATA_DIR = path.join(process.cwd(), "Data");
 
@@ -163,20 +161,17 @@ function normalizeProfileSocialLinks(
   };
 }
 
-function toOptionalSocialLinks(
+function toContactSocialLinks(
   value: ProfileResult["socialLinks"],
-): OptionalSocialLinks {
-  if (!value) return null;
+): NonNullable<CONTACT_QUERYResult>["socialLinks"] {
+  if (!value)
+    return { github: null, linkedin: null, twitter: null, website: null };
 
   return {
-    github: value.github ?? undefined,
-    linkedin: value.linkedin ?? undefined,
-    twitter: value.twitter ?? undefined,
-    website: value.website ?? undefined,
-    medium: value.medium ?? undefined,
-    devto: value.devto ?? undefined,
-    youtube: value.youtube ?? undefined,
-    stackoverflow: value.stackoverflow ?? undefined,
+    github: value.github ?? null,
+    linkedin: value.linkedin ?? null,
+    twitter: value.twitter ?? null,
+    website: value.website ?? null,
   };
 }
 
@@ -226,7 +221,7 @@ export const getLocalProfile = cache(async (): Promise<PROFILE_QUERYResult> => {
     headlineAnimationDuration: asNumber(profile.headlineAnimationDuration),
     shortBio: asString(profile.shortBio),
     fullBio: normalizePortableText(profile.fullBio),
-    profileImage: null,
+    profileImage: profile.profileImage ?? null,
     email: asString(profile.email),
     phone: asString(profile.phone),
     location: asString(profile.location),
@@ -253,18 +248,6 @@ export const getLocalChatProfile = cache(
   },
 );
 
-export const getLocalFooterProfile = cache(
-  async (): Promise<FOOTER_QUERYResult> => {
-    const profile = await getLocalProfile();
-    if (!profile) return null;
-
-    return {
-      email: profile.email,
-      socialLinks: toOptionalSocialLinks(profile.socialLinks),
-    };
-  },
-);
-
 export const getLocalContactProfile = cache(
   async (): Promise<CONTACT_QUERYResult> => {
     const profile = await getLocalProfile();
@@ -272,9 +255,8 @@ export const getLocalContactProfile = cache(
 
     return {
       email: profile.email,
-      phone: profile.phone,
       location: profile.location,
-      socialLinks: toOptionalSocialLinks(profile.socialLinks),
+      socialLinks: toContactSocialLinks(profile.socialLinks),
     };
   },
 );

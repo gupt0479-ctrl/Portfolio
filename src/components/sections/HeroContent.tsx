@@ -3,8 +3,8 @@
 import type { LucideIcon } from "lucide-react";
 import { Github, Globe, Linkedin, Mail, MapPin, Twitter } from "lucide-react";
 import { motion } from "motion/react";
-import { useState } from "react";
 import type { PROFILE_QUERYResult } from "@/sanity/types";
+import { useIridescentEffect } from "@/lib/hooks/useIridescentEffect";
 import { LayoutTextFlip } from "../ui/layout-text-flip";
 import { ProfileImage } from "./ProfileImage";
 
@@ -28,19 +28,35 @@ const CTA_BUTTONS = [
   { label: "Contact", href: "#contact", primary: false },
 ] as const;
 
-function cta3dStyle(hovered: boolean, primary: boolean) {
-  return {
-    transition: "transform 180ms ease, box-shadow 180ms ease",
-    willChange: "transform" as const,
-    transform: hovered
-      ? "perspective(600px) rotateX(8deg) translateY(-4px) scale(1.03)"
-      : "none",
-    boxShadow: hovered
-      ? primary
-        ? "0 16px 32px rgba(255,255,255,0.12)"
-        : "0 8px 20px rgba(167,139,250,0.15)"
-      : "none",
-  };
+function IridCTA({
+  href,
+  primary,
+  children,
+}: {
+  href: string;
+  primary: boolean;
+  children: React.ReactNode;
+}) {
+  const { ref, overlayStyle } = useIridescentEffect({ gradientAlpha: 0.14 });
+  return (
+    <div ref={ref} className="relative inline-flex overflow-hidden rounded-full">
+      <span
+        className="pointer-events-none absolute inset-0 z-10 rounded-full"
+        style={overlayStyle}
+        aria-hidden
+      />
+      <a
+        href={href}
+        className={
+          primary
+            ? "float-btn relative z-20 rounded-full bg-white px-5 py-3 text-sm font-medium text-black"
+            : "float-btn relative z-20 rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-white/90 hover:border-white/25 hover:bg-white/10 transition-colors duration-200"
+        }
+      >
+        {children}
+      </a>
+    </div>
+  );
 }
 
 export function HeroContent({
@@ -50,8 +66,6 @@ export function HeroContent({
   profile: Profile;
   profileImageUrl: string | null;
 }) {
-  const [hoveredCta, setHoveredCta] = useState<string | null>(null);
-
   const name = profile.firstName
     ? `${profile.firstName} ${profile.lastName || ""}`.trim()
     : "Anant Gupta";
@@ -84,6 +98,7 @@ export function HeroContent({
       <div className="relative mx-auto flex min-h-[88vh] w-full max-w-6xl flex-col justify-center px-6 py-16">
         <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
           <div>
+            <p className="section-kicker">// hi, I'm</p>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -120,7 +135,7 @@ export function HeroContent({
                 initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.55, delay: 0.11 }}
-                className="mt-4 max-w-2xl text-base leading-relaxed text-white/70"
+                className="mt-4 max-w-xl text-base leading-relaxed text-white/70 line-clamp-3"
               >
                 {profile.shortBio}
               </motion.p>
@@ -134,20 +149,9 @@ export function HeroContent({
               className="mt-8 flex flex-wrap items-center gap-3"
             >
               {CTA_BUTTONS.map(({ label, href, primary }) => (
-                <a
-                  key={label}
-                  href={href}
-                  onMouseEnter={() => setHoveredCta(label)}
-                  onMouseLeave={() => setHoveredCta(null)}
-                  style={cta3dStyle(hoveredCta === label, primary)}
-                  className={
-                    primary
-                      ? "rounded-full bg-white px-5 py-3 text-sm font-medium text-black"
-                      : "rounded-full border border-white/15 bg-white/5 px-5 py-3 text-sm font-medium text-white/90 hover:border-white/25 hover:bg-white/10 transition-colors duration-200"
-                  }
-                >
+                <IridCTA key={label} href={href} primary={primary}>
                   {label}
-                </a>
+                </IridCTA>
               ))}
             </motion.div>
 
@@ -171,7 +175,7 @@ export function HeroContent({
                     }
                     title={label}
                     aria-label={label}
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white/70 transition-colors duration-200 hover:border-white/40 hover:bg-white/10 hover:text-white"
+                    className="float-btn flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white/70 transition-colors duration-200 hover:border-violet-400/40 hover:bg-white/10 hover:text-white"
                   >
                     <Icon className="h-[15px] w-[15px]" />
                   </a>

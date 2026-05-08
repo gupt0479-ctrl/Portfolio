@@ -12,7 +12,8 @@ export default function StudioClient() {
       const first = args[0];
       if (
         typeof first === "string" &&
-        first.includes("does not recognize the `disableTransition` prop")
+        first.includes("React does not recognize the") &&
+        first.includes("disableTransition")
       ) {
         return;
       }

@@ -1,7 +1,6 @@
 import { ClerkProvider } from "@clerk/nextjs";
 import type { Metadata } from "next";
 import { Lora, Ubuntu } from "next/font/google";
-import Script from "next/script";
 import { SanityLive } from "@/sanity/lib/live";
 import "./globals.css";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -25,7 +24,7 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: "Anant Gupta | Portfolio",
-  description: "Full-stack developer portfolio with Sanity + AI Twin + 3D web.",
+  description: "Full-stack developer portfolio with Sanity, Portfolio Lab, and 3D web.",
 };
 
 export default function RootLayout({
@@ -39,10 +38,6 @@ export default function RootLayout({
         <body
           className={`${ubuntu.variable} ${lora.variable} min-h-screen overflow-x-hidden bg-[#07070d] antialiased`}
         >
-          <Script
-            src="https://cdn.platform.openai.com/deployments/chatkit/chatkit.js"
-            strategy="afterInteractive"
-          />
           <Providers>
             <div className="flex min-h-svh w-full overflow-x-hidden">
               <main className="relative min-w-0 flex-1">{children}</main>

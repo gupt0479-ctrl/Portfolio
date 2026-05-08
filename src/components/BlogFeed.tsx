@@ -2,7 +2,7 @@
 
 import { ExternalLink, Github } from "lucide-react";
 import Link from "next/link";
-import { useState, type CSSProperties } from "react";
+import { useRef, useState } from "react";
 import type { Blog } from "@/sanity/types";
 
 const PINNED_GITHUB = {
@@ -10,8 +10,40 @@ const PINNED_GITHUB = {
   title: "GitHub",
   description:
     "All my public repositories, experiments, and open source work.",
-  url: "https://github.com/TODO_REPLACE_WITH_HANDLE",
+  url: "https://github.com/anantgupta129",
 } as const;
+
+function MagneticButton({ href, children }: { href: string; children: React.ReactNode }) {
+  const ref = useRef<HTMLAnchorElement>(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) * 0.15;
+    const dy = (e.clientY - cy) * 0.15;
+    setOffset({ x: dx, y: dy });
+  };
+
+  const handleMouseLeave = () => setOffset({ x: 0, y: 0 });
+
+  return (
+    <a
+      ref={ref}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ transform: `translate(${offset.x}px, ${offset.y}px)`, transition: "transform 200ms ease" }}
+      className="float-btn text-xs text-violet-300/90 hover:text-violet-200 font-sans px-3 py-1 rounded-full border border-violet-500/30"
+    >
+      {children}
+    </a>
+  );
+}
 
 function formatPostDate(iso?: string) {
   if (!iso) return "";
@@ -25,29 +57,11 @@ function formatPostDate(iso?: string) {
     .replace(",", "");
 }
 
-function card3d(hovered: boolean): CSSProperties {
-  return {
-    transition: "transform 180ms ease, box-shadow 180ms ease",
-    willChange: "transform",
-    transform: hovered
-      ? "perspective(600px) rotateX(8deg) translateY(-4px) scale(1.03)"
-      : "none",
-    boxShadow: hovered
-      ? "0 8px 20px rgba(167,139,250,0.12)"
-      : "none",
-  };
-}
-
 export function BlogFeed({ posts }: { posts: Blog[] }) {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
-
   return (
     <div className="flex flex-col gap-4">
       <article
-        className="relative w-full rounded-xl border border-white/10 border-l-2 border-l-violet-500/60 bg-white/[0.02] p-5 transition-colors duration-200 hover:border-white/20"
-        onMouseEnter={() => setHoveredId(PINNED_GITHUB.id)}
-        onMouseLeave={() => setHoveredId(null)}
-        style={card3d(hoveredId === PINNED_GITHUB.id)}
+        className="float-btn relative w-full rounded-xl border border-white/10 border-l-2 border-l-violet-500/60 cosmic-card p-5 transition-colors duration-200 hover:border-white/20"
       >
         <div className="flex items-start gap-3">
           <Github className="mt-0.5 size-4 shrink-0 text-white/50" />
@@ -59,14 +73,7 @@ export function BlogFeed({ posts }: { posts: Blog[] }) {
               {PINNED_GITHUB.description}
             </p>
             <div className="mt-3 flex justify-end">
-              <a
-                href={PINNED_GITHUB.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-violet-300/90 hover:text-violet-200 font-sans"
-              >
-                Visit →
-              </a>
+              <MagneticButton href={PINNED_GITHUB.url}>Visit →</MagneticButton>
             </div>
           </div>
         </div>
@@ -75,15 +82,11 @@ export function BlogFeed({ posts }: { posts: Blog[] }) {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => {
           const href = `/blog/${post.slug?.current ?? ""}`;
-          const hovered = hoveredId === post._id;
           return (
             <Link
               key={post._id}
               href={href}
-              onMouseEnter={() => setHoveredId(post._id)}
-              onMouseLeave={() => setHoveredId(null)}
-              style={card3d(hovered)}
-              className="group relative flex min-h-[180px] flex-col rounded-xl border border-white/10 bg-white/[0.02] p-5 transition-colors duration-200 hover:border-white/[0.28]"
+              className="float-btn group relative flex min-h-[180px] flex-col rounded-xl border border-white/10 cosmic-card p-5 transition-colors duration-200 hover:border-white/[0.28]"
             >
               <span
                 className="absolute right-4 top-4 text-white/25 transition-colors group-hover:text-white/50"
@@ -92,9 +95,7 @@ export function BlogFeed({ posts }: { posts: Blog[] }) {
                 <ExternalLink className="size-3.5" strokeWidth={1.75} />
               </span>
               {post.category ? (
-                <span className="inline-block rounded-full border border-white/15 px-2 py-0.5 text-[10px] text-white/35">
-                  {post.category}
-                </span>
+                <span className="orbit-chip">{post.category}</span>
               ) : null}
               <h3 className="mt-2 line-clamp-2 text-base font-medium text-white/85 pr-8">
                 {post.title}

@@ -6,7 +6,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
 } from "react";
 import { CometCard } from "@/components/ui/comet-card";
@@ -25,17 +24,6 @@ export type ContactProfile = {
   socialLinks?: SocialLinks | null;
 };
 
-function social3d(hovered: boolean): CSSProperties {
-  return {
-    transition: "transform 180ms ease, box-shadow 180ms ease",
-    willChange: "transform",
-    transform: hovered
-      ? "perspective(600px) rotateX(8deg) translateY(-4px) scale(1.03)"
-      : "none",
-    boxShadow: hovered ? "0 8px 20px rgba(167,139,250,0.15)" : "none",
-  };
-}
-
 function IridSocialButton({
   href,
   label,
@@ -46,15 +34,12 @@ function IridSocialButton({
   children: ReactNode;
 }) {
   const { ref, overlayStyle } = useIridescentEffect({ gradientAlpha: 0.12 });
-  const [hovered, setHovered] = useState(false);
   const isMail = href.startsWith("mailto:");
 
   return (
     <div
       ref={ref}
       className="relative inline-flex overflow-hidden rounded-full"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
       <span
         className="pointer-events-none absolute inset-0 z-[1] rounded-full"
@@ -66,8 +51,7 @@ function IridSocialButton({
         target={isMail ? undefined : "_blank"}
         rel={isMail ? undefined : "noopener noreferrer"}
         aria-label={label}
-        style={social3d(hovered)}
-        className="relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white/75 hover:text-white"
+        className="float-btn relative z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white/75 hover:text-white"
       >
         {children}
       </a>
@@ -102,85 +86,82 @@ export function ContactPanel({ profile }: { profile: ContactProfile | null }) {
   const s = profile?.socialLinks;
 
   return (
-    <section id="contact" className="mx-auto max-w-6xl px-6 py-24">
-      <div className="mx-auto max-w-xl text-center">
+    <section id="contact" className="section-backdrop mx-auto max-w-6xl px-6 py-24">
+      <div className="mx-auto max-w-md text-center">
+        <p className="section-kicker">// uplink</p>
         <h2 className="text-3xl md:text-4xl font-display font-bold text-white">
-          Tired of chatting to my AI Twin?
+          Let&apos;s build something
         </h2>
         <p className="mt-2 text-base text-white/45 font-sans">
-          I&apos;m a real person. Reach out directly.
+          Internships, collaborations, or just to say hi.
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-xl">
-        <CometCard rotateDepth={10} translateDepth={12}>
-          <div className="relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm md:p-8">
+      <div className="mx-auto mt-10 max-w-md">
+        <CometCard variant="subtle" rotateDepth={8} translateDepth={10}>
+          <div className="relative overflow-hidden rounded-xl cosmic-card p-6 text-center">
             {email ? (
               <div>
-                <p className="text-xs text-white/35 font-mono uppercase tracking-widest mb-1">
+                <p className="text-xs text-white/35 font-mono uppercase tracking-widest mb-2">
                   Email
                 </p>
-                <div className="flex flex-wrap items-center gap-3">
-                  <p className="text-lg text-white/85 font-medium font-sans">
-                    {email}
-                  </p>
+                <p className="text-lg text-white/85 font-medium font-sans">{email}</p>
+                <div className="flex justify-center gap-2 mt-3">
                   <button
                     type="button"
                     onClick={copyEmail}
                     aria-label="Copy email"
-                    className="inline-flex items-center gap-1.5 text-white/35 hover:text-white/70 transition-colors"
+                    className="float-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs text-white/60 hover:text-white/90 transition-colors"
                   >
-                    <Clipboard className="size-[15px]" strokeWidth={1.75} />
+                    <Clipboard className="size-[13px]" strokeWidth={1.75} />
+                    {copied ? "Copied!" : "Copy"}
                   </button>
-                  {copied ? (
-                    <span className="text-xs text-violet-300 font-sans">
-                      Copied!
-                    </span>
-                  ) : null}
+                  <a
+                    href={`mailto:${email}`}
+                    className="float-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs text-white/60 hover:text-white/90 transition-colors"
+                  >
+                    <Mail className="size-[13px]" strokeWidth={1.75} />
+                    Open Mail
+                  </a>
                 </div>
               </div>
             ) : null}
 
             {profile?.location ? (
-              <p className="mt-4 flex items-center gap-2 text-sm text-white/40 font-sans">
+              <p className="mt-4 flex items-center justify-center gap-2 text-sm text-white/40 font-sans">
                 <MapPin className="size-[13px] shrink-0 text-white/35" />
                 {profile.location}
               </p>
             ) : null}
 
-            <div className="my-6 border-t border-white/[0.08]" />
+            <div className="my-5 border-t border-white/[0.06]" />
 
-            <div>
-              <p className="text-xs text-white/35 font-mono uppercase tracking-widest mb-3">
-                Connect
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {s?.github ? (
-                  <IridSocialButton href={s.github} label="GitHub">
-                    <Github className="size-4" />
-                  </IridSocialButton>
-                ) : null}
-                {s?.linkedin ? (
-                  <IridSocialButton href={s.linkedin} label="LinkedIn">
-                    <Linkedin className="size-4" />
-                  </IridSocialButton>
-                ) : null}
-                {s?.twitter ? (
-                  <IridSocialButton href={s.twitter} label="Twitter / X">
-                    <Twitter className="size-4" />
-                  </IridSocialButton>
-                ) : null}
-                {s?.website ? (
-                  <IridSocialButton href={s.website} label="Website">
-                    <Globe className="size-4" />
-                  </IridSocialButton>
-                ) : null}
-                {email ? (
-                  <IridSocialButton href={`mailto:${email}`} label="Email">
-                    <Mail className="size-4" />
-                  </IridSocialButton>
-                ) : null}
-              </div>
+            <div className="flex justify-center gap-3 flex-wrap">
+              {s?.github ? (
+                <IridSocialButton href={s.github} label="GitHub">
+                  <Github className="size-4" />
+                </IridSocialButton>
+              ) : null}
+              {s?.linkedin ? (
+                <IridSocialButton href={s.linkedin} label="LinkedIn">
+                  <Linkedin className="size-4" />
+                </IridSocialButton>
+              ) : null}
+              {s?.twitter ? (
+                <IridSocialButton href={s.twitter} label="Twitter / X">
+                  <Twitter className="size-4" />
+                </IridSocialButton>
+              ) : null}
+              {s?.website ? (
+                <IridSocialButton href={s.website} label="Website">
+                  <Globe className="size-4" />
+                </IridSocialButton>
+              ) : null}
+              {email ? (
+                <IridSocialButton href={`mailto:${email}`} label="Email">
+                  <Mail className="size-4" />
+                </IridSocialButton>
+              ) : null}
             </div>
           </div>
         </CometCard>

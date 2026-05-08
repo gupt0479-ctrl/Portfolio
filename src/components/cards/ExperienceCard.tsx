@@ -6,6 +6,21 @@ import type { EXPERIENCE_QUERYResult } from "@/sanity/types";
 
 type Experience = EXPERIENCE_QUERYResult[0];
 
+const CATEGORY_COLORS: Record<string, string> = {
+  frontend: "rgba(143, 124, 247, 0.7)",
+  backend: "rgba(96, 165, 250, 0.7)",
+  "ai-ml": "rgba(52, 211, 153, 0.7)",
+  devops: "rgba(244, 114, 182, 0.7)",
+  database: "rgba(251, 146, 60, 0.7)",
+  cloud: "rgba(56, 189, 248, 0.7)",
+  tools: "rgba(250, 204, 21, 0.7)",
+  "soft-skills": "rgba(148, 163, 184, 0.7)",
+};
+
+function getCategoryColor(category?: string | null): string {
+  return CATEGORY_COLORS[category ?? ""] ?? "rgba(167, 139, 250, 0.7)";
+}
+
 interface ExperienceCardProps {
   experience: Experience;
   index: number;
@@ -18,12 +33,24 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
 
   return (
     <div
+      className="group"
       style={{
         animation: `slideUp 0.6s ease-out ${index * 0.1}s both`,
       }}
     >
-      <CometCard rotateDepth={4} translateDepth={5}>
-        <div className="relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm">
+      <CometCard rotateDepth={3} translateDepth={5} variant="dark">
+        <div className="relative overflow-hidden rounded-xl p-6 backdrop-blur-sm">
+          {/* Sweeping light effect on hover */}
+          <div
+            className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden"
+          >
+            <div
+              className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
+              style={{
+                background: "linear-gradient(105deg, transparent 40%, rgba(167,139,250,0.06) 50%, transparent 60%)",
+              }}
+            />
+          </div>
           <div className="relative z-10">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
               <div className="flex-1">
@@ -66,7 +93,8 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
                 {experience.technologies.slice(0, 4).map((tech) => (
                   <span
                     key={tech._id}
-                    className="text-xs px-2.5 py-1 rounded-full bg-white/[0.06] text-white/70 border border-white/15 font-sans"
+                    className="orbit-chip"
+                    style={{ "--chip-color": getCategoryColor(tech.category) } as React.CSSProperties}
                   >
                     {tech.name}
                   </span>

@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
-import ChatWrapper from "./chat/ChatWrapper";
+import { PortfolioLab } from "@/components/lab/PortfolioLab";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -13,7 +13,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </div>
           }
         >
-          <ChatWrapper />
+          <PortfolioLab />
         </Suspense>
       </SidebarContent>
     </Sidebar>

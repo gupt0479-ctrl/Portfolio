@@ -5,8 +5,9 @@ import { SKILLS_QUERY } from "@/sanity/lib/queries";
 export async function SkillsSection() {
   const { data: skills } = await sanityFetch({ query: SKILLS_QUERY });
   return (
-    <section id="skills" className="mx-auto max-w-6xl px-6 py-24">
+    <section id="skills" className="section-backdrop mx-auto max-w-6xl px-6 py-24">
       <div className="mb-16 text-center">
+        <p className="section-kicker">// capability matrix</p>
         <h2 className="font-display text-4xl font-bold text-white md:text-5xl">
           Skills &amp; Expertise
         </h2>

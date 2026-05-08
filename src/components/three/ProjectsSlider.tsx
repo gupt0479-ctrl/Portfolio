@@ -7,7 +7,6 @@ import {
   useEffect,
   useRef,
   useState,
-  type CSSProperties,
 } from "react";
 import { useIridescentEffect } from "@/lib/hooks/useIridescentEffect";
 import type { PROJECTS_QUERYResult } from "@/sanity/types";
@@ -25,31 +24,13 @@ function getTechTags(project: Project): string[] {
     .slice(0, 4);
 }
 
-function cta3dStyle(hovered: boolean, primary: boolean): CSSProperties {
-  return {
-    transition: "transform 180ms ease, box-shadow 180ms ease",
-    willChange: "transform",
-    transform: hovered
-      ? "perspective(600px) rotateX(8deg) translateY(-4px) scale(1.03)"
-      : "none",
-    boxShadow: hovered
-      ? primary
-        ? "0 16px 32px rgba(255,255,255,0.12)"
-        : "0 8px 20px rgba(167,139,250,0.15)"
-      : "none",
-  };
-}
-
 function ViewLiveButton({ href }: { href: string }) {
-  const [hovered, setHovered] = useState(false);
   const { ref, overlayStyle } = useIridescentEffect({ gradientAlpha: 0.14 });
 
   return (
     <div
       ref={ref}
       className="relative inline-flex overflow-hidden rounded-full"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
     >
       <span
         className="pointer-events-none absolute inset-0 z-10 rounded-full"
@@ -61,8 +42,7 @@ function ViewLiveButton({ href }: { href: string }) {
         target="_blank"
         rel="noopener noreferrer"
         onClick={(e) => e.stopPropagation()}
-        style={cta3dStyle(hovered, true)}
-        className="relative z-20 inline-flex items-center rounded-full bg-white px-4 py-1.5 text-xs font-medium text-black"
+        className="float-btn relative z-20 inline-flex items-center rounded-full bg-white px-4 py-1.5 text-xs font-medium text-black"
       >
         View Live
       </a>
@@ -71,18 +51,13 @@ function ViewLiveButton({ href }: { href: string }) {
 }
 
 function SourceButton({ href }: { href: string }) {
-  const [hovered, setHovered] = useState(false);
-
   return (
     <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
       onClick={(e) => e.stopPropagation()}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={cta3dStyle(hovered, false)}
-      className="inline-flex items-center rounded-full border border-white/20 px-4 py-1.5 text-xs font-medium text-white/70"
+      className="float-btn inline-flex items-center rounded-full border border-white/20 px-4 py-1.5 text-xs font-medium text-white/70"
     >
       Source
     </a>
@@ -102,10 +77,10 @@ function ProjectCard({ project, isCenter }: ProjectCardProps) {
   return (
     <article
       className={[
-        "rounded-xl border bg-white/[0.03] backdrop-blur-sm transition-all duration-300",
+        "rounded-xl transition-all duration-300",
         isCenter
-          ? "border-white/20 cursor-default"
-          : "border-white/8 pointer-events-none",
+          ? "cosmic-card cursor-default"
+          : "cosmic-card--dark pointer-events-none",
       ].join(" ")}
       onMouseEnter={() => isCenter && setHovered(true)}
       onMouseLeave={() => isCenter && setHovered(false)}
@@ -123,58 +98,77 @@ function ProjectCard({ project, isCenter }: ProjectCardProps) {
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
             {tags.map((tag) => (
-              <span
-                key={tag}
-                className="text-[11px] px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-white/60 font-sans"
-              >
-                {tag}
-              </span>
+              <span key={tag} className="orbit-chip">{tag}</span>
             ))}
+          </div>
+        )}
+
+        {isCenter && (
+          <div className="mt-4 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
+            <p className="text-[11px] text-white/35 font-mono">case note</p>
+            <p className="text-xs text-white/50 mt-1 font-sans">
+              {project.category ? `Category: ${project.category}` : ""}
+              {project.liveUrl ? " · Live" : ""}
+              {project.githubUrl ? " · Open Source" : ""}
+            </p>
           </div>
         )}
       </div>
 
       {isCenter && (
-        <div
-          className="overflow-hidden transition-[max-height] duration-[320ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
-          style={{ maxHeight: hovered ? 320 : 0 }}
+        <motion.div
+          initial={false}
+          animate={{ height: hovered ? "auto" : 0, opacity: hovered ? 1 : 0 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="overflow-hidden"
         >
-          <div className="px-5 pb-5 border-t border-white/10 pt-4">
-            <p className="text-sm text-white/55 font-sans leading-relaxed">
-              {project.tagline}
-            </p>
-            {/* TODO: replace with project.description when schema field added */}
-            <div className="my-3 border-t border-white/10" />
-            <div className="flex flex-wrap items-center gap-2 mt-3">
-              {project.liveUrl ? (
-                <ViewLiveButton href={project.liveUrl} />
-              ) : null}
-              {project.githubUrl ? (
-                <SourceButton href={project.githubUrl} />
-              ) : null}
+          <div className="px-5 pb-5 border-t border-white/[0.06] pt-4">
+            <div className="flex flex-wrap items-center gap-2">
+              {project.liveUrl ? <ViewLiveButton href={project.liveUrl} /> : null}
+              {project.githubUrl ? <SourceButton href={project.githubUrl} /> : null}
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
     </article>
   );
 }
 
+const slideVariants = {
+  enter: (dir: number) => ({
+    x: dir > 0 ? 200 : -200,
+    opacity: 0,
+    scale: 0.92,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+    scale: 1,
+    transition: { type: "spring" as const, stiffness: 300, damping: 30 },
+  },
+  exit: (dir: number) => ({
+    x: dir > 0 ? -200 : 200,
+    opacity: 0,
+    scale: 0.92,
+  }),
+};
+
 export function ProjectsSlider({ projects }: ProjectsSliderProps) {
   const safeProjects = projects ?? [];
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(0);
   const dragRef = useRef({ startX: 0, currentX: 0, isDragging: false });
 
   const goNext = useCallback(() => {
     if (!safeProjects.length) return;
+    setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % safeProjects.length);
   }, [safeProjects.length]);
 
   const goPrev = useCallback(() => {
     if (!safeProjects.length) return;
-    setCurrentIndex(
-      (prev) => (prev - 1 + safeProjects.length) % safeProjects.length,
-    );
+    setDirection(-1);
+    setCurrentIndex((prev) => (prev - 1 + safeProjects.length) % safeProjects.length);
   }, [safeProjects.length]);
 
   useEffect(() => {
@@ -240,9 +234,9 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-center gap-3">
         {showSideCards && (
-          <div className="hidden md:block w-[220px] max-h-48 shrink-0 self-start overflow-hidden scale-[0.93] opacity-40 transition-transform duration-300">
+          <div className="hidden md:block w-[260px] shrink-0 self-center opacity-35 scale-[0.88] blur-[1px] pointer-events-none transition-all duration-300">
             <ProjectCard project={safeProjects[prevIndex]} isCenter={false} />
           </div>
         )}
@@ -251,19 +245,20 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
           type="button"
           onClick={goPrev}
           aria-label="Previous project"
-          className="shrink-0 p-2.5 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/10 hover:border-white/25 text-white/70 hover:text-white transition-colors duration-200"
+          className="float-btn shrink-0 p-2.5 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/10 text-white/70 hover:text-white transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
         >
           <ChevronLeft size={18} />
         </button>
 
         <div className="flex-1 min-w-0 scale-[1.04]">
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode="wait" custom={direction}>
             <motion.div
               key={safeProjects[currentIndex]._id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.25, ease: "easeInOut" }}
+              custom={direction}
+              variants={slideVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
             >
               <ProjectCard
                 project={safeProjects[currentIndex]}
@@ -277,13 +272,13 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
           type="button"
           onClick={goNext}
           aria-label="Next project"
-          className="shrink-0 p-2.5 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/10 hover:border-white/25 text-white/70 hover:text-white transition-colors duration-200"
+          className="float-btn shrink-0 p-2.5 rounded-full bg-white/[0.06] border border-white/15 hover:bg-white/10 text-white/70 hover:text-white transition-colors duration-200 min-w-[44px] min-h-[44px] flex items-center justify-center"
         >
           <ChevronRight size={18} />
         </button>
 
         {showSideCards && (
-          <div className="hidden md:block w-[220px] max-h-48 shrink-0 self-start overflow-hidden scale-[0.93] opacity-40 transition-transform duration-300">
+          <div className="hidden md:block w-[260px] shrink-0 self-center opacity-35 scale-[0.88] blur-[1px] pointer-events-none transition-all duration-300">
             <ProjectCard project={safeProjects[nextIndex]} isCenter={false} />
           </div>
         )}
@@ -294,13 +289,21 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
           <button
             key={p._id}
             type="button"
-            onClick={() => setCurrentIndex(idx)}
+            onClick={() => { setDirection(idx > currentIndex ? 1 : -1); setCurrentIndex(idx); }}
             aria-label={`Go to project ${idx + 1}`}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              idx === currentIndex
-                ? "bg-white w-6"
-                : "bg-white/25 hover:bg-white/40 w-1.5"
-            }`}
+            style={idx === currentIndex ? {
+              width: "24px",
+              height: "6px",
+              borderRadius: "3px",
+              background: "rgba(167, 139, 250, 0.8)",
+              boxShadow: "0 0 8px rgba(167, 139, 250, 0.5)",
+            } : {
+              width: "6px",
+              height: "6px",
+              borderRadius: "50%",
+              background: "rgba(255, 255, 255, 0.2)",
+            }}
+            className="transition-all duration-300 hover:opacity-80"
           />
         ))}
       </div>

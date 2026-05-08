@@ -10,17 +10,23 @@ import type React from "react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
+type CometCardVariant = "default" | "dark" | "subtle";
+
 export const CometCard = ({
   rotateDepth = 17.5,
   translateDepth = 20,
+  variant = "default",
   className,
   children,
 }: {
   rotateDepth?: number;
   translateDepth?: number;
+  variant?: CometCardVariant;
   className?: string;
   children: React.ReactNode;
 }) => {
+  // Subtle variant caps rotateDepth at 6
+  const effectiveRotateDepth = variant === "subtle" ? Math.min(rotateDepth, 6) : rotateDepth;
   const ref = useRef<HTMLDivElement>(null);
 
   const x = useMotionValue(0);
@@ -32,12 +38,12 @@ export const CometCard = ({
   const rotateX = useTransform(
     mouseYSpring,
     [-0.5, 0.5],
-    [`-${rotateDepth}deg`, `${rotateDepth}deg`],
+    [`-${effectiveRotateDepth}deg`, `${effectiveRotateDepth}deg`],
   );
   const rotateY = useTransform(
     mouseXSpring,
     [-0.5, 0.5],
-    [`${rotateDepth}deg`, `-${rotateDepth}deg`],
+    [`${effectiveRotateDepth}deg`, `-${effectiveRotateDepth}deg`],
   );
 
   const translateX = useTransform(
@@ -86,6 +92,11 @@ export const CometCard = ({
     y.set(0);
   };
 
+  // Variant-based config
+  const variantClass = variant === "dark" ? "cosmic-card--dark" : variant === "subtle" ? "cosmic-card--subtle" : "cosmic-card";
+  const glareOpacity = variant === "dark" ? 0.35 : variant === "subtle" ? 0.25 : 0.5;
+  const hoverScale = variant === "default" ? 1.05 : 1.02;
+
   return (
     <div className={cn("perspective-distant transform-3d", className)}>
       <motion.div
@@ -102,18 +113,18 @@ export const CometCard = ({
         }}
         initial={{ scale: 1, z: 0 }}
         whileHover={{
-          scale: 1.05,
+          scale: hoverScale,
           z: 50,
           transition: { duration: 0.2 },
         }}
-        className="relative rounded-2xl"
+        className={cn("relative rounded-2xl", variantClass)}
       >
         {children}
         <motion.div
           className="pointer-events-none absolute inset-0 z-50 h-full w-full rounded-[16px] mix-blend-overlay"
           style={{
             background: glareBackground,
-            opacity: 0.65,
+            opacity: glareOpacity,
           }}
           transition={{ duration: 0.2 }}
         />

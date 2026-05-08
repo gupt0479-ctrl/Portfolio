@@ -2,10 +2,10 @@
 
 import { type CSSProperties, useMemo, useState } from "react";
 import {
-  Bar,
-  BarChart,
   CartesianGrid,
-  Cell,
+  Legend,
+  Line,
+  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -23,6 +23,8 @@ const CATEGORY_COLORS: Record<string, string> = {
   "ai-ml": "#34d399",
   devops: "#f472b6",
   database: "#fb923c",
+  // alias used by some Sanity setups
+  "data-systems": "#fb923c",
   cloud: "#38bdf8",
   mobile: "#a78bfa",
   tools: "#facc15",
@@ -41,6 +43,8 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   "ai-ml": "Models, embeddings, and intelligent system design.",
   devops: "Deployment pipelines, infrastructure, and reliability.",
   database: "Data modeling, query optimization, and persistence.",
+  // alias used by some Sanity setups
+  "data-systems": "Data modeling, query optimization, and persistence.",
   cloud: "Scalable infrastructure across distributed systems.",
   mobile: "Cross-platform and native mobile experiences.",
   tools: "The developer toolchain and productivity ecosystem.",
@@ -50,107 +54,243 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   other: "Everything else that doesn't fit a clean box.",
 };
 
-function SkillsBarTooltip({
-  active,
-  payload,
-  label,
-}: {
-  active?: boolean;
-  label?: string | number;
-  payload?: ReadonlyArray<{ value?: unknown }>;
-}) {
-  if (!active || !payload?.length) {
-    return null;
-  }
-  const raw = payload[0]?.value;
-  const num = typeof raw === "number" ? raw : raw != null ? Number(raw) : NaN;
-  const pct = Number.isFinite(num) ? Math.round(num) : 0;
-  return (
-    <div
-      className="rounded-lg border border-white/15 bg-[#10101a] px-3 py-2 text-xs shadow-xl"
-      style={{ pointerEvents: "none" }}
-    >
-      <p className="font-medium font-sans text-white/90">
-        {formatCategory(String(label ?? ""))}
-      </p>
-      <p className="mt-0.5 font-sans text-white/55">Avg: {pct}%</p>
-    </div>
+function generateTrajectoryData(skills: SKILLS_QUERYResult) {
+  const years = [2021, 2022, 2023, 2024, 2025, 2026];
+  const categories = Array.from(
+    new Set(skills.map((s) => s.category ?? "other").filter(Boolean)),
   );
+
+  return years.map((year) => {
+    const point: Record<string, number> = { year };
+    for (const cat of categories) {
+      const catSkills = skills.filter((s) => (s.category ?? "other") === cat);
+      const avgPct =
+        catSkills.reduce((sum, s) => sum + (s.percentage ?? 0), 0) /
+        (catSkills.length || 1);
+      const avgYears =
+        catSkills.reduce((sum, s) => sum + (s.yearsOfExperience ?? 0), 0) /
+        (catSkills.length || 1);
+
+      const yearsSince2021 = year - 2021;
+      const growthFactor = Math.min(1, yearsSince2021 / Math.max(avgYears, 1));
+      const eased = 1 - Math.pow(1 - growthFactor, 2);
+      point[cat] = Math.round(10 + (avgPct - 10) * eased);
+    }
+    return point;
+  });
 }
 
-function SkillsChart({ skills }: { skills: SKILLS_QUERYResult }) {
-  const data = useMemo(() => {
-    const m = new Map<string, { sum: number; count: number }>();
-    for (const s of skills) {
-      const c = s.category ?? "other";
-      const p = typeof s.percentage === "number" ? s.percentage : 0;
-      const cur = m.get(c) ?? { sum: 0, count: 0 };
-      cur.sum += p;
-      cur.count += 1;
-      m.set(c, cur);
-    }
-    return Array.from(m.entries())
-      .map(([category, { sum, count }]) => ({
-        category,
-        avg: count ? Math.round(sum / count) : 0,
-      }))
-      .sort((a, b) => a.category.localeCompare(b.category));
-  }, [skills]);
+function SkillsChart({
+  skills,
+  selectedCategory,
+  onCategoryClick,
+}: {
+  skills: SKILLS_QUERYResult;
+  selectedCategory: string | null;
+  onCategoryClick: (category: string) => void;
+}) {
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
 
-  if (!data.length) {
-    return null;
-  }
+  const categories = useMemo(
+    () =>
+      Array.from(
+        new Set(skills.map((s) => s.category ?? "other").filter(Boolean)),
+      ).sort(),
+    [skills],
+  );
+
+  const data = useMemo(() => generateTrajectoryData(skills), [skills]);
+
+  // Build a lookup: category → top 3 skill names
+  const topSkillsByCategory = useMemo(() => {
+    const map: Record<string, string[]> = {};
+    for (const cat of categories) {
+      map[cat] = skills
+        .filter((s) => (s.category ?? "other") === cat)
+        .sort((a, b) => (b.percentage ?? 0) - (a.percentage ?? 0))
+        .slice(0, 3)
+        .map((s) => s.name ?? "")
+        .filter(Boolean);
+    }
+    return map;
+  }, [skills, categories]);
+
+  if (!data.length || !categories.length) return null;
+
+  // Active highlight: hover takes priority over selection
+  const activeCategory = hoveredCategory ?? selectedCategory;
 
   return (
     <div className="relative z-10 mx-auto mb-10 w-full max-w-3xl">
-      <ResponsiveContainer width="100%" height={220}>
-        <BarChart
+      {/* Y-axis label */}
+      <p className="text-[10px] text-white/30 font-mono mb-1 text-center">
+        Familiarity / Applied Depth
+      </p>
+      <ResponsiveContainer width="100%" height={240}>
+        <LineChart
           data={data}
-          layout="vertical"
-          margin={{ top: 4, right: 8, left: 8, bottom: 4 }}
+          margin={{ top: 8, right: 16, left: 0, bottom: 4 }}
+          onMouseLeave={() => setHoveredCategory(null)}
         >
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="rgba(255,255,255,0.05)"
-            horizontal
-            vertical={false}
           />
-          <XAxis type="number" domain={[0, 100]} hide />
-          <YAxis
-            type="category"
-            dataKey="category"
-            width={100}
-            tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 12 }}
+          <XAxis
+            dataKey="year"
+            tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11 }}
             axisLine={false}
             tickLine={false}
-            tickFormatter={(value) => formatCategory(String(value))}
+          />
+          <YAxis
+            domain={[0, 100]}
+            tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11 }}
+            axisLine={false}
+            tickLine={false}
+            tickFormatter={(v: number) =>
+              v === 0 ? "Low" : v === 50 ? "Mid" : v === 100 ? "High" : `${v}%`
+            }
+            width={36}
           />
           <Tooltip
-            content={({ active, payload, label }) => (
-              <SkillsBarTooltip
-                active={active}
-                label={label}
-                payload={payload}
-              />
-            )}
-            cursor={{ fill: "rgba(255,255,255,0.05)" }}
-            shared={false}
-            allowEscapeViewBox={{ x: true, y: true }}
-            wrapperStyle={{ zIndex: 50 }}
+            contentStyle={{
+              background: "#10101a",
+              border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "8px",
+              fontSize: "12px",
+              color: "rgba(255,255,255,0.85)",
+            }}
+            formatter={(
+              value: number | undefined,
+              name: string | undefined,
+            ) => {
+              const cat = name ?? "";
+              const key = normalizeCategoryKey(cat);
+              const insight = CATEGORY_INSIGHTS[key];
+              const topSkills = topSkillsByCategory[cat] ?? [];
+              return [
+                <span key="val">
+                  <span className="font-semibold">{value ?? 0}%</span>
+                  {insight && (
+                    <span className="block text-[10px] text-white/45 mt-0.5">
+                      {insight.direction}
+                    </span>
+                  )}
+                  {topSkills.length > 0 && (
+                    <span className="block text-[10px] text-white/35 mt-0.5">
+                      {topSkills.join(" · ")}
+                    </span>
+                  )}
+                </span>,
+                formatCategory(cat),
+              ];
+            }}
           />
-          <Bar dataKey="avg" radius={[0, 4, 4, 0]} maxBarSize={28}>
-            {data.map((entry) => {
-              const key = normalizeCategoryKey(entry.category);
-              return (
-                <Cell
-                  key={entry.category}
-                  fill={CATEGORY_COLORS[key] ?? FALLBACK_BAR}
-                />
-              );
-            })}
-          </Bar>
-        </BarChart>
+          {categories.map((cat) => {
+            const key = normalizeCategoryKey(cat);
+            const color = CATEGORY_COLORS[key] ?? FALLBACK_BAR;
+            const isActive = activeCategory === cat;
+            const isDimmed = activeCategory !== null && !isActive;
+            return (
+              <Line
+                key={cat}
+                type="monotone"
+                dataKey={cat}
+                stroke={color}
+                strokeWidth={isActive ? 3 : 1.5}
+                strokeOpacity={isDimmed ? 0.15 : 1}
+                dot={false}
+                activeDot={{
+                  r: 5,
+                  fill: color,
+                  onMouseEnter: () => setHoveredCategory(cat),
+                }}
+                onMouseEnter={() => setHoveredCategory(cat)}
+                onClick={() => onCategoryClick(cat)}
+                style={{ cursor: "pointer" }}
+              />
+            );
+          })}
+        </LineChart>
       </ResponsiveContainer>
+      {/* X-axis label */}
+      <p className="text-[10px] text-white/30 font-mono mt-1 text-center">
+        Year
+      </p>
+    </div>
+  );
+}
+
+const CATEGORY_INSIGHTS: Record<
+  string,
+  { summary: string; direction: string; topSkills: string[] }
+> = {
+  frontend: {
+    summary: "Building fast, accessible, and visually rich interfaces.",
+    direction: "Trending toward component systems and animation.",
+    topSkills: ["React", "Next.js", "Tailwind CSS"],
+  },
+  backend: {
+    summary: "Designing APIs, services, and data pipelines.",
+    direction: "Trending toward Rust and distributed systems.",
+    topSkills: ["Node.js", "Rust", "PostgreSQL"],
+  },
+  "ai-ml": {
+    summary: "Working with LLMs, embeddings, and retrieval systems.",
+    direction: "Trending toward agents and RAG architectures.",
+    topSkills: ["Python", "LLM APIs", "Prompt Engineering"],
+  },
+  devops: {
+    summary: "Shipping reliably with CI/CD and infrastructure as code.",
+    direction: "Trending toward containerization and observability.",
+    topSkills: ["Docker", "GitHub Actions", "Linux"],
+  },
+  database: {
+    summary: "Modeling data and optimizing queries for scale.",
+    direction: "Trending toward vector databases and analytics.",
+    topSkills: ["PostgreSQL", "Redis", "SQL"],
+  },
+  // alias: Sanity may store this as "data-systems"
+  "data-systems": {
+    summary: "Modeling data and optimizing queries for scale.",
+    direction: "Trending toward vector databases and analytics.",
+    topSkills: ["PostgreSQL", "Redis", "SQL"],
+  },
+  cloud: {
+    summary: "Deploying and scaling on distributed cloud infrastructure.",
+    direction: "Trending toward serverless and edge computing.",
+    topSkills: ["AWS", "Vercel", "Cloudflare"],
+  },
+  "soft-skills": {
+    summary: "Communicating clearly and collaborating effectively.",
+    direction: "Stable — always improving.",
+    topSkills: ["Technical Writing", "Code Review", "Mentoring"],
+  },
+};
+
+function InsightPanel({ category }: { category: string | null }) {
+  if (!category) return null;
+
+  const key = normalizeCategoryKey(category);
+  const insight = CATEGORY_INSIGHTS[key];
+  if (!insight) return null;
+
+  return (
+    <div className="mx-auto mb-8 max-w-2xl cosmic-card rounded-xl p-4">
+      <p className="text-[11px] text-white/35 font-mono mb-2">// insight</p>
+      <p className="text-sm text-white/70 font-sans leading-relaxed">
+        {insight.summary}
+      </p>
+      <p className="text-xs text-white/45 font-sans mt-1">
+        {insight.direction}
+      </p>
+      <div className="flex flex-wrap gap-1.5 mt-3">
+        {insight.topSkills.map((skill) => (
+          <span key={skill} className="orbit-chip">
+            {skill}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -164,6 +304,8 @@ function SkillsFilter({
   selected: string | null;
   onChange: (category: string | null) => void;
 }) {
+  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
+
   const categories = Array.from(
     new Set(
       skills
@@ -178,21 +320,84 @@ function SkillsFilter({
   ];
 
   return (
-    <div className="mb-10 flex flex-wrap justify-center gap-2">
+    <div className="mb-6 flex flex-wrap justify-center gap-2">
       {pills.map(({ key, label }) => {
         const active = key === selected;
+        const isHovered = hoveredCategory === key;
+        const normalizedKey = key ? normalizeCategoryKey(key) : null;
+
         return (
           <button
             key={key ?? "all"}
             type="button"
             onClick={() => onChange(key)}
-            className={
+            onMouseEnter={() => setHoveredCategory(key)}
+            onMouseLeave={() => setHoveredCategory(null)}
+            className={[
+              "float-btn group relative overflow-hidden rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200",
               active
-                ? "rounded-full border border-violet-500/50 bg-violet-500/20 px-3 py-1.5 text-xs font-medium text-white"
-                : "rounded-full border border-white/20 px-3 py-1.5 text-xs font-medium text-white/50 transition-colors hover:border-white/30 hover:text-white/75"
+                ? "border-violet-500/50 bg-violet-500/20 text-white"
+                : "border-white/20 text-white/50 hover:border-white/30 hover:text-white/75",
+              // Unique per-category effects via CSS classes
+              normalizedKey === "ai-ml" && isHovered
+                ? "animate-[pulse-glow_1s_ease-in-out_infinite]"
+                : "",
+              normalizedKey === "soft-skills" && isHovered
+                ? "translate-y-[-2px]"
+                : "",
+            ].join(" ")}
+            style={
+              normalizedKey === "frontend" && isHovered
+                ? { boxShadow: "0 0 0 1px rgba(143,124,247,0.4)" }
+                : undefined
             }
           >
-            {label}
+            {/* Frontend: shimmer sweep */}
+            {normalizedKey === "frontend" && (
+              <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+            )}
+
+            {/* Backend: cursor blink */}
+            <span className="relative">
+              {label}
+              {normalizedKey === "backend" && isHovered && (
+                <span className="ml-1 animate-[blink_1s_step-end_infinite] text-white/50">
+                  _
+                </span>
+              )}
+            </span>
+
+            {/* DevOps / Tools: deployment dots */}
+            {(normalizedKey === "devops" || normalizedKey === "tools") &&
+              isHovered && (
+                <span className="ml-1.5 inline-flex gap-0.5">
+                  {[0, 1, 2].map((i) => (
+                    <span
+                      key={i}
+                      className="inline-block w-1 h-1 rounded-full bg-pink-400/60 animate-[deploy-dot_0.6s_ease-in-out_infinite]"
+                      style={{ animationDelay: `${i * 150}ms` }}
+                    />
+                  ))}
+                </span>
+              )}
+
+            {/* Database / Data Systems: animated tick bars */}
+            {(normalizedKey === "database" ||
+              normalizedKey === "data-systems") &&
+              isHovered && (
+                <span className="ml-1.5 inline-flex items-end gap-px">
+                  {[3, 5, 4, 6, 3].map((h, i) => (
+                    <span
+                      key={i}
+                      className="inline-block w-0.5 rounded-sm bg-orange-400/70 animate-[pulse-glow_0.8s_ease-in-out_infinite]"
+                      style={{
+                        height: `${h}px`,
+                        animationDelay: `${i * 100}ms`,
+                      }}
+                    />
+                  ))}
+                </span>
+              )}
           </button>
         );
       })}
@@ -309,14 +514,25 @@ export function SkillsSectionClient({
     return skills.filter((s) => s.category === selected);
   }, [skills, selected]);
 
+  const handleCategoryChange = (category: string | null) => {
+    setSelected(category);
+  };
+
   return (
     <div className="relative">
-      <SkillsChart skills={skills} />
+      <SkillsChart
+        skills={skills}
+        selectedCategory={selected}
+        onCategoryClick={(cat) =>
+          setSelected((prev) => (prev === cat ? null : cat))
+        }
+      />
       <SkillsFilter
         skills={skills}
         selected={selected}
-        onChange={setSelected}
+        onChange={handleCategoryChange}
       />
+      <InsightPanel category={selected} />
       <SkillsCategoryGrid skills={filtered} />
     </div>
   );

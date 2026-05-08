@@ -6,7 +6,7 @@ import type { Education } from "@/sanity/types";
 export function EducationEntry({ edu }: { edu: Education }) {
   return (
     <CometCard rotateDepth={9} translateDepth={11}>
-      <div className="relative overflow-hidden rounded-xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-sm">
+      <div className="relative overflow-hidden rounded-xl border border-white/10 cosmic-card p-6 backdrop-blur-sm">
         <div className="relative z-10">
           <div className="flex items-start justify-between flex-wrap gap-2 mb-1">
             <h3 className="text-lg font-display font-semibold text-white">

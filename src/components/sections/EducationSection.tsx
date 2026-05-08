@@ -1,5 +1,5 @@
 import { defineQuery } from "next-sanity";
-import { EducationEntry } from "@/components/EducationEntry";
+import { EducationFlowchart } from "@/components/EducationFlowchart";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { Education } from "@/sanity/types";
 
@@ -18,8 +18,9 @@ export async function EducationSection() {
   const list = items as Education[];
 
   return (
-    <section id="education" className="mx-auto max-w-6xl px-6 py-24">
+    <section id="education" className="section-backdrop mx-auto max-w-6xl px-6 py-24">
       <div className="mb-16">
+        <p className="section-kicker">// origins</p>
         <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
           Education
         </h2>
@@ -28,11 +29,7 @@ export async function EducationSection() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {list.map((edu) => (
-          <EducationEntry key={edu._id} edu={edu} />
-        ))}
-      </div>
+      <EducationFlowchart items={list} />
     </section>
   );
 }

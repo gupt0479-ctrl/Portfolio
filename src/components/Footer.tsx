@@ -3,28 +3,43 @@
 import { ArrowUp } from "lucide-react";
 
 export function Footer() {
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
-    <footer className="w-full border-t border-white/[0.06] bg-white/[0.02] px-6 py-8 backdrop-blur-md">
-      <div className="mx-auto flex max-w-6xl flex-col items-stretch gap-6 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-1.5 text-xs font-mono text-white/20">
-          <span aria-hidden>·</span>
-          <span>2025</span>
-        </div>
+    <footer className="relative w-full px-6 py-6 bg-transparent">
+      {/* Top border gradient */}
+      <div
+        className="absolute top-0 left-0 right-0 h-px"
+        style={{
+          background:
+            "linear-gradient(90deg, transparent, rgba(167,139,250,0.2), transparent)",
+        }}
+        aria-hidden
+      />
 
-        <p className="flex-1 text-center text-sm italic text-white/30 font-sans">
-          Built in the dark. Shipped with intention.
-        </p>
+      <div className="mx-auto flex max-w-6xl items-center justify-between">
+        {/* Left: developer glyph */}
+        <span className="font-mono text-white/20 text-sm select-none">
+          &lt;/&gt;
+        </span>
 
+        {/* Center: back to top button */}
         <button
           type="button"
-          onClick={() =>
-            window.scrollTo({ top: 0, behavior: "smooth" })
-          }
-          className="inline-flex items-center justify-center gap-1 self-center text-xs text-white/20 transition-colors hover:text-white/50 sm:self-auto sm:justify-end"
+          onClick={scrollToTop}
+          aria-label="Back to top"
+          className="float-btn flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs text-white/40 hover:text-white/70 transition-colors"
         >
-          <ArrowUp className="size-3" strokeWidth={1.75} />
-          Back to top
+          <ArrowUp className="size-3.5" />
+          <span>Back to top</span>
         </button>
+
+        {/* Right: copyright */}
+        <span className="text-xs text-white/25 font-sans">
+          © 2026 Anant Gupta · building in public
+        </span>
       </div>
     </footer>
   );

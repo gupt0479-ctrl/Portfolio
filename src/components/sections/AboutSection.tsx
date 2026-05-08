@@ -1,6 +1,8 @@
 import { PortableText } from "@portabletext/react";
 import Link from "next/link";
 import { defineQuery } from "next-sanity";
+import { AboutTelemetry } from "@/components/AboutTelemetry";
+import { HeroTerminal } from "@/components/HeroTerminal";
 import { sanityFetch } from "@/sanity/lib/live";
 
 const ABOUT_QUERY = defineQuery(`
@@ -27,13 +29,20 @@ export async function AboutSection() {
   }
 
   return (
-    <section id="about" className="py-10 px-6">
-      <div className="container mx-auto max-w-4xl">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">About Me</h2>
-          <p className="text-xl text-muted-foreground">Get to know me better</p>
+    <section id="about" className="section-backdrop py-16 px-6">
+      <div className="mx-auto max-w-4xl">
+        {/* Heading */}
+        <div className="text-center mb-10">
+          <p className="section-kicker">// scan report</p>
+          <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-3">
+            About Me
+          </h2>
+          <p className="text-lg text-white/50 font-sans">
+            A quick system scan.
+          </p>
         </div>
 
+        {/* Bio */}
         <div className="prose prose-lg dark:prose-invert max-w-none">
           {profile.fullBio && (
             <PortableText
@@ -41,31 +50,35 @@ export async function AboutSection() {
               components={{
                 block: {
                   normal: ({ children }) => (
-                    <p className="text-muted-foreground leading-relaxed mb-4">
+                    <p className="text-white/65 leading-relaxed mb-4 font-sans">
                       {children}
                     </p>
                   ),
                   h2: ({ children }) => (
-                    <h2 className="text-3xl font-bold mt-8 mb-4">{children}</h2>
+                    <h2 className="text-3xl font-display font-bold mt-8 mb-4 text-white">
+                      {children}
+                    </h2>
                   ),
                   h3: ({ children }) => (
-                    <h3 className="text-2xl font-semibold mt-6 mb-3">
+                    <h3 className="text-2xl font-display font-semibold mt-6 mb-3 text-white">
                       {children}
                     </h3>
                   ),
                   blockquote: ({ children }) => (
-                    <blockquote className="border-l-4 border-primary pl-4 italic my-4">
+                    <blockquote className="border-l-4 border-violet-500/50 pl-4 italic my-4 text-white/55">
                       {children}
                     </blockquote>
                   ),
                 },
                 marks: {
                   strong: ({ children }) => (
-                    <strong className="font-semibold text-foreground">
+                    <strong className="font-semibold text-white">
                       {children}
                     </strong>
                   ),
-                  em: ({ children }) => <em className="italic">{children}</em>,
+                  em: ({ children }) => (
+                    <em className="italic text-white/80">{children}</em>
+                  ),
                   link: ({ children, value }) => {
                     const href = value?.href || "";
                     const isExternal = href.startsWith("http");
@@ -74,7 +87,7 @@ export async function AboutSection() {
                         href={href}
                         target={isExternal ? "_blank" : undefined}
                         rel={isExternal ? "noopener noreferrer" : undefined}
-                        className="text-primary hover:underline"
+                        className="text-violet-300 hover:text-violet-200 underline underline-offset-2"
                       >
                         {children}
                       </Link>
@@ -83,12 +96,12 @@ export async function AboutSection() {
                 },
                 list: {
                   bullet: ({ children }) => (
-                    <ul className="list-disc list-inside space-y-2 mb-4 text-muted-foreground">
+                    <ul className="list-disc list-inside space-y-2 mb-4 text-white/60 font-sans">
                       {children}
                     </ul>
                   ),
                   number: ({ children }) => (
-                    <ol className="list-decimal list-inside space-y-2 mb-4 text-muted-foreground">
+                    <ol className="list-decimal list-inside space-y-2 mb-4 text-white/60 font-sans">
                       {children}
                     </ol>
                   ),
@@ -98,28 +111,15 @@ export async function AboutSection() {
           )}
         </div>
 
-        {/* Stats from CMS */}
+        {/* Telemetry stats */}
         {profile.stats && profile.stats.length > 0 && (
-          <div className="@container mt-12 pt-12 border-t">
-            <div className="grid grid-cols-2 @lg:grid-cols-4 gap-6">
-              {profile.stats.map(
-                (stat: { label?: string; value?: string }, idx: number) => (
-                  <div
-                    key={`${stat.label}-${idx}`}
-                    className="@container/stat text-center"
-                  >
-                    <div className="text-3xl @md/stat:text-4xl font-bold text-primary mb-2">
-                      {stat.value}
-                    </div>
-                    <div className="text-xs @md/stat:text-sm text-muted-foreground">
-                      {stat.label}
-                    </div>
-                  </div>
-                ),
-              )}
-            </div>
-          </div>
+          <AboutTelemetry stats={profile.stats} />
         )}
+
+        {/* Terminal snapshot */}
+        <div className="mt-10 flex justify-center">
+          <HeroTerminal />
+        </div>
       </div>
     </section>
   );
