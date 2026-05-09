@@ -209,14 +209,14 @@
     width 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-[data-slot="sidebar-wrapper"][data-chat-open="true"] .portfolio-main {
+[data-slot="sidebar-wrapper"][data-sidebar-open="true"] .portfolio-main {
   opacity: 0.7;
   filter: saturate(0.9);
   pointer-events: none;
   transform: translateX(-1.5rem) scale(0.965);
 }
 
-[data-slot="sidebar-wrapper"][data-chat-mobile-open="true"] .portfolio-main {
+[data-slot="sidebar-wrapper"][data-sidebar-mobile-open="true"] .portfolio-main {
   opacity: 0.8;
   filter: saturate(0.95);
   transform: scale(0.98);
@@ -234,7 +234,7 @@
    shadcn's SidebarProvider always renders a [data-sidebar="overlay"] backdrop
    div. On desktop it should not exist; hiding it stops the full-page blur. */
 [data-sidebar="overlay"] {
-  display: none !important;
+  display: none;
 }
 
 /* FIX 2 — Stop shadcn's peer selectors from adding top-padding to the page.
@@ -242,27 +242,21 @@
    container on some viewport widths, pushing content down. Zero it out. */
 [data-slot="sidebar-wrapper"],
 .peer\/sidebar-wrapper {
-  padding-top: 0 !important;
+  padding-top: 0;
 }
 
 /* FIX 3 — Smooth the sidebar open/close slide so content compresses cleanly. */
 [data-sidebar="sidebar"] {
   transition:
     width 220ms cubic-bezier(0.4, 0, 0.2, 1),
-    transform 220ms cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-.chat-wrapper,
-.chatkit-shell {
-  /* kept for legacy compatibility — sidebar now renders PortfolioLab */
-  background: transparent;
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 [data-collapsible="offcanvas"][data-state="closed"],
 [data-collapsible="offcanvas"][data-state="expanded"] {
   transition:
     width 220ms cubic-bezier(0.4, 0, 0.2, 1),
-    transform 220ms cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* ============================================================
@@ -272,27 +266,48 @@
 /* --- Card surfaces --- */
 
 .cosmic-card {
-  background: linear-gradient(135deg, rgba(9, 10, 18, 0.72) 0%, rgba(14, 16, 28, 0.82) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(9, 10, 18, 0.72) 0%,
+    rgba(14, 16, 28, 0.82) 100%
+  );
   border: 1px solid rgba(167, 139, 250, 0.22);
   border-radius: var(--radius-xl, 1rem);
   backdrop-filter: blur(16px);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04), 0 0 0 1px rgba(167, 139, 250, 0.06), 0 4px 24px rgba(0, 0, 0, 0.3);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.04),
+    0 0 0 1px rgba(167, 139, 250, 0.06),
+    0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .cosmic-card--dark {
-  background: linear-gradient(135deg, rgba(6, 6, 14, 0.82) 0%, rgba(10, 10, 22, 0.88) 100%);
+  background: linear-gradient(
+    135deg,
+    rgba(6, 6, 14, 0.82) 0%,
+    rgba(10, 10, 22, 0.88) 100%
+  );
   border: 1px solid rgba(167, 139, 250, 0.15);
   border-radius: var(--radius-xl, 1rem);
   backdrop-filter: blur(16px);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.03), 0 0 0 1px rgba(167, 139, 250, 0.04), 0 4px 24px rgba(0, 0, 0, 0.4);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
+    0 0 0 1px rgba(167, 139, 250, 0.04),
+    0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
 .cosmic-card--subtle {
-  background: linear-gradient(135deg, rgba(9, 10, 18, 0.55) 0%, rgba(14, 16, 28, 0.65) 100%);
-  border: 1px solid rgba(167, 139, 250, 0.10);
+  background: linear-gradient(
+    135deg,
+    rgba(9, 10, 18, 0.55) 0%,
+    rgba(14, 16, 28, 0.65) 100%
+  );
+  border: 1px solid rgba(167, 139, 250, 0.1);
   border-radius: var(--radius-xl, 1rem);
   backdrop-filter: blur(12px);
-  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.03), 0 0 0 1px rgba(167, 139, 250, 0.04), 0 2px 16px rgba(0, 0, 0, 0.25);
+  box-shadow:
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
+    0 0 0 1px rgba(167, 139, 250, 0.04),
+    0 2px 16px rgba(0, 0, 0, 0.25);
 }
 
 /* --- Floating buttons --- */
@@ -300,13 +315,21 @@
 .float-btn {
   position: relative;
   transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(167, 139, 250, 0.12);
-  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(167, 139, 250, 0.12);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
   will-change: transform;
 }
 .float-btn:hover {
   transform: perspective(600px) rotateX(6deg) translateY(-4px) scale(1.03);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(167, 139, 250, 0.35), 0 0 16px rgba(167, 139, 250, 0.1);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(167, 139, 250, 0.35),
+    0 0 16px rgba(167, 139, 250, 0.1);
 }
 .float-btn:active {
   transform: translateY(0px) scale(0.98);
@@ -335,10 +358,12 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   font-size: 0.6875rem;
   color: rgba(255, 255, 255, 0.6);
-  transition: border-color 200ms ease, background 200ms ease;
+  transition:
+    border-color 200ms ease,
+    background 200ms ease;
 }
 .orbit-chip::before {
-  content: '';
+  content: "";
   width: 5px;
   height: 5px;
   border-radius: 50%;
@@ -356,10 +381,14 @@
   position: relative;
 }
 .section-backdrop::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: -2rem -4rem;
-  background: radial-gradient(ellipse 120% 100% at 50% 50%, rgba(5, 4, 10, 0.6) 0%, transparent 70%);
+  background: radial-gradient(
+    ellipse 120% 100% at 50% 50%,
+    rgba(5, 4, 10, 0.6) 0%,
+    transparent 70%
+  );
   z-index: -1;
   pointer-events: none;
 }
@@ -381,7 +410,9 @@
 .edu-blob--stable {
   border-radius: 48% 52% 50% 50% / 49% 51% 49% 51%;
   animation: blob-morph-stable 10s ease-in-out infinite;
-  box-shadow: 0 0 30px rgba(167, 139, 250, 0.15), 0 0 60px rgba(167, 139, 250, 0.05);
+  box-shadow:
+    0 0 30px rgba(167, 139, 250, 0.15),
+    0 0 60px rgba(167, 139, 250, 0.05);
 }
 
 .edu-connector {
@@ -398,7 +429,7 @@
 }
 
 .edu-connector::after {
-  content: '';
+  content: "";
   position: absolute;
   width: 4px;
   height: 12px;
@@ -418,7 +449,7 @@
 }
 
 .cert-card::after {
-  content: '';
+  content: "";
   position: absolute;
   top: -1px;
   right: -1px;
@@ -439,49 +470,106 @@
    ============================================================ */
 
 @keyframes blob-morph-chaotic {
-  0%, 100% { border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%; }
-  25% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
-  50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
-  75% { border-radius: 55% 45% 40% 60% / 35% 65% 45% 55%; }
+  0%,
+  100% {
+    border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
+  }
+  25% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  50% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  75% {
+    border-radius: 55% 45% 40% 60% / 35% 65% 45% 55%;
+  }
 }
 
 @keyframes blob-morph-forming {
-  0%, 100% { border-radius: 45% 55% 55% 45% / 48% 52% 48% 52%; }
-  33% { border-radius: 52% 48% 45% 55% / 50% 48% 52% 50%; }
-  66% { border-radius: 48% 52% 52% 48% / 52% 50% 48% 52%; }
+  0%,
+  100% {
+    border-radius: 45% 55% 55% 45% / 48% 52% 48% 52%;
+  }
+  33% {
+    border-radius: 52% 48% 45% 55% / 50% 48% 52% 50%;
+  }
+  66% {
+    border-radius: 48% 52% 52% 48% / 52% 50% 48% 52%;
+  }
 }
 
 @keyframes blob-morph-stable {
-  0%, 100% { border-radius: 48% 52% 50% 50% / 49% 51% 49% 51%; }
-  50% { border-radius: 50% 50% 52% 48% / 51% 49% 51% 49%; }
+  0%,
+  100% {
+    border-radius: 48% 52% 50% 50% / 49% 51% 49% 51%;
+  }
+  50% {
+    border-radius: 50% 50% 52% 48% / 51% 49% 51% 49%;
+  }
 }
 
 @keyframes pulse-travel {
-  0% { top: 0; opacity: 0; }
-  20% { opacity: 1; }
-  80% { opacity: 1; }
-  100% { top: 100%; opacity: 0; }
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.3); }
-  50% { box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.1); }
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(167, 139, 250, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.1);
+  }
 }
 
 @keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
 }
 
 @keyframes deploy-dot {
-  0% { transform: translateX(0); opacity: 0.3; }
-  50% { opacity: 1; }
-  100% { transform: translateX(8px); opacity: 0.3; }
+  0% {
+    transform: translateX(0);
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(8px);
+    opacity: 0.3;
+  }
 }
 
 @keyframes sparkline-rise {
-  from { transform: scaleY(0); opacity: 0; transform-origin: bottom; }
-  to   { transform: scaleY(1); opacity: 1; transform-origin: bottom; }
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+    transform-origin: bottom;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+    transform-origin: bottom;
+  }
 }
 
 /* ============================================================

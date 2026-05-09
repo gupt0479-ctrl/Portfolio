@@ -114,17 +114,6 @@ export const SKILLS_QUERY = defineQuery(`
 }
 `);
 
-export const CHAT_PROFILE_QUERY = defineQuery(`
-coalesce(
-  *[_type == "profile" && _id == "singleton-profile"][0],
-  *[_type == "profile"][0]
-){
-  firstName,
-  lastName,
-  headline
-}
-`);
-
 export const EXPERIENCE_QUERY = defineQuery(`
 *[_type == "experience"] | order(order asc, startDate desc){
   _id,

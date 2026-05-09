@@ -1,6 +1,6 @@
 "use server";
 
-import { serverClient } from "@/sanity/lib/server-client";
+import { getServerClient } from "@/sanity/lib/server-client";
 
 export async function submitContactForm(
   formData: FormData,
@@ -15,6 +15,8 @@ export async function submitContactForm(
   }
 
   try {
+    const serverClient = getServerClient();
+
     await serverClient.create({
       _type: "contact",
       name: name.trim(),

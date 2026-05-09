@@ -1,11 +1,11 @@
-import { readFileSync } from "fs";
-import { join } from "path";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Property 9: Achievement type labels use orbit-chip", () => {
   const content = readFileSync(
     join(process.cwd(), "src/components/sections/AchievementsSection.tsx"),
-    "utf-8"
+    "utf-8",
   );
 
   it("Achievement type labels use orbit-chip class", () => {

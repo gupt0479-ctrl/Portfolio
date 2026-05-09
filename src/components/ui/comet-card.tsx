@@ -26,7 +26,8 @@ export const CometCard = ({
   children: React.ReactNode;
 }) => {
   // Subtle variant caps rotateDepth at 6
-  const effectiveRotateDepth = variant === "subtle" ? Math.min(rotateDepth, 6) : rotateDepth;
+  const effectiveRotateDepth =
+    variant === "subtle" ? Math.min(rotateDepth, 6) : rotateDepth;
   const ref = useRef<HTMLDivElement>(null);
 
   const x = useMotionValue(0);
@@ -93,8 +94,14 @@ export const CometCard = ({
   };
 
   // Variant-based config
-  const variantClass = variant === "dark" ? "cosmic-card--dark" : variant === "subtle" ? "cosmic-card--subtle" : "cosmic-card";
-  const glareOpacity = variant === "dark" ? 0.35 : variant === "subtle" ? 0.25 : 0.5;
+  const variantClass =
+    variant === "dark"
+      ? "cosmic-card--dark"
+      : variant === "subtle"
+        ? "cosmic-card--subtle"
+        : "cosmic-card";
+  const glareOpacity =
+    variant === "dark" ? 0.35 : variant === "subtle" ? 0.25 : 0.5;
   const hoverScale = variant === "default" ? 1.05 : 1.02;
 
   return (

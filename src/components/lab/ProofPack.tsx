@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
-import { generateProofPack } from "@/lib/lab-data";
 import type { LabMode } from "@/lib/lab-data";
+import { generateProofPack } from "@/lib/lab-data";
 
 interface ProofPackProps {
   mode: LabMode;

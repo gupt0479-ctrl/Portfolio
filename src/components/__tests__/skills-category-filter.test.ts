@@ -1,11 +1,11 @@
-import { readFileSync } from "fs";
-import { join } from "path";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Property 5: Skills category filter correctness", () => {
   const content = readFileSync(
     join(process.cwd(), "src/components/sections/SkillsSectionClient.tsx"),
-    "utf-8"
+    "utf-8",
   );
 
   it("SkillsSectionClient filters skills by selected category", () => {
@@ -22,13 +22,16 @@ describe("Property 5: Skills category filter correctness", () => {
     expect(content).toContain('"All"');
   });
 
-  it("SkillsSectionClient has InsightPanel that shows category insights", () => {
-    expect(content).toContain("InsightPanel");
-    expect(content).toContain("category={selected}");
+  it("SkillsSectionClient renders a real-data skills summary", () => {
+    expect(content).toContain("SkillsSummary");
+    expect(content).toContain("skills.length");
+    expect(content).toContain("categoryCounts");
   });
 
-  it("SkillsChart highlights selected category line", () => {
-    expect(content).toContain("selectedCategory");
-    expect(content).toContain("strokeOpacity");
+  it("SkillsSectionClient does not render fabricated trajectory UI", () => {
+    expect(content).not.toContain("generateTrajectoryData");
+    expect(content).not.toContain("SkillsChart");
+    expect(content).not.toContain("InsightPanel");
+    expect(content).not.toContain("recharts");
   });
 });

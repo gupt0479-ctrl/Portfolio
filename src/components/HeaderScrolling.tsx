@@ -1,16 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { Menu, Moon, X } from "lucide-react";
+import Link from "next/link";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetTrigger,
-  SheetClose,
 } from "@/components/ui/sheet";
 import { useSidebar } from "@/components/ui/sidebar";
-import { useShowOnScroll } from "@/hooks/useShowOnScroll";
 import { useActiveSection } from "@/hooks/useActiveSection";
+import { useShowOnScroll } from "@/hooks/useShowOnScroll";
 
 type NavItem = {
   _id: string;

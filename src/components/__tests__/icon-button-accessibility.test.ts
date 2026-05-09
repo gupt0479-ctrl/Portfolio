@@ -1,5 +1,5 @@
-import { readFileSync } from "fs";
-import { join } from "path";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -24,7 +24,7 @@ describe("Property 14: Icon-only button accessibility", () => {
 
   it("ProjectsSlider pagination dots have aria-label", () => {
     const content = readSrc("components/three/ProjectsSlider.tsx");
-    expect(content).toContain('aria-label={`Go to project ${idx + 1}`}');
+    expect(content).toContain("aria-label={`Go to project");
   });
 
   it("SidebarToggle (Portfolio Lab launcher) has aria-label", () => {

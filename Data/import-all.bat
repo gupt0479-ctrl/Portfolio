@@ -50,7 +50,7 @@ echo Starting import...
 echo.
 
 REM Import files in order
-set FILES=skills.ndjson profile.ndjson education.ndjson experience.ndjson projects.ndjson blog.ndjson achievements.ndjson certifications.ndjson navigation.ndjson siteSettings.ndjson contact.ndjson
+set FILES=skills.ndjson profile.ndjson education.ndjson experience.ndjson projects.ndjson blog.ndjson achievements.ndjson certifications.ndjson navigation.ndjson siteSettings.ndjson
 
 set COUNT=0
 for %%F in (%FILES%) do (

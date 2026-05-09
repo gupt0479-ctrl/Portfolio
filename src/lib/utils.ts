@@ -15,8 +15,5 @@ export function formatCategory(cat: string): string {
 
 /** Normalize category keys for lookups (e.g. "AI ML" → "ai-ml"). */
 export function normalizeCategoryKey(cat: string): string {
-  return cat
-    .trim()
-    .toLowerCase()
-    .replace(/\s+/g, "-");
+  return cat.trim().toLowerCase().replace(/\s+/g, "-");
 }

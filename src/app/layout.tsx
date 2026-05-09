@@ -24,7 +24,8 @@ const lora = Lora({
 
 export const metadata: Metadata = {
   title: "Anant Gupta | Portfolio",
-  description: "Full-stack developer portfolio with Sanity, Portfolio Lab, and 3D web.",
+  description:
+    "Full-stack developer portfolio with Sanity, Portfolio Lab, and 3D web.",
 };
 
 export default function RootLayout({

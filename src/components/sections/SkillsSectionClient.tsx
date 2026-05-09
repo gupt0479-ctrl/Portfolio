@@ -1,17 +1,7 @@
 "use client";
 
 import { type CSSProperties, useMemo, useState } from "react";
-import {
-  CartesianGrid,
-  Legend,
-  Line,
-  LineChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { useIridescentEffect } from "@/lib/hooks/useIridescentEffect";
+import { useIridescentEffect } from "@/hooks/useIridescentEffect";
 import { formatCategory, normalizeCategoryKey } from "@/lib/utils";
 import type { SKILLS_QUERYResult } from "@/sanity/types";
 
@@ -54,242 +44,37 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   other: "Everything else that doesn't fit a clean box.",
 };
 
-function generateTrajectoryData(skills: SKILLS_QUERYResult) {
-  const years = [2021, 2022, 2023, 2024, 2025, 2026];
-  const categories = Array.from(
-    new Set(skills.map((s) => s.category ?? "other").filter(Boolean)),
-  );
-
-  return years.map((year) => {
-    const point: Record<string, number> = { year };
-    for (const cat of categories) {
-      const catSkills = skills.filter((s) => (s.category ?? "other") === cat);
-      const avgPct =
-        catSkills.reduce((sum, s) => sum + (s.percentage ?? 0), 0) /
-        (catSkills.length || 1);
-      const avgYears =
-        catSkills.reduce((sum, s) => sum + (s.yearsOfExperience ?? 0), 0) /
-        (catSkills.length || 1);
-
-      const yearsSince2021 = year - 2021;
-      const growthFactor = Math.min(1, yearsSince2021 / Math.max(avgYears, 1));
-      const eased = 1 - Math.pow(1 - growthFactor, 2);
-      point[cat] = Math.round(10 + (avgPct - 10) * eased);
+function SkillsSummary({ skills }: { skills: SKILLS_QUERYResult }) {
+  const categoryCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const skill of skills) {
+      const category = skill.category ?? "other";
+      counts.set(category, (counts.get(category) ?? 0) + 1);
     }
-    return point;
-  });
-}
+    return Array.from(counts.entries()).sort(([a], [b]) => a.localeCompare(b));
+  }, [skills]);
 
-function SkillsChart({
-  skills,
-  selectedCategory,
-  onCategoryClick,
-}: {
-  skills: SKILLS_QUERYResult;
-  selectedCategory: string | null;
-  onCategoryClick: (category: string) => void;
-}) {
-  const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
-
-  const categories = useMemo(
-    () =>
-      Array.from(
-        new Set(skills.map((s) => s.category ?? "other").filter(Boolean)),
-      ).sort(),
-    [skills],
-  );
-
-  const data = useMemo(() => generateTrajectoryData(skills), [skills]);
-
-  // Build a lookup: category → top 3 skill names
-  const topSkillsByCategory = useMemo(() => {
-    const map: Record<string, string[]> = {};
-    for (const cat of categories) {
-      map[cat] = skills
-        .filter((s) => (s.category ?? "other") === cat)
-        .sort((a, b) => (b.percentage ?? 0) - (a.percentage ?? 0))
-        .slice(0, 3)
-        .map((s) => s.name ?? "")
-        .filter(Boolean);
-    }
-    return map;
-  }, [skills, categories]);
-
-  if (!data.length || !categories.length) return null;
-
-  // Active highlight: hover takes priority over selection
-  const activeCategory = hoveredCategory ?? selectedCategory;
+  if (!skills.length) return null;
 
   return (
-    <div className="relative z-10 mx-auto mb-10 w-full max-w-3xl">
-      {/* Y-axis label */}
-      <p className="text-[10px] text-white/30 font-mono mb-1 text-center">
-        Familiarity / Applied Depth
+    <div className="mx-auto mb-8 max-w-3xl text-center">
+      <p className="font-sans text-sm text-white/55">
+        {skills.length} skills across {categoryCounts.length} categories
       </p>
-      <ResponsiveContainer width="100%" height={240}>
-        <LineChart
-          data={data}
-          margin={{ top: 8, right: 16, left: 0, bottom: 4 }}
-          onMouseLeave={() => setHoveredCategory(null)}
-        >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="rgba(255,255,255,0.05)"
-          />
-          <XAxis
-            dataKey="year"
-            tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            domain={[0, 100]}
-            tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 11 }}
-            axisLine={false}
-            tickLine={false}
-            tickFormatter={(v: number) =>
-              v === 0 ? "Low" : v === 50 ? "Mid" : v === 100 ? "High" : `${v}%`
-            }
-            width={36}
-          />
-          <Tooltip
-            contentStyle={{
-              background: "#10101a",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "8px",
-              fontSize: "12px",
-              color: "rgba(255,255,255,0.85)",
-            }}
-            formatter={(
-              value: number | undefined,
-              name: string | undefined,
-            ) => {
-              const cat = name ?? "";
-              const key = normalizeCategoryKey(cat);
-              const insight = CATEGORY_INSIGHTS[key];
-              const topSkills = topSkillsByCategory[cat] ?? [];
-              return [
-                <span key="val">
-                  <span className="font-semibold">{value ?? 0}%</span>
-                  {insight && (
-                    <span className="block text-[10px] text-white/45 mt-0.5">
-                      {insight.direction}
-                    </span>
-                  )}
-                  {topSkills.length > 0 && (
-                    <span className="block text-[10px] text-white/35 mt-0.5">
-                      {topSkills.join(" · ")}
-                    </span>
-                  )}
-                </span>,
-                formatCategory(cat),
-              ];
-            }}
-          />
-          {categories.map((cat) => {
-            const key = normalizeCategoryKey(cat);
-            const color = CATEGORY_COLORS[key] ?? FALLBACK_BAR;
-            const isActive = activeCategory === cat;
-            const isDimmed = activeCategory !== null && !isActive;
-            return (
-              <Line
-                key={cat}
-                type="monotone"
-                dataKey={cat}
-                stroke={color}
-                strokeWidth={isActive ? 3 : 1.5}
-                strokeOpacity={isDimmed ? 0.15 : 1}
-                dot={false}
-                activeDot={{
-                  r: 5,
-                  fill: color,
-                  onMouseEnter: () => setHoveredCategory(cat),
-                }}
-                onMouseEnter={() => setHoveredCategory(cat)}
-                onClick={() => onCategoryClick(cat)}
-                style={{ cursor: "pointer" }}
-              />
-            );
-          })}
-        </LineChart>
-      </ResponsiveContainer>
-      {/* X-axis label */}
-      <p className="text-[10px] text-white/30 font-mono mt-1 text-center">
-        Year
-      </p>
-    </div>
-  );
-}
-
-const CATEGORY_INSIGHTS: Record<
-  string,
-  { summary: string; direction: string; topSkills: string[] }
-> = {
-  frontend: {
-    summary: "Building fast, accessible, and visually rich interfaces.",
-    direction: "Trending toward component systems and animation.",
-    topSkills: ["React", "Next.js", "Tailwind CSS"],
-  },
-  backend: {
-    summary: "Designing APIs, services, and data pipelines.",
-    direction: "Trending toward Rust and distributed systems.",
-    topSkills: ["Node.js", "Rust", "PostgreSQL"],
-  },
-  "ai-ml": {
-    summary: "Working with LLMs, embeddings, and retrieval systems.",
-    direction: "Trending toward agents and RAG architectures.",
-    topSkills: ["Python", "LLM APIs", "Prompt Engineering"],
-  },
-  devops: {
-    summary: "Shipping reliably with CI/CD and infrastructure as code.",
-    direction: "Trending toward containerization and observability.",
-    topSkills: ["Docker", "GitHub Actions", "Linux"],
-  },
-  database: {
-    summary: "Modeling data and optimizing queries for scale.",
-    direction: "Trending toward vector databases and analytics.",
-    topSkills: ["PostgreSQL", "Redis", "SQL"],
-  },
-  // alias: Sanity may store this as "data-systems"
-  "data-systems": {
-    summary: "Modeling data and optimizing queries for scale.",
-    direction: "Trending toward vector databases and analytics.",
-    topSkills: ["PostgreSQL", "Redis", "SQL"],
-  },
-  cloud: {
-    summary: "Deploying and scaling on distributed cloud infrastructure.",
-    direction: "Trending toward serverless and edge computing.",
-    topSkills: ["AWS", "Vercel", "Cloudflare"],
-  },
-  "soft-skills": {
-    summary: "Communicating clearly and collaborating effectively.",
-    direction: "Stable — always improving.",
-    topSkills: ["Technical Writing", "Code Review", "Mentoring"],
-  },
-};
-
-function InsightPanel({ category }: { category: string | null }) {
-  if (!category) return null;
-
-  const key = normalizeCategoryKey(category);
-  const insight = CATEGORY_INSIGHTS[key];
-  if (!insight) return null;
-
-  return (
-    <div className="mx-auto mb-8 max-w-2xl cosmic-card rounded-xl p-4">
-      <p className="text-[11px] text-white/35 font-mono mb-2">// insight</p>
-      <p className="text-sm text-white/70 font-sans leading-relaxed">
-        {insight.summary}
-      </p>
-      <p className="text-xs text-white/45 font-sans mt-1">
-        {insight.direction}
-      </p>
-      <div className="flex flex-wrap gap-1.5 mt-3">
-        {insight.topSkills.map((skill) => (
-          <span key={skill} className="orbit-chip">
-            {skill}
-          </span>
-        ))}
+      <div className="mt-3 flex flex-wrap justify-center gap-2">
+        {categoryCounts.map(([category, count]) => {
+          const key = normalizeCategoryKey(category);
+          const color = CATEGORY_COLORS[key] ?? FALLBACK_BAR;
+          return (
+            <span
+              key={category}
+              className="orbit-chip"
+              style={{ borderColor: `${color}66`, color }}
+            >
+              {formatCategory(category)} {count}
+            </span>
+          );
+        })}
       </div>
     </div>
   );
@@ -386,12 +171,18 @@ function SkillsFilter({
               normalizedKey === "data-systems") &&
               isHovered && (
                 <span className="ml-1.5 inline-flex items-end gap-px">
-                  {[3, 5, 4, 6, 3].map((h, i) => (
+                  {[
+                    { id: "low", height: 3 },
+                    { id: "high", height: 5 },
+                    { id: "mid", height: 4 },
+                    { id: "peak", height: 6 },
+                    { id: "tail", height: 3 },
+                  ].map((bar, i) => (
                     <span
-                      key={i}
+                      key={bar.id}
                       className="inline-block w-0.5 rounded-sm bg-orange-400/70 animate-[pulse-glow_0.8s_ease-in-out_infinite]"
                       style={{
-                        height: `${h}px`,
+                        height: `${bar.height}px`,
                         animationDelay: `${i * 100}ms`,
                       }}
                     />
@@ -406,7 +197,7 @@ function SkillsFilter({
 }
 
 function SkillPill({ skill }: { skill: Skill }) {
-  const { ref, overlayStyle } = useIridescentEffect({ gradientAlpha: 0.1 });
+  const { ref } = useIridescentEffect({ gradientAlpha: 0.1 });
   const [hovered, setHovered] = useState(false);
   const label = (skill.name ?? "").toString();
   const proficiency =
@@ -442,7 +233,7 @@ function SkillPill({ skill }: { skill: Skill }) {
       >
         <span
           className="pointer-events-none absolute inset-0 z-[1] rounded-full"
-          style={overlayStyle}
+          style={{ background: "var(--irid-bg, transparent)" }}
           aria-hidden
         />
         <div className="relative z-10 flex w-full min-w-0 items-center justify-between gap-2 text-left">
@@ -520,19 +311,12 @@ export function SkillsSectionClient({
 
   return (
     <div className="relative">
-      <SkillsChart
-        skills={skills}
-        selectedCategory={selected}
-        onCategoryClick={(cat) =>
-          setSelected((prev) => (prev === cat ? null : cat))
-        }
-      />
+      <SkillsSummary skills={skills} />
       <SkillsFilter
         skills={skills}
         selected={selected}
         onChange={handleCategoryChange}
       />
-      <InsightPanel category={selected} />
       <SkillsCategoryGrid skills={filtered} />
     </div>
   );

@@ -1,0 +1,442 @@
+{
+  "/home/anant_gupta/projects/portfolio/sanity.config.ts": {
+    "mtime": 1778361543.0008616,
+    "hash": "cf3441340a3983e9ffe8cd6b6af28e25"
+  },
+  "/home/anant_gupta/projects/portfolio/next.config.ts": {
+    "mtime": 1775538314.96807,
+    "hash": "6f368c309c4d3cf49689772d2d39cc55"
+  },
+  "/home/anant_gupta/projects/portfolio/vitest.config.ts": {
+    "mtime": 1778361543.10775,
+    "hash": "a6a5fac98aef47f21b383050d54fdbdc"
+  },
+  "/home/anant_gupta/projects/portfolio/proxy.ts": {
+    "mtime": 1778345196.7875648,
+    "hash": "0000f7374b7728de06226f27999ef18d"
+  },
+  "/home/anant_gupta/projects/portfolio/postcss.config.mjs": {
+    "mtime": 1768273502.0,
+    "hash": "239f3ebf717465dc636818a1a619398d"
+  },
+  "/home/anant_gupta/projects/portfolio/next-env.d.ts": {
+    "mtime": 1778345373.4874742,
+    "hash": "2a74d3909800ca5467fa83b0ab4a4890"
+  },
+  "/home/anant_gupta/projects/portfolio/sanity.cli.ts": {
+    "mtime": 1774231565.4348772,
+    "hash": "bf1393b4b93f656f2485f2aa99c3d902"
+  },
+  "/home/anant_gupta/projects/portfolio/src/proxy.ts": {
+    "mtime": 1778345063.0076182,
+    "hash": "d60cf8a83448384d17dd64acb1a87d63"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/structure.ts": {
+    "mtime": 1774458976.339717,
+    "hash": "c203e13b09e952420e7bdbb355adbecb"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/env.ts": {
+    "mtime": 1769058991.7165606,
+    "hash": "1cd30ef9efe49200e9eeb1d6ec7be38e"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/project.ts": {
+    "mtime": 1769061171.8359005,
+    "hash": "6b888c75b5c9b02b4eb0f4a25ad61b8b"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/blog.ts": {
+    "mtime": 1769294985.9464934,
+    "hash": "dfda328c5288df28b3ac9ae068fc59a0"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/contact.ts": {
+    "mtime": 1769295045.2464616,
+    "hash": "18d9a874cde360a0d4421a4f8a7d881c"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/experience.ts": {
+    "mtime": 1769061192.345894,
+    "hash": "5db86a2e112f4b649eed40856d571b68"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/index.ts": {
+    "mtime": 1774458976.339717,
+    "hash": "a92300c52653a0248bb4f5379678d722"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/navigation.ts": {
+    "mtime": 1771711499.2019012,
+    "hash": "f78f790b2c4865a5594ee33a00dd6617"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/certifications.ts": {
+    "mtime": 1769058644.3766592,
+    "hash": "fa304c3903a547d27de5fc3884e30eea"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/skill.ts": {
+    "mtime": 1769061226.3458817,
+    "hash": "cad8417e6f78fcafc53991eebd48cfe4"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/education.ts": {
+    "mtime": 1769295003.5964882,
+    "hash": "c2dbc58741bddee18fd6a79b3b2c294e"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/siteSettings.ts": {
+    "mtime": 1774458976.349717,
+    "hash": "aae07bca999f4bcee94fb79a0195f08d"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/profile.ts": {
+    "mtime": 1769061125.9259162,
+    "hash": "d87cf48b4be62cc555589289ad0afcbc"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/schemaTypes/achievement.ts": {
+    "mtime": 1769114050.1860666,
+    "hash": "ffbe441082a8387b53b104a2341a03d7"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/types/index.ts": {
+    "mtime": 1778361929.341426,
+    "hash": "ed88c9f5125392cb2e8b9033db74e6f2"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/lib/image.ts": {
+    "mtime": 1769288240.919994,
+    "hash": "0009bd4252c481177c430c516e917d50"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/lib/server-client.ts": {
+    "mtime": 1778348787.7685614,
+    "hash": "fd391ad7607400ae2ae0d51d1a13d934"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/lib/live.ts": {
+    "mtime": 1775195686.8923917,
+    "hash": "7e920dfb83ff7cd6eca75fa6d4bf446d"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/lib/client.ts": {
+    "mtime": 1769061076.645935,
+    "hash": "7ea1d14613caaa7223d15bc530e220f7"
+  },
+  "/home/anant_gupta/projects/portfolio/src/sanity/lib/queries.ts": {
+    "mtime": 1778335989.8323045,
+    "hash": "124ae102fd3446c5d133dd669a154f7d"
+  },
+  "/home/anant_gupta/projects/portfolio/src/hooks/use-mobile.ts": {
+    "mtime": 1772596568.4429512,
+    "hash": "46b35a495cdfa7caa7cadfabbc3b8ec7"
+  },
+  "/home/anant_gupta/projects/portfolio/src/hooks/useIridescentEffect.ts": {
+    "mtime": 1778361846.8170207,
+    "hash": "44f55d58d38bb6bc6dd4e379f36e28a6"
+  },
+  "/home/anant_gupta/projects/portfolio/src/hooks/useActiveSection.ts": {
+    "mtime": 1778276916.281213,
+    "hash": "be1542513b8c1c0c098d260facbbee49"
+  },
+  "/home/anant_gupta/projects/portfolio/src/hooks/useShowOnScroll.ts": {
+    "mtime": 1771754399.612153,
+    "hash": "219ba77556b201b6a19bd96f4805d184"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/HeroTerminal.tsx": {
+    "mtime": 1778276915.9811978,
+    "hash": "6cc5df284ba1ee8c31abec4d866c42fe"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/HeaderScrolling.tsx": {
+    "mtime": 1778276916.0211997,
+    "hash": "b86b019f56fd24388efd5a94f0a1d59b"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/app-sidebar.tsx": {
+    "mtime": 1778276916.0612018,
+    "hash": "63b24acd8db9b8597bd480154a8e8a10"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/BlogFeed.tsx": {
+    "mtime": 1778344262.6678915,
+    "hash": "02567efb1526385f93427db2aecc02d3"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/ThemeProvider.tsx": {
+    "mtime": 1769300755.4416952,
+    "hash": "46876e13f6cc37b11a66a13b66f9af92"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/AboutTelemetry.tsx": {
+    "mtime": 1778276974.5057783,
+    "hash": "fb339402206df00c9614cfeb81d759b1"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/PortfolioContent.tsx": {
+    "mtime": 1778276959.2353382,
+    "hash": "86f4db7a0634d9a7ad4fddf3aa992a59"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/Footer.tsx": {
+    "mtime": 1778335925.402094,
+    "hash": "5481eca59cc00e2bb4021ac6dfd2a31b"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/EducationFlowchart.tsx": {
+    "mtime": 1778336502.2721126,
+    "hash": "955d9803a62a9e4d61edcc7ff3e87f77"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/ContactPanel.tsx": {
+    "mtime": 1778361271.1992052,
+    "hash": "3792f525733efacb978dabc70ebfd6eb"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/SidebarToggle.tsx": {
+    "mtime": 1778276915.9911983,
+    "hash": "0f84f33fda5e5c01af7978e7303c8d47"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/Providers.tsx": {
+    "mtime": 1772939234.83021,
+    "hash": "8699041dddbd4afa46e098eca149c23c"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/three/ObsidianBackgroundCanvas.tsx": {
+    "mtime": 1778361846.9484708,
+    "hash": "042d03974fd0382ff82df20978d04653"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/three/ObsidianBackground.tsx": {
+    "mtime": 1771756094.4120069,
+    "hash": "491dbe74e7976dd2f6858a806f578b76"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/three/ProjectsSlider.tsx": {
+    "mtime": 1778361271.3504026,
+    "hash": "7eb1debee6bd8d391c705255334fe395"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/SkillsSection.tsx": {
+    "mtime": 1778276959.2853818,
+    "hash": "06e40cc81aaf210a5d09ef4af360d2b0"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/HeroSection.tsx": {
+    "mtime": 1778276959.2653644,
+    "hash": "121f9b43280714b327921cc01954adc6"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/AchievementsSection.tsx": {
+    "mtime": 1778276959.245347,
+    "hash": "69e3cdd3fb2210aafba93fab1f7dd5a5"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/HeroContent.tsx": {
+    "mtime": 1778361271.0480077,
+    "hash": "36acfad6f05e31fee5e7c9a7126ad25f"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/AboutSection.tsx": {
+    "mtime": 1778276959.245347,
+    "hash": "c63aaa187d96f58315b4c230e2dde8a9"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/ProfileImage.tsx": {
+    "mtime": 1778276959.2853818,
+    "hash": "3f986c3ea260292b6798c3eef38c6496"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/EducationSection.tsx": {
+    "mtime": 1778276959.2553556,
+    "hash": "a13892f1750c427dc2c08156c65cc1a9"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/ContactSection.tsx": {
+    "mtime": 1778276959.2553556,
+    "hash": "42739c7318e9b432f2c9522b12dd9868"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/CertificationsSection.tsx": {
+    "mtime": 1778276959.245347,
+    "hash": "e1b6aec3cff2e9dca206a84efd632101"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/SkillsSectionClient.tsx": {
+    "mtime": 1778361380.1074004,
+    "hash": "4bf4ba60d4e3dda49409970c4560d049"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/BlogSection.tsx": {
+    "mtime": 1778276959.245347,
+    "hash": "2d5bd30b21561025559b27e6ba307f91"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/sections/ExperienceSection.tsx": {
+    "mtime": 1778276959.2553556,
+    "hash": "fdbfd7181f65ff749a769fcfe086cc48"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/cards/ExperienceCard.tsx": {
+    "mtime": 1778276916.101204,
+    "hash": "90efd1d3c5ca60d6a0cf530f6554dbd2"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/project-card-content.test.ts": {
+    "mtime": 1778276959.1953034,
+    "hash": "7166aac755b45f5039c79c25014de693"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/icon-button-accessibility.test.ts": {
+    "mtime": 1778277078.7257826,
+    "hash": "c0482e780f7d2b0c6c0ff6d87e63963f"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/banned-text.test.ts": {
+    "mtime": 1778341438.6789799,
+    "hash": "45ff652699ca28bebf3e132818b0b91f"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/blog-card-styling.test.ts": {
+    "mtime": 1778276959.175286,
+    "hash": "6e32d16486f37e6b0de95520085ca12e"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/portfolio-lab.test.ts": {
+    "mtime": 1778276959.1852949,
+    "hash": "fe3b50303c293143bb97e39af334f8ef"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/education-flowchart.test.ts": {
+    "mtime": 1778276959.1852949,
+    "hash": "9a9ec05ebbcc9ee1f59b6cdf1dac43fa"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/codebase-cleanup-bug-condition.test.ts": {
+    "mtime": 1778348788.2185624,
+    "hash": "3c70a995e14b2a7114ca8a247fda63a6"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/section-backdrop.test.ts": {
+    "mtime": 1778276959.1953034,
+    "hash": "dd755c71afef53b350d4c5ec82d5acb5"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/experience-tech-tags.test.ts": {
+    "mtime": 1778276959.1852949,
+    "hash": "5bf9e1b5c33cce337823abf633cb1c85"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/hero-terminal-fallback.test.tsx": {
+    "mtime": 1778276916.0412009,
+    "hash": "1e29fff5079995cd09e1219adbf88f3d"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/achievement-orbit-chip.test.ts": {
+    "mtime": 1778276959.175286,
+    "hash": "5d42fd9887f6c517a311ba5cce22edfc"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/skills-category-filter.test.ts": {
+    "mtime": 1778361416.341472,
+    "hash": "4fdc9aceefc3e0c262b6d25c5ec09d4f"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/codebase-cleanup-preservation.test.ts": {
+    "mtime": 1778361410.1062334,
+    "hash": "d44a8fdd4d77f6c892c03eb1e42d5f6b"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/__tests__/certification-card.test.ts": {
+    "mtime": 1778276959.1852949,
+    "hash": "e1374ae996ce6f4772356c39698d9060"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/lab/ProofPack.tsx": {
+    "mtime": 1778276916.1112044,
+    "hash": "30972b882028fb96810b99f5fddaec5a"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/lab/PortfolioLab.tsx": {
+    "mtime": 1778277079.5352724,
+    "hash": "8c7be83fb99daa12387b92dd7378a6f8"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/lab/EvidenceCard.tsx": {
+    "mtime": 1778276916.0712023,
+    "hash": "cd4c73397f007ee850becc98e1ff9a7e"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/ui/comet-card.tsx": {
+    "mtime": 1778276916.22121,
+    "hash": "ef28d2973b897e863d363af134ab65bb"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/ui/tooltip.tsx": {
+    "mtime": 1770261174.1182227,
+    "hash": "967e69144ca5f62d11918decf62f3d2d"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/ui/sidebar.tsx": {
+    "mtime": 1778361847.1001441,
+    "hash": "76d5d66375535c5aeb20c005c75cc52f"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/ui/layout-text-flip.tsx": {
+    "mtime": 1770261174.1182227,
+    "hash": "640c0c0f10a80a7fe4188894a7a18702"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/ui/sheet.tsx": {
+    "mtime": 1770261174.1182227,
+    "hash": "8eb752af26d1d02c40a61f38dd507d08"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/ui/separator.tsx": {
+    "mtime": 1770261174.1182227,
+    "hash": "6617254df92eba5658c8ddd74a86ef86"
+  },
+  "/home/anant_gupta/projects/portfolio/src/components/ui/__tests__/comet-card.test.tsx": {
+    "mtime": 1778277177.0521228,
+    "hash": "04d95e1238deb0e80990ab7aa6e5ed20"
+  },
+  "/home/anant_gupta/projects/portfolio/src/test/setup.ts": {
+    "mtime": 1778276915.9211955,
+    "hash": "166a26ce4265ed1175aab3efd38ff02b"
+  },
+  "/home/anant_gupta/projects/portfolio/src/app/page.tsx": {
+    "mtime": 1778342382.0985887,
+    "hash": "760b2c7ec4f8ab38ea8cba77ad225cf2"
+  },
+  "/home/anant_gupta/projects/portfolio/src/app/layout.tsx": {
+    "mtime": 1778276915.9211955,
+    "hash": "40b7ade627ec382f8e0fcfd7b37b4ee2"
+  },
+  "/home/anant_gupta/projects/portfolio/src/app/studio/[[...tool]]/page.tsx": {
+    "mtime": 1778344916.1971073,
+    "hash": "cb926d5eccec8a139fe363655fbbeab2"
+  },
+  "/home/anant_gupta/projects/portfolio/src/app/studio/[[...tool]]/StudioClient.tsx": {
+    "mtime": 1778342382.1085887,
+    "hash": "70ecc4b88d4f150ebb40ed4967b70c6a"
+  },
+  "/home/anant_gupta/projects/portfolio/src/app/actions/submit-contact-form.ts": {
+    "mtime": 1778344261.9978886,
+    "hash": "2fed3e5f953933cb368bac4cfc59f14f"
+  },
+  "/home/anant_gupta/projects/portfolio/src/app/api/draft-mode/disable/route.ts": {
+    "mtime": 1769063371.4952111,
+    "hash": "ee2b8985aeed6b8d16d08c51ba30280e"
+  },
+  "/home/anant_gupta/projects/portfolio/src/app/api/draft-mode/enable/route.ts": {
+    "mtime": 1772939234.82021,
+    "hash": "ee34dfa364dd22472055daa213e11a95"
+  },
+  "/home/anant_gupta/projects/portfolio/src/lib/lab-data.ts": {
+    "mtime": 1778276916.3712177,
+    "hash": "94b53344a1ba3be8587d8c18be14eba6"
+  },
+  "/home/anant_gupta/projects/portfolio/src/lib/localContent.ts": {
+    "mtime": 1778344262.8678925,
+    "hash": "4a81cb2d7be46da44bf04af05a8f70f3"
+  },
+  "/home/anant_gupta/projects/portfolio/src/lib/utils.ts": {
+    "mtime": 1778276916.341216,
+    "hash": "414024b54852d0d97b933e6dc5bf6351"
+  },
+  "/home/anant_gupta/projects/portfolio/README.md": {
+    "mtime": 1778342003.8887928,
+    "hash": "7a28c73cff9fa9a9fc22010f4eb7e824"
+  },
+  "/home/anant_gupta/projects/portfolio/AGENTS.md": {
+    "mtime": 1778298027.677453,
+    "hash": "1023e8a3d275136057d8d3f0c08f0f02"
+  },
+  "/home/anant_gupta/projects/portfolio/ORBY.md": {
+    "mtime": 1777609470.4423983,
+    "hash": "f98794c921dd79fdcf925ab8b417ce34"
+  },
+  "/home/anant_gupta/projects/portfolio/MEMORY.md": {
+    "mtime": 1778341735.408795,
+    "hash": "48f35f3796ba4746105e07a9399ba047"
+  },
+  "/home/anant_gupta/projects/portfolio/CLAUDE.md": {
+    "mtime": 1778348789.8685656,
+    "hash": "89ba53ffba3c4ce5c4690dae74f91e65"
+  },
+  "/home/anant_gupta/projects/portfolio/Data/GROQ-EXAMPLES.md": {
+    "mtime": 1774459048.0227354,
+    "hash": "2b68f93da96a55c05c0282411a012bb0"
+  },
+  "/home/anant_gupta/projects/portfolio/Data/UPDATED_NDJSON_SUMMARY.md": {
+    "mtime": 1778361561.323606,
+    "hash": "e53421b4eec62e81cc93e05687f53f4c"
+  },
+  "/home/anant_gupta/projects/portfolio/Data/README.md": {
+    "mtime": 1778361561.2127705,
+    "hash": "488fbb7ee27797c26e78b3491fb4aaf5"
+  },
+  "/home/anant_gupta/projects/portfolio/Data/DATA-OVERVIEW.md": {
+    "mtime": 1778361543.2340724,
+    "hash": "c1de83924c531e82fdc2a1ade8535e7f"
+  },
+  "/home/anant_gupta/projects/portfolio/public/globe.svg": {
+    "mtime": 1768273502.0,
+    "hash": "2aaafa6a49b6563925fe440891e32717"
+  },
+  "/home/anant_gupta/projects/portfolio/public/file.svg": {
+    "mtime": 1768273502.0,
+    "hash": "d09f95206c3fa0bb9bd9fefabfd0ea71"
+  },
+  "/home/anant_gupta/projects/portfolio/public/linkdeln profile.jpg": {
+    "mtime": 1749567944.867834,
+    "hash": "c3bdfb44429e7e8cafebc2878734d99a"
+  },
+  "/home/anant_gupta/projects/portfolio/public/vercel.svg": {
+    "mtime": 1768273502.0,
+    "hash": "c0af2f507b369b085b35ef4bbe3bcf1e"
+  },
+  "/home/anant_gupta/projects/portfolio/public/window.svg": {
+    "mtime": 1768273502.0,
+    "hash": "a2760511c65806022ad20adf74370ff3"
+  },
+  "/home/anant_gupta/projects/portfolio/public/next.svg": {
+    "mtime": 1768273502.0,
+    "hash": "8e061864f388b47f33a1c3780831193e"
+  }
+}

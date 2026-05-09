@@ -1,29 +1,4 @@
-import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
-
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/api/(.*)",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-]);
-
-const isStudioRoute = createRouteMatcher(["/studio", "/studio/(.*)"]);
-
-export default clerkMiddleware(async (auth, req) => {
-  // Protect Studio
-  if (isStudioRoute(req)) {
-    const { userId } = await auth();
-    if (!userId) {
-      return Response.redirect(new URL("/sign-in", req.url));
-    }
-    return;
-  }
-
-  // Protect all non-public routes
-  if (!isPublicRoute(req)) {
-    await auth.protect();
-  }
-});
+export { proxy } from "../proxy";
 
 export const config = {
   matcher: [

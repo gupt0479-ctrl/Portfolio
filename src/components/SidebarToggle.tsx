@@ -11,7 +11,10 @@ function SidebarToggle() {
     <div
       className="fixed bottom-6 right-6 z-50"
       style={{
-        right: !isMobile && isOpen ? "calc(var(--sidebar-width, 25rem) + 1.5rem)" : "1.5rem",
+        right:
+          !isMobile && isOpen
+            ? "calc(var(--sidebar-width, 25rem) + 1.5rem)"
+            : "1.5rem",
         transition: "right 220ms cubic-bezier(0.4,0,0.2,1)",
       }}
     >

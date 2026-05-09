@@ -43,9 +43,12 @@ export default async function PortfolioContent() {
         <HeroSection />
         <AboutSection />
         <ExperienceSection />
-        <section id="projects" className="section-backdrop mx-auto max-w-6xl px-6 py-24">
+        <section
+          id="projects"
+          className="section-backdrop mx-auto max-w-6xl px-6 py-24"
+        >
           <div className="mb-16">
-            <p className="section-kicker">// build log</p>
+            <p className="section-kicker">{"// build log"}</p>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
               Projects
             </h2>

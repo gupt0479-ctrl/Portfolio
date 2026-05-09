@@ -1,7 +1,7 @@
 // src/components/__tests__/portfolio-lab.test.ts
 import { describe, expect, it } from "vitest";
-import { LAB_CHIPS, LAB_RESPONSES, generateProofPack } from "@/lib/lab-data";
 import type { LabMode } from "@/lib/lab-data";
+import { generateProofPack, LAB_CHIPS, LAB_RESPONSES } from "@/lib/lab-data";
 
 const MODES: LabMode[] = ["Recruiter", "Builder", "Research", "Skeptic"];
 

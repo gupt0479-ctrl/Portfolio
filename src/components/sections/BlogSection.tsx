@@ -17,9 +17,12 @@ export async function BlogSection() {
   const list = (posts ?? []) as Blog[];
 
   return (
-    <section id="blog" className="section-backdrop mx-auto max-w-6xl px-6 py-24">
+    <section
+      id="blog"
+      className="section-backdrop mx-auto max-w-6xl px-6 py-24"
+    >
       <div className="mb-16">
-        <p className="section-kicker">// uplink</p>
+        <p className="section-kicker">{"// uplink"}</p>
         <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
           What I Read or Do
         </h2>

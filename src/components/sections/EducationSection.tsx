@@ -18,9 +18,12 @@ export async function EducationSection() {
   const list = items as Education[];
 
   return (
-    <section id="education" className="section-backdrop mx-auto max-w-6xl px-6 py-24">
+    <section
+      id="education"
+      className="section-backdrop mx-auto max-w-6xl px-6 py-24"
+    >
       <div className="mb-16">
-        <p className="section-kicker">// origins</p>
+        <p className="section-kicker">{"// origins"}</p>
         <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
           Education
         </h2>

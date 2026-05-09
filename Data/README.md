@@ -1,6 +1,8 @@
-# Sanity Portfolio Dummy Data
+# Sanity Portfolio Local Fallback Data
 
-This folder contains comprehensive dummy data for your Sanity portfolio database. The data is structured in NDJSON (Newline Delimited JSON) format, which is the standard format for Sanity data imports.
+This folder contains Anant Gupta portfolio seed data and the local development fallback used by `src/lib/localContent.ts`. The files are structured in NDJSON (Newline Delimited JSON) format, which is the standard format for Sanity data imports.
+
+In development, the portfolio reads these files unless `PORTFOLIO_CONTENT_SOURCE=sanity` is set. Keep runtime fallback files aligned with the real portfolio content.
 
 ## 📦 What's Included
 
@@ -9,7 +11,6 @@ The following data files are available for import:
 | File | Description | Records |
 |------|-------------|---------|
 | `profile.ndjson` | Main profile information | 1 profile |
-| `profile-with-animation.ndjson` | Profile with animated headline feature | 1 profile |
 | `skills.ndjson` | Technical skills and proficiencies | 15 skills |
 | `experience.ndjson` | Work experience history | 4 positions |
 | `education.ndjson` | Educational background | 2 degrees |
@@ -19,9 +20,8 @@ The following data files are available for import:
 | `certifications.ndjson` | Professional certifications | 5 certifications |
 | `navigation.ndjson` | Navigation links | 10 links |
 | `siteSettings.ndjson` | Site configuration | 1 settings document |
-| `contact.ndjson` | Sample contact submissions | 3 contacts |
 
-**Total: 50 sample documents** ready to populate your portfolio!
+**Total: 46 seed documents** for local fallback or Sanity import.
 
 ## ⚠️ Important: Singleton Documents
 
@@ -58,18 +58,20 @@ Import all data files in the correct order to handle references properly:
 # Navigate to the Data folder
 cd Data
 
+# Use your configured dataset, defaulting to production
+DATASET=${NEXT_PUBLIC_SANITY_DATASET:-production}
+
 # Import in order (skills first, then items that reference them)
-sanity dataset import skills.ndjson production --replace
-sanity dataset import profile.ndjson production --replace
-sanity dataset import education.ndjson production --replace
-sanity dataset import experience.ndjson production --replace
-sanity dataset import projects.ndjson production --replace
-sanity dataset import blog.ndjson production --replace
-sanity dataset import achievements.ndjson production --replace
-sanity dataset import certifications.ndjson production --replace
-sanity dataset import navigation.ndjson production --replace
-sanity dataset import siteSettings.ndjson production --replace
-sanity dataset import contact.ndjson production --replace
+sanity dataset import skills.ndjson "$DATASET" --replace
+sanity dataset import profile.ndjson "$DATASET" --replace
+sanity dataset import education.ndjson "$DATASET" --replace
+sanity dataset import experience.ndjson "$DATASET" --replace
+sanity dataset import projects.ndjson "$DATASET" --replace
+sanity dataset import blog.ndjson "$DATASET" --replace
+sanity dataset import achievements.ndjson "$DATASET" --replace
+sanity dataset import certifications.ndjson "$DATASET" --replace
+sanity dataset import navigation.ndjson "$DATASET" --replace
+sanity dataset import siteSettings.ndjson "$DATASET" --replace
 ```
 
 **Note:** Replace `production` with your dataset name if different (e.g., `development`, `staging`).
@@ -80,7 +82,7 @@ You can also use this one-liner to import all files sequentially:
 
 ```bash
 # From the project root
-cd Data && for file in skills.ndjson profile.ndjson education.ndjson experience.ndjson projects.ndjson blog.ndjson achievements.ndjson certifications.ndjson navigation.ndjson siteSettings.ndjson contact.ndjson; do sanity dataset import $file production --replace; done
+cd Data && DATASET=${NEXT_PUBLIC_SANITY_DATASET:-production}; for file in skills.ndjson profile.ndjson education.ndjson experience.ndjson projects.ndjson blog.ndjson achievements.ndjson certifications.ndjson navigation.ndjson siteSettings.ndjson; do sanity dataset import "$file" "$DATASET" --replace; done
 ```
 
 ### Method 3: Import Specific Files Only
@@ -92,11 +94,11 @@ If you only want to import specific content types:
 cd Data
 
 # Import only skills and projects
-sanity dataset import skills.ndjson production --replace
-sanity dataset import projects.ndjson production --replace
+sanity dataset import skills.ndjson "$DATASET" --replace
+sanity dataset import projects.ndjson "$DATASET" --replace
 
 # Or import only blog posts
-sanity dataset import blog.ndjson production --replace
+sanity dataset import blog.ndjson "$DATASET" --replace
 ```
 
 ## 📋 Import Command Options
@@ -142,13 +144,12 @@ The import order matters because some documents reference others. Follow this or
 8. **Certifications** - Professional certifications (references skills)
 9. **Navigation** - Section links and external destinations
 10. **Site Settings** - Site configuration
-11. **Contact** - Contact form submissions
 
 ## 🎨 Customizing the Data
 
 ### Before Importing
 
-You can customize the dummy data before importing:
+You can customize the seed data before importing:
 
 1. Open any `.ndjson` file in a text editor
 2. Modify the values (name, email, descriptions, etc.)
@@ -163,26 +164,17 @@ Edit `profile.ndjson` and change:
 "email":"john.doe@example.com" → "email":"your.email@example.com"
 ```
 
-### Animated Headline Feature
-
-The `profile-with-animation.ndjson` file includes the new animated headline feature:
-- **headlineStaticText**: "I build "
-- **headlineAnimatedWords**: ["innovative web apps", "scalable solutions", "beautiful interfaces", "AI-powered tools"]
-- **headlineAnimationDuration**: 3000ms
-
-This creates a dynamic text-flipping animation in your hero section. See `ANIMATED-HEADLINE-GUIDE.md` for full documentation.
-
 ### Example: Updating Site Settings
 
 Edit `siteSettings.ndjson` and change:
 ```json
-"siteTitle":"John Doe - Developer" → "siteTitle":"Your Name - Developer"
+"siteTitle":"Anant Gupta - Portfolio" → "siteTitle":"Your Name - Developer"
 "primaryColor":"#3B82F6" → "primaryColor":"#YourColor"
 ```
 
 ## 🖼️ Note About Images
 
-The dummy data includes image fields but **no actual image files**. After importing, you'll need to:
+The seed data includes image fields but **no actual image files**. After importing, you'll need to:
 
 1. Go to your Sanity Studio (usually at `http://localhost:3000/studio`)
 2. Navigate to each document type
@@ -306,7 +298,7 @@ npm run typegen
 ## 🎯 Next Steps After Import
 
 1. **Upload Images**: Add real images to all documents with image fields
-2. **Customize Content**: Update the dummy content with your actual information
+2. **Customize Content**: Update the seed content with your actual information
 3. **Test Your Frontend**: Verify that your Next.js app fetches and displays the data correctly
 4. **Set References**: Check that all references (e.g., blog author, project technologies) are properly connected
 5. **Publish Documents**: If using draft/publish workflow, publish the documents you want visible

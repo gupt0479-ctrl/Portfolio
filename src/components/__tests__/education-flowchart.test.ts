@@ -1,11 +1,11 @@
-import { readFileSync } from "fs";
-import { join } from "path";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Education Flowchart — Property 6 & 7", () => {
   const content = readFileSync(
     join(process.cwd(), "src/components/EducationFlowchart.tsx"),
-    "utf-8"
+    "utf-8",
   );
 
   describe("Property 6: Education flowchart blob variant ordering", () => {

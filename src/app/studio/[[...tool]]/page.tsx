@@ -6,11 +6,17 @@
  * You can learn more about the next-sanity package here:
  * https://github.com/sanity-io/next-sanity
  */
-export const dynamic = "force-static";
+import { auth } from "@clerk/nextjs/server";
+
+export const dynamic = "force-dynamic";
 export { metadata, viewport } from "next-sanity/studio";
 
 import StudioClient from "./StudioClient";
 
-export default function StudioPage() {
+export default async function StudioPage() {
+  const { userId, redirectToSignIn } = await auth();
+
+  if (!userId) return redirectToSignIn();
+
   return <StudioClient />;
 }

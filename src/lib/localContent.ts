@@ -7,7 +7,6 @@ import type {
   ACHIEVEMENTS_SECTION_QUERYResult,
   BLOG_SECTION_QUERYResult,
   CERTS_SECTION_QUERYResult,
-  CHAT_PROFILE_QUERYResult,
   CONTACT_QUERYResult,
   EDUCATION_SECTION_QUERYResult,
   EXPERIENCE_QUERYResult,
@@ -234,19 +233,6 @@ export const getLocalProfile = cache(async (): Promise<PROFILE_QUERYResult> => {
 
   return normalizedProfile as PROFILE_QUERYResult;
 });
-
-export const getLocalChatProfile = cache(
-  async (): Promise<CHAT_PROFILE_QUERYResult> => {
-    const profile = await getLocalProfile();
-    if (!profile) return null;
-
-    return {
-      firstName: profile.firstName,
-      lastName: profile.lastName,
-      headline: profile.headline,
-    };
-  },
-);
 
 export const getLocalContactProfile = cache(
   async (): Promise<CONTACT_QUERYResult> => {
@@ -479,7 +465,10 @@ export const getLocalEducation = cache(
 
 export const getLocalCertifications = cache(
   async (): Promise<CERTS_SECTION_QUERYResult> => {
-    const items = await readNdjsonFile("certifications.ndjson");
+    const [items, skills] = await Promise.all([
+      readNdjsonFile("certifications.ndjson"),
+      getLocalSkills(),
+    ]);
 
     const normalizedCertifications = items
       .map((item) => ({
@@ -490,6 +479,7 @@ export const getLocalCertifications = cache(
         credentialId: asString(item.credentialId),
         credentialUrl: asString(item.credentialUrl),
         logo: null,
+        skills: resolveSkillReferences(item.skills, skills),
       }))
       .filter((item) => item._id)
       .sort((left, right) =>
@@ -554,6 +544,13 @@ export const getLocalBlog = cache(
 );
 
 export async function getLocalDataForQuery(query: string) {
+  // Contact-specific check: query projects email/socialLinks subset without full profile fields
+  if (
+    query.includes('_type == "profile"') &&
+    query.includes("email") &&
+    !query.includes("firstName")
+  )
+    return getLocalContactProfile();
   if (query.includes('_type == "profile"')) return getLocalProfile();
   if (query.includes('_type == "siteSettings"')) return getLocalSiteSettings();
   if (query.includes('_type == "navigation"')) return getLocalNavigation();

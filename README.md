@@ -1,36 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Anant Gupta Portfolio
 
-## Getting Started
+Dark cosmic command-center portfolio built with Next.js, React, Tailwind CSS v4, Sanity, Clerk, Three.js, and a deterministic Portfolio Lab sidebar.
 
-First, run the development server:
+## Stack
+
+- Next.js 16.1.1 App Router
+- React 19.2.3
+- TypeScript
+- Tailwind CSS v4
+- shadcn/ui + Radix UI
+- Three.js / React Three Fiber
+- Sanity v4 with `next-sanity` live content
+- Clerk auth for protected routes and Studio access
+- Vitest + Testing Library
+- Biome for linting and formatting
+
+## Setup
+
+Install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create `.env.local` with the required public Sanity values and private tokens:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+NEXT_PUBLIC_SANITY_PROJECT_ID=...
+NEXT_PUBLIC_SANITY_DATASET=...
+NEXT_PUBLIC_SANITY_API_VERSION=...
+SANITY_SERVER_API_TOKEN=...
+SANITY_API_TOKEN=...
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=...
+CLERK_SECRET_KEY=...
+```
 
-## Learn More
+Do not commit `.env.local`, `.mcp.json`, or local MCP tokens.
 
-To learn more about Next.js, take a look at the following resources:
+## Development
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The app runs at `http://localhost:3000`.
 
-## Deploy on Vercel
+In development, `sanityFetch` prefers local NDJSON content from `Data/` unless `PORTFOLIO_CONTENT_SOURCE=sanity` is set. This keeps most UI work unblocked when Sanity is unavailable.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Content
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Primary content lives in Sanity schemas under `src/sanity/schemaTypes/`.
+
+Local fallback content lives in `Data/*.ndjson` and is normalized by `src/lib/localContent.ts`.
+
+After schema changes:
+
+```bash
+pnpm typegen
+pnpm typecheck
+```
+
+Never edit `src/sanity/types/index.ts` by hand.
+
+## Verification
+
+```bash
+pnpm test
+pnpm typecheck
+pnpm build
+```
+
+`pnpm lint` runs Biome. If Sanity CLI cannot write to `~/.config/sanity` during `pnpm build` in a sandbox, rerun the build with permission outside the sandbox.
+
+## Deployment
+
+The site deploys to Vercel. Push to the main branch to trigger a production build. Ensure all required environment variables are configured in the Vercel project settings.
+
+Required environment variables for production:
+- `NEXT_PUBLIC_SANITY_PROJECT_ID`
+- `NEXT_PUBLIC_SANITY_DATASET`
+- `NEXT_PUBLIC_SANITY_API_VERSION`
+- `SANITY_SERVER_API_TOKEN`
+- `SANITY_API_TOKEN`
+- `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+- `CLERK_SECRET_KEY`

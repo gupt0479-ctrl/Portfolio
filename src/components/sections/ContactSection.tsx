@@ -1,8 +1,5 @@
 import { defineQuery } from "next-sanity";
-import {
-  ContactPanel,
-  type ContactProfile,
-} from "@/components/ContactPanel";
+import { ContactPanel, type ContactProfile } from "@/components/ContactPanel";
 import { sanityFetch } from "@/sanity/lib/live";
 
 const CONTACT_QUERY = defineQuery(`

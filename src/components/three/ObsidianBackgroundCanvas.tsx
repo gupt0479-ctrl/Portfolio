@@ -3,16 +3,17 @@
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // TUNING CONSTANTS  — one place to adjust feel
 
-// --- Mobile detection ---
-const IS_MOBILE = typeof window !== "undefined" && window.innerWidth < 768;
-
 // --- Counts --- Planet and ring counts are halved on mobile for performance
-const PLANET_COUNT = IS_MOBILE ? 1400 : 2800;
-const RING_COUNT = IS_MOBILE ? 1000 : 2000; // real count = floor(N/16)*16
-const STAR_COUNT = IS_MOBILE ? 2750 : 5500;
+const PLANET_COUNT_DESKTOP = 2800;
+const PLANET_COUNT_MOBILE = 1400;
+const RING_COUNT_DESKTOP = 2000; // real count = floor(N/16)*16
+const RING_COUNT_MOBILE = 1000;
+const STAR_COUNT_DESKTOP = 5500;
+const STAR_COUNT_MOBILE = 2750;
 
 // --- Geometry ---
 const PLANET_RADIUS = 0.8;
@@ -183,7 +184,13 @@ function createStars(N: number, vol = 30): number[][] {
 
 // ─── Graph scene ─────────────────────────────────────────────────────────────
 
-function Graph() {
+type GraphProps = {
+  planetCount: number;
+  ringCount: number;
+  starCount: number;
+};
+
+function Graph({ planetCount, ringCount, starCount }: GraphProps) {
   const planetPointsRef = useRef<THREE.Points>(null);
   const ringPointsRef = useRef<THREE.Points>(null);
   const starPointsRef = useRef<THREE.Points>(null);
@@ -206,14 +213,14 @@ function Graph() {
   // ── Precompute all per-point constants (runs once) ────────────────────────
   const data = useMemo(() => {
     // Planet
-    const pPts = fibonacciSphere(PLANET_COUNT, PLANET_RADIUS);
-    const pPos0 = new Float32Array(PLANET_COUNT * 3);
-    const pPos = new Float32Array(PLANET_COUNT * 3);
-    const pVel = new Float32Array(PLANET_COUNT * 3);
-    const pNorm = new Float32Array(PLANET_COUNT * 3);
-    const pPhase = new Float32Array(PLANET_COUNT);
+    const pPts = fibonacciSphere(planetCount, PLANET_RADIUS);
+    const pPos0 = new Float32Array(planetCount * 3);
+    const pPos = new Float32Array(planetCount * 3);
+    const pVel = new Float32Array(planetCount * 3);
+    const pNorm = new Float32Array(planetCount * 3);
+    const pPhase = new Float32Array(planetCount);
 
-    for (let i = 0; i < PLANET_COUNT; i++) {
+    for (let i = 0; i < planetCount; i++) {
       const i3 = i * 3;
       pPos0[i3] = pPos[i3] = pPts[i][0];
       pPos0[i3 + 1] = pPos[i3 + 1] = pPts[i][1];
@@ -223,22 +230,18 @@ function Graph() {
       pNorm[i3] = pPts[i][0] / len;
       pNorm[i3 + 1] = pPts[i][1] / len;
       pNorm[i3 + 2] = pPts[i][2] / len;
-      pPhase[i] = (i / PLANET_COUNT) * Math.PI * 2;
+      pPhase[i] = (i / planetCount) * Math.PI * 2;
     }
 
     // Planet edges
     const pLinks: number[] = [];
-    for (let i = 0; i < PLANET_COUNT; i++) {
+    for (let i = 0; i < planetCount; i++) {
       const i3 = i * 3;
       const ix = pPos0[i3];
       const iy = pPos0[i3 + 1];
       const iz = pPos0[i3 + 2];
       let taken = 0;
-      for (
-        let j = i + 1;
-        j < PLANET_COUNT && taken < MAX_EDGES_PER_POINT;
-        j++
-      ) {
+      for (let j = i + 1; j < planetCount && taken < MAX_EDGES_PER_POINT; j++) {
         const j3 = j * 3;
         const dx = ix - pPos0[j3];
         const dy = iy - pPos0[j3 + 1];
@@ -254,7 +257,7 @@ function Graph() {
     }
 
     // Ring
-    const nMajor = Math.floor(RING_COUNT / 16);
+    const nMajor = Math.floor(ringCount / 16);
     const nMinor = 16;
     const rPts = createRing(
       RING_MAJOR_RADIUS,
@@ -264,7 +267,7 @@ function Graph() {
       Math.PI * 0.3,
       Math.PI * 0.12,
     );
-    const rc = Math.min(RING_COUNT, rPts.length);
+    const rc = Math.min(ringCount, rPts.length);
     const rPos0 = new Float32Array(rc * 3);
     const rPos = new Float32Array(rc * 3);
     const rVel = new Float32Array(rc * 3);
@@ -290,9 +293,9 @@ function Graph() {
     }
 
     // Stars
-    const sPts = createStars(STAR_COUNT);
-    const sPos = new Float32Array(STAR_COUNT * 3);
-    for (let i = 0; i < STAR_COUNT; i++) {
+    const sPts = createStars(starCount);
+    const sPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
       sPos[i * 3] = sPts[i][0];
       sPos[i * 3 + 1] = sPts[i][1];
       sPos[i * 3 + 2] = sPts[i][2];
@@ -313,7 +316,7 @@ function Graph() {
       pEdges: new Uint32Array(pLinks),
       rEdges: new Uint32Array(rLinks),
     };
-  }, []);
+  }, [planetCount, ringCount, starCount]);
 
   // ── Geometries ────────────────────────────────────────────────────────────
   const planetGeo = useMemo(() => {
@@ -390,6 +393,8 @@ function Graph() {
 
   // ── useFrame — zero allocations per frame ────────────────────────────────
   useFrame((state) => {
+    if (document.hidden) return;
+
     const t = state.clock.getElapsedTime();
     const dt = Math.min(state.clock.getDelta(), 0.05);
 
@@ -510,7 +515,7 @@ function Graph() {
     } = data;
 
     // ── Planet physics loop ───────────────────────────────────────────────
-    for (let i = 0; i < PLANET_COUNT; i++) {
+    for (let i = 0; i < planetCount; i++) {
       const i3 = i * 3;
       const x0 = pPos0[i3];
       const y0 = pPos0[i3 + 1];
@@ -864,10 +869,15 @@ export default function ObsidianBackground({
   positionFixed?: boolean;
 }) {
   const [mounted, setMounted] = useState(false);
+  const isMobile = useIsMobile();
   useEffect(() => {
     setMounted(true);
   }, []);
   if (!mounted) return null;
+
+  const planetCount = isMobile ? PLANET_COUNT_MOBILE : PLANET_COUNT_DESKTOP;
+  const ringCount = isMobile ? RING_COUNT_MOBILE : RING_COUNT_DESKTOP;
+  const starCount = isMobile ? STAR_COUNT_MOBILE : STAR_COUNT_DESKTOP;
 
   const dpr: [number, number] = [
     1,
@@ -931,7 +941,11 @@ export default function ObsidianBackground({
           }}
           style={{ position: "absolute", inset: 0, zIndex: 1 }}
         >
-          <Graph />
+          <Graph
+            planetCount={planetCount}
+            ringCount={ringCount}
+            starCount={starCount}
+          />
         </Canvas>
       </Suspense>
     </div>

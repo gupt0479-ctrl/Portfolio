@@ -1,15 +1,23 @@
 "use client";
 
-import { Clipboard, Github, Globe, Linkedin, Mail, MapPin, Twitter } from "lucide-react";
 import {
+  Clipboard,
+  Github,
+  Globe,
+  Linkedin,
+  Mail,
+  MapPin,
+  Twitter,
+} from "lucide-react";
+import {
+  type ReactNode,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
 import { CometCard } from "@/components/ui/comet-card";
-import { useIridescentEffect } from "@/lib/hooks/useIridescentEffect";
+import { useIridescentEffect } from "@/hooks/useIridescentEffect";
 
 type SocialLinks = {
   github?: string | null;
@@ -33,7 +41,7 @@ function IridSocialButton({
   label: string;
   children: ReactNode;
 }) {
-  const { ref, overlayStyle } = useIridescentEffect({ gradientAlpha: 0.12 });
+  const { ref } = useIridescentEffect({ gradientAlpha: 0.12 });
   const isMail = href.startsWith("mailto:");
 
   return (
@@ -43,7 +51,7 @@ function IridSocialButton({
     >
       <span
         className="pointer-events-none absolute inset-0 z-[1] rounded-full"
-        style={overlayStyle}
+        style={{ background: "var(--irid-bg, transparent)" }}
         aria-hidden
       />
       <a
@@ -86,9 +94,12 @@ export function ContactPanel({ profile }: { profile: ContactProfile | null }) {
   const s = profile?.socialLinks;
 
   return (
-    <section id="contact" className="section-backdrop mx-auto max-w-6xl px-6 py-24">
+    <section
+      id="contact"
+      className="section-backdrop mx-auto max-w-6xl px-6 py-24"
+    >
       <div className="mx-auto max-w-md text-center">
-        <p className="section-kicker">// uplink</p>
+        <p className="section-kicker">{"// uplink"}</p>
         <h2 className="text-3xl md:text-4xl font-display font-bold text-white">
           Let&apos;s build something
         </h2>
@@ -105,7 +116,9 @@ export function ContactPanel({ profile }: { profile: ContactProfile | null }) {
                 <p className="text-xs text-white/35 font-mono uppercase tracking-widest mb-2">
                   Email
                 </p>
-                <p className="text-lg text-white/85 font-medium font-sans">{email}</p>
+                <p className="text-lg text-white/85 font-medium font-sans">
+                  {email}
+                </p>
                 <div className="flex justify-center gap-2 mt-3">
                   <button
                     type="button"

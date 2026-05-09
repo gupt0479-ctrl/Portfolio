@@ -6,8 +6,8 @@
  * Static code analysis test — reads source files and checks for the
  * presence/absence of the `section-backdrop` class in JSX.
  */
-import { readFileSync } from "fs";
-import { join } from "path";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 function readSrc(relativePath: string): string {

@@ -10,9 +10,12 @@ export async function ExperienceSection() {
   const shown = experiences.slice(0, 5);
 
   return (
-    <section id="experience" className="section-backdrop mx-auto max-w-6xl px-6 py-18">
+    <section
+      id="experience"
+      className="section-backdrop mx-auto max-w-6xl px-6 py-18"
+    >
       <div className="mb-16 text-center">
-        <p className="section-kicker">// trajectory</p>
+        <p className="section-kicker">{"// trajectory"}</p>
         <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
           Experience
         </h2>
@@ -34,7 +37,8 @@ export async function ExperienceSection() {
               <div
                 className="w-2.5 h-2.5 rounded-full bg-violet-500 shrink-0 my-1"
                 style={{
-                  boxShadow: "0 0 0 3px rgba(143,124,247,0.2), 0 0 12px rgba(143,124,247,0.35)",
+                  boxShadow:
+                    "0 0 0 3px rgba(143,124,247,0.2), 0 0 12px rgba(143,124,247,0.35)",
                 }}
                 aria-hidden
               />

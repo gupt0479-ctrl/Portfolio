@@ -3,8 +3,14 @@ import { motion } from "motion/react";
 
 const TERMINAL_LINES = [
   { prompt: "$ whoami", output: "anant.gupta — ai & data systems engineer" },
-  { prompt: "$ stack --top", output: "rust · typescript · python · postgres · llms" },
-  { prompt: "$ status", output: "shipping → research/agents · ui/ux · data pipelines" },
+  {
+    prompt: "$ stack --top",
+    output: "rust · typescript · python · postgres · llms",
+  },
+  {
+    prompt: "$ status",
+    output: "shipping → research/agents · ui/ux · data pipelines",
+  },
 ];
 
 const ORBITING_CHIPS = ["Next.js", "Rust", "LLMs"];

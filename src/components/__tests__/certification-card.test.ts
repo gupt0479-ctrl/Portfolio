@@ -1,11 +1,11 @@
-import { readFileSync } from "fs";
-import { join } from "path";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Property 8: Certification card required elements", () => {
   const content = readFileSync(
     join(process.cwd(), "src/components/sections/CertificationsSection.tsx"),
-    "utf-8"
+    "utf-8",
   );
 
   it("Certification card renders title (cert.name)", () => {

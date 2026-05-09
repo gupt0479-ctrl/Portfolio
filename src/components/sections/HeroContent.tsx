@@ -3,8 +3,8 @@
 import type { LucideIcon } from "lucide-react";
 import { Github, Globe, Linkedin, Mail, MapPin, Twitter } from "lucide-react";
 import { motion } from "motion/react";
+import { useIridescentEffect } from "@/hooks/useIridescentEffect";
 import type { PROFILE_QUERYResult } from "@/sanity/types";
-import { useIridescentEffect } from "@/lib/hooks/useIridescentEffect";
 import { LayoutTextFlip } from "../ui/layout-text-flip";
 import { ProfileImage } from "./ProfileImage";
 
@@ -37,12 +37,15 @@ function IridCTA({
   primary: boolean;
   children: React.ReactNode;
 }) {
-  const { ref, overlayStyle } = useIridescentEffect({ gradientAlpha: 0.14 });
+  const { ref } = useIridescentEffect({ gradientAlpha: 0.14 });
   return (
-    <div ref={ref} className="relative inline-flex overflow-hidden rounded-full">
+    <div
+      ref={ref}
+      className="relative inline-flex overflow-hidden rounded-full"
+    >
       <span
         className="pointer-events-none absolute inset-0 z-10 rounded-full"
-        style={overlayStyle}
+        style={{ background: "var(--irid-bg, transparent)" }}
         aria-hidden
       />
       <a
@@ -98,7 +101,7 @@ export function HeroContent({
       <div className="relative mx-auto flex min-h-[88vh] w-full max-w-6xl flex-col justify-center px-6 py-16">
         <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
           <div>
-            <p className="section-kicker">// hi, I'm</p>
+            <p className="section-kicker">{"// hi, I'm"}</p>
             <motion.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}

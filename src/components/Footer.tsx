@@ -38,7 +38,7 @@ export function Footer() {
 
         {/* Right: copyright */}
         <span className="text-xs text-white/25 font-sans">
-          © 2026 Anant Gupta · building in public
+          © {new Date().getFullYear()} Anant Gupta · building in public
         </span>
       </div>
     </footer>

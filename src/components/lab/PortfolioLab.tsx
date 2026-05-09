@@ -1,9 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
-import { LAB_CHIPS, LAB_RESPONSES } from "@/lib/lab-data";
 import type { LabMode, LabResponse } from "@/lib/lab-data";
+import { LAB_CHIPS, LAB_RESPONSES } from "@/lib/lab-data";
 import { EvidenceCard } from "./EvidenceCard";
 import { ProofPack } from "./ProofPack";
 
@@ -49,7 +49,7 @@ export function PortfolioLab() {
       {/* Header with close button */}
       <div className="flex items-center justify-between px-4 pt-4 pb-3 border-b border-white/[0.06]">
         <div>
-          <p className="section-kicker mb-0.5">// portfolio lab</p>
+          <p className="section-kicker mb-0.5">{"// portfolio lab"}</p>
           <p className="text-xs text-white/40 font-sans">
             Explore the portfolio through different lenses.
           </p>
@@ -90,7 +90,7 @@ export function PortfolioLab() {
 
       {/* Chips */}
       <div className="px-4 py-3 border-b border-white/[0.06]">
-        <p className="text-[10px] text-white/30 font-mono mb-2">// ask</p>
+        <p className="text-[10px] text-white/30 font-mono mb-2">{"// ask"}</p>
         <div className="flex flex-col gap-1.5">
           {chips.map((chip) => (
             <button
@@ -118,15 +118,18 @@ export function PortfolioLab() {
               </p>
             </div>
             <div className="space-y-2">
-              {activeResponse.evidence.map((item, i) => (
-                <EvidenceCard key={i} item={item} />
+              {activeResponse.evidence.map((item) => (
+                <EvidenceCard
+                  key={`${item.title}-${item.sectionLink ?? item.description}`}
+                  item={item}
+                />
               ))}
             </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-center py-8">
             <p className="text-xs text-white/25 font-mono">
-              // select a question above
+              {"// select a question above"}
             </p>
           </div>
         )}

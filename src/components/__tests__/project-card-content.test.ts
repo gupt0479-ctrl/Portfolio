@@ -1,11 +1,11 @@
-import { readFileSync } from "fs";
-import { join } from "path";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 describe("Property 4: Center project card always shows required content", () => {
   const content = readFileSync(
     join(process.cwd(), "src/components/three/ProjectsSlider.tsx"),
-    "utf-8"
+    "utf-8",
   );
 
   it("ProjectCard renders title", () => {

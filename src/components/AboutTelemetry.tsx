@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "motion/react";
 import { Cpu, Layers, Microscope, TrendingUp } from "lucide-react";
+import { motion } from "motion/react";
 
 // Canonical four readouts — labels match what the spec asks for.
 // If Sanity stats have matching labels (case-insensitive), those values are used.
@@ -33,7 +33,7 @@ const CANONICAL_READOUTS = [
   },
 ] as const;
 
-type CanonicalReadout = typeof CANONICAL_READOUTS[number];
+type CanonicalReadout = (typeof CANONICAL_READOUTS)[number];
 
 /** Find the best matching stat from Sanity for a canonical readout. */
 function findStat(
@@ -48,7 +48,13 @@ function findStat(
 }
 
 // Sparkline heights — gives a "trending up" shape
-const SPARKLINE_HEIGHTS = [2, 3, 2, 4, 5];
+const SPARKLINE_BARS = [
+  { id: "baseline", height: 2 },
+  { id: "lift", height: 3 },
+  { id: "dip", height: 2 },
+  { id: "climb", height: 4 },
+  { id: "peak", height: 5 },
+];
 
 interface TelemetryCardProps {
   label: string;
@@ -73,12 +79,12 @@ function TelemetryCard({ label, value, Icon, index }: TelemetryCardProps) {
       <p className="text-xs text-white/40 mt-1 font-sans">{label}</p>
       {/* Animated sparkline — ascending bars that pulse on hover */}
       <div className="mt-2 flex items-end gap-0.5">
-        {SPARKLINE_HEIGHTS.map((h, i) => (
+        {SPARKLINE_BARS.map((bar, i) => (
           <span
-            key={i}
+            key={bar.id}
             className="inline-block w-1 rounded-sm bg-violet-400/35 group-hover:bg-violet-400/75 transition-colors duration-300"
             style={{
-              height: `${h * 2}px`,
+              height: `${bar.height * 2}px`,
               animation: `sparkline-rise 1.2s ease-out ${i * 0.1}s both`,
             }}
           />

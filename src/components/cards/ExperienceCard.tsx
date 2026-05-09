@@ -41,13 +41,12 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
       <CometCard rotateDepth={3} translateDepth={5} variant="dark">
         <div className="relative overflow-hidden rounded-xl p-6 backdrop-blur-sm">
           {/* Sweeping light effect on hover */}
-          <div
-            className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden"
-          >
+          <div className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden">
             <div
               className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"
               style={{
-                background: "linear-gradient(105deg, transparent 40%, rgba(167,139,250,0.06) 50%, transparent 60%)",
+                background:
+                  "linear-gradient(105deg, transparent 40%, rgba(167,139,250,0.06) 50%, transparent 60%)",
               }}
             />
           </div>
@@ -94,7 +93,11 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
                   <span
                     key={tech._id}
                     className="orbit-chip"
-                    style={{ "--chip-color": getCategoryColor(tech.category) } as React.CSSProperties}
+                    style={
+                      {
+                        "--chip-color": getCategoryColor(tech.category),
+                      } as React.CSSProperties
+                    }
                   >
                     {tech.name}
                   </span>

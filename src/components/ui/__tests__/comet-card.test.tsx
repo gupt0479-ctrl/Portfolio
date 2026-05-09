@@ -35,10 +35,12 @@ vi.mock("motion/react", () => {
         whileHover?: unknown;
         transition?: unknown;
       },
-      ref: React.Ref<HTMLDivElement>
+      ref: React.Ref<HTMLDivElement>,
     ) => (
+      // biome-ignore lint/a11y/noStaticElementInteractions: Test mock forwards motion pointer handlers to a plain div so CometCard behavior can be inspected in jsdom.
       <div
         ref={ref}
+        role="presentation"
         className={className}
         style={style}
         onMouseMove={onMouseMove}
@@ -47,7 +49,7 @@ vi.mock("motion/react", () => {
       >
         {children}
       </div>
-    )
+    ),
   );
   MotionDiv.displayName = "MotionDiv";
 
@@ -73,12 +75,12 @@ vi.mock("motion/react", () => {
 // ---------------------------------------------------------------------------
 
 function renderCard(
-  props: Partial<React.ComponentProps<typeof CometCard>> = {}
+  props: Partial<React.ComponentProps<typeof CometCard>> = {},
 ) {
   return render(
     <CometCard {...props}>
       <span data-testid="child">content</span>
-    </CometCard>
+    </CometCard>,
   );
 }
 
@@ -158,7 +160,9 @@ describe("CometCard variant system — Property 2: Telemetry card completeness",
   // -------------------------------------------------------------------------
   it('variant="subtle" with rotateDepth={20} renders without error and accepts the prop', () => {
     // If the cap logic throws or the component crashes, this test will fail.
-    expect(() => renderCard({ variant: "subtle", rotateDepth: 20 })).not.toThrow();
+    expect(() =>
+      renderCard({ variant: "subtle", rotateDepth: 20 }),
+    ).not.toThrow();
 
     const { container } = renderCard({ variant: "subtle", rotateDepth: 20 });
     const inner = getInnerCard(container);

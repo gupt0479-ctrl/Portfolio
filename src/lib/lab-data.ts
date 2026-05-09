@@ -26,26 +26,70 @@ export interface LabResponse {
 export const LAB_CHIPS: Record<LabMode, LabChip[]> = {
   Recruiter: [
     { id: "r1", label: "What's your stack?", responseKey: "recruiter-stack" },
-    { id: "r2", label: "Any production experience?", responseKey: "recruiter-production" },
-    { id: "r3", label: "Open to internships?", responseKey: "recruiter-internship" },
-    { id: "r4", label: "What makes you different?", responseKey: "recruiter-differentiator" },
+    {
+      id: "r2",
+      label: "Any production experience?",
+      responseKey: "recruiter-production",
+    },
+    {
+      id: "r3",
+      label: "Open to internships?",
+      responseKey: "recruiter-internship",
+    },
+    {
+      id: "r4",
+      label: "What makes you different?",
+      responseKey: "recruiter-differentiator",
+    },
   ],
   Builder: [
-    { id: "b1", label: "What are you building?", responseKey: "builder-current" },
-    { id: "b2", label: "Favorite tech decisions?", responseKey: "builder-decisions" },
-    { id: "b3", label: "Open source contributions?", responseKey: "builder-oss" },
-    { id: "b4", label: "How do you approach system design?", responseKey: "builder-design" },
+    {
+      id: "b1",
+      label: "What are you building?",
+      responseKey: "builder-current",
+    },
+    {
+      id: "b2",
+      label: "Favorite tech decisions?",
+      responseKey: "builder-decisions",
+    },
+    {
+      id: "b3",
+      label: "Open source contributions?",
+      responseKey: "builder-oss",
+    },
+    {
+      id: "b4",
+      label: "How do you approach system design?",
+      responseKey: "builder-design",
+    },
   ],
   Research: [
     { id: "rs1", label: "AI/ML interests?", responseKey: "research-ai" },
     { id: "rs2", label: "Data systems work?", responseKey: "research-data" },
-    { id: "rs3", label: "What papers do you follow?", responseKey: "research-papers" },
-    { id: "rs4", label: "Research projects?", responseKey: "research-projects" },
+    {
+      id: "rs3",
+      label: "What papers do you follow?",
+      responseKey: "research-papers",
+    },
+    {
+      id: "rs4",
+      label: "Research projects?",
+      responseKey: "research-projects",
+    },
   ],
   Skeptic: [
     { id: "sk1", label: "Prove you can ship.", responseKey: "skeptic-ship" },
-    { id: "sk2", label: "What have you actually built?", responseKey: "skeptic-built" },
-    { id: "sk3", label: "Any real-world impact?", responseKey: "skeptic-impact" },
+    {
+      id: "sk2",
+      label: "What have you actually built?",
+      responseKey: "skeptic-built",
+    },
+    {
+      id: "sk3",
+      label: "Any real-world impact?",
+      responseKey: "skeptic-impact",
+    },
     { id: "sk4", label: "Why should I care?", responseKey: "skeptic-why" },
   ],
 };
@@ -54,7 +98,8 @@ export const LAB_CHIPS: Record<LabMode, LabChip[]> = {
 export const LAB_RESPONSES: Record<string, LabResponse> = {
   "recruiter-stack": {
     heading: "Core Stack",
-    summary: "Full-stack with a focus on TypeScript, Next.js, and Python for AI/data work. Comfortable across the entire stack from database to UI.",
+    summary:
+      "Full-stack with a focus on TypeScript, Next.js, and Python for AI/data work. Comfortable across the entire stack from database to UI.",
     evidence: [
       {
         title: "Frontend",
@@ -78,11 +123,13 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "recruiter-production": {
     heading: "Production Experience",
-    summary: "Shipped features used by real users across internships and personal projects. Experience with deployment, monitoring, and iterating on live systems.",
+    summary:
+      "Shipped features used by real users across internships and personal projects. Experience with deployment, monitoring, and iterating on live systems.",
     evidence: [
       {
         title: "Work Experience",
-        description: "Multiple internships with production deployments and real user impact",
+        description:
+          "Multiple internships with production deployments and real user impact",
         sectionLink: "#experience",
         tags: ["Production", "Internship"],
       },
@@ -96,7 +143,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "recruiter-internship": {
     heading: "Internship Availability",
-    summary: "Actively seeking internship opportunities in software engineering, AI/ML, or data systems. Available for summer and co-op positions.",
+    summary:
+      "Actively seeking internship opportunities in software engineering, AI/ML, or data systems. Available for summer and co-op positions.",
     evidence: [
       {
         title: "Contact",
@@ -108,7 +156,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "recruiter-differentiator": {
     heading: "What Sets Me Apart",
-    summary: "Combination of strong systems thinking, AI/data expertise, and the ability to ship polished UIs. I build end-to-end, not just one layer.",
+    summary:
+      "Combination of strong systems thinking, AI/data expertise, and the ability to ship polished UIs. I build end-to-end, not just one layer.",
     evidence: [
       {
         title: "Full-Stack + AI",
@@ -126,7 +175,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "builder-current": {
     heading: "Current Work",
-    summary: "Building AI-powered tools, data pipelines, and this portfolio. Always have 2-3 projects in flight.",
+    summary:
+      "Building AI-powered tools, data pipelines, and this portfolio. Always have 2-3 projects in flight.",
     evidence: [
       {
         title: "Active Projects",
@@ -138,7 +188,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "builder-decisions": {
     heading: "Favorite Tech Decisions",
-    summary: "Choosing Rust for performance-critical paths, TypeScript everywhere for safety, and Postgres as the default database. Boring tech for boring problems, interesting tech for interesting ones.",
+    summary:
+      "Choosing Rust for performance-critical paths, TypeScript everywhere for safety, and Postgres as the default database. Boring tech for boring problems, interesting tech for interesting ones.",
     evidence: [
       {
         title: "Rust for Performance",
@@ -156,7 +207,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "builder-oss": {
     heading: "Open Source",
-    summary: "Contributions to open source projects and public repositories. Check GitHub for the full picture.",
+    summary:
+      "Contributions to open source projects and public repositories. Check GitHub for the full picture.",
     evidence: [
       {
         title: "GitHub",
@@ -168,7 +220,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "builder-design": {
     heading: "System Design Approach",
-    summary: "Start with data models, define clear interfaces, then build outward. Prefer simple solutions that can scale over complex ones that can't be maintained.",
+    summary:
+      "Start with data models, define clear interfaces, then build outward. Prefer simple solutions that can scale over complex ones that can't be maintained.",
     evidence: [
       {
         title: "Experience",
@@ -180,7 +233,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "research-ai": {
     heading: "AI/ML Interests",
-    summary: "Focused on LLMs, retrieval-augmented generation, and agent architectures. Interested in making AI systems more reliable and interpretable.",
+    summary:
+      "Focused on LLMs, retrieval-augmented generation, and agent architectures. Interested in making AI systems more reliable and interpretable.",
     evidence: [
       {
         title: "AI/ML Skills",
@@ -192,7 +246,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "research-data": {
     heading: "Data Systems",
-    summary: "Experience with data pipelines, vector databases, and analytics. Interested in the intersection of data engineering and AI.",
+    summary:
+      "Experience with data pipelines, vector databases, and analytics. Interested in the intersection of data engineering and AI.",
     evidence: [
       {
         title: "Data Skills",
@@ -204,7 +259,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "research-papers": {
     heading: "Research Following",
-    summary: "Following work on LLM reasoning, retrieval systems, and efficient inference. Keeping up with Anthropic, DeepMind, and academic ML venues.",
+    summary:
+      "Following work on LLM reasoning, retrieval systems, and efficient inference. Keeping up with Anthropic, DeepMind, and academic ML venues.",
     evidence: [
       {
         title: "Reading List",
@@ -216,7 +272,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "research-projects": {
     heading: "Research Projects",
-    summary: "Applied research projects combining ML with real-world systems. Focus on practical applications over pure theory.",
+    summary:
+      "Applied research projects combining ML with real-world systems. Focus on practical applications over pure theory.",
     evidence: [
       {
         title: "Projects",
@@ -228,7 +285,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "skeptic-ship": {
     heading: "Shipping Record",
-    summary: "Multiple deployed projects with real users. Not just side projects — actual production systems with monitoring, error handling, and iteration.",
+    summary:
+      "Multiple deployed projects with real users. Not just side projects — actual production systems with monitoring, error handling, and iteration.",
     evidence: [
       {
         title: "Live Projects",
@@ -246,7 +304,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "skeptic-built": {
     heading: "What I've Actually Built",
-    summary: "Real projects: web apps, data pipelines, AI tools, and infrastructure. All in the projects section with links to live demos and source code.",
+    summary:
+      "Real projects: web apps, data pipelines, AI tools, and infrastructure. All in the projects section with links to live demos and source code.",
     evidence: [
       {
         title: "Projects",
@@ -258,7 +317,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "skeptic-impact": {
     heading: "Real-World Impact",
-    summary: "Projects used by real people, internship work that shipped to production, and open source contributions. Impact is measurable.",
+    summary:
+      "Projects used by real people, internship work that shipped to production, and open source contributions. Impact is measurable.",
     evidence: [
       {
         title: "Achievements",
@@ -270,7 +330,8 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
   },
   "skeptic-why": {
     heading: "Why You Should Care",
-    summary: "Strong fundamentals, ships real things, learns fast, and communicates clearly. The combination of technical depth and product sense is rare.",
+    summary:
+      "Strong fundamentals, ships real things, learns fast, and communicates clearly. The combination of technical depth and product sense is rare.",
     evidence: [
       {
         title: "Full Profile",
@@ -285,10 +346,7 @@ export const LAB_RESPONSES: Record<string, LabResponse> = {
 // Proof pack generator
 export function generateProofPack(mode: LabMode): string {
   const chips = LAB_CHIPS[mode];
-  const lines: string[] = [
-    `=== Portfolio Lab — ${mode} Mode ===`,
-    "",
-  ];
+  const lines: string[] = [`=== Portfolio Lab — ${mode} Mode ===`, ""];
 
   for (const chip of chips) {
     const response = LAB_RESPONSES[chip.responseKey];

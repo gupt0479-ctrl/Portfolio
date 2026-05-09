@@ -67,7 +67,6 @@ FILES=(
     "certifications.ndjson"
     "navigation.ndjson"
     "siteSettings.ndjson"
-    "contact.ndjson"
 )
 
 TOTAL=${#FILES[@]}

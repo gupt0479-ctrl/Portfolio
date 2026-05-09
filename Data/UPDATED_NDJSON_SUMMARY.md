@@ -117,25 +117,13 @@ Navigation structure maintained with:
 - **Blog**: Disabled (showBlog: false)
 - **Primary Color**: #3B82F6 (kept for consistency)
 
-### 9. **contact.ndjson**
-Contact form submission structure maintained with:
-- One example inquiry from a tech recruiter
-- Format preserved for future contact submissions
-
-### 10. **blog.ndjson**
+### 9. **blog.ndjson**
 Five blog entries (5 entries) - updated topics relevant to Anant:
 - **Building Full-Stack Applications with Next.js and React**
 - **Introduction to Generative AI and LLM APIs**
 - **Data Pipelines and Processing with Python and Rust**
 - **My Journey as a Student Developer: Research and Industry**
 - **Getting Started with Linux, Git, and Developer Tools**
-
-### 11. **profile-with-animation.ndjson**
-Extended profile with animation settings:
-- Same profile data as profile.ndjson
-- Animation configurations for hero section
-- Fade-in-out effects with customizable timing
-- Parallax and hover effects enabled
 
 ---
 

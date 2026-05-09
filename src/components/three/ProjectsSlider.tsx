@@ -1,14 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
-import { useIridescentEffect } from "@/lib/hooks/useIridescentEffect";
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useIridescentEffect } from "@/hooks/useIridescentEffect";
 import type { PROJECTS_QUERYResult } from "@/sanity/types";
 
 type Project = PROJECTS_QUERYResult[number];
@@ -25,7 +20,7 @@ function getTechTags(project: Project): string[] {
 }
 
 function ViewLiveButton({ href }: { href: string }) {
-  const { ref, overlayStyle } = useIridescentEffect({ gradientAlpha: 0.14 });
+  const { ref } = useIridescentEffect({ gradientAlpha: 0.14 });
 
   return (
     <div
@@ -34,7 +29,7 @@ function ViewLiveButton({ href }: { href: string }) {
     >
       <span
         className="pointer-events-none absolute inset-0 z-10 rounded-full"
-        style={overlayStyle}
+        style={{ background: "var(--irid-bg, transparent)" }}
         aria-hidden
       />
       <a
@@ -98,7 +93,9 @@ function ProjectCard({ project, isCenter }: ProjectCardProps) {
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
             {tags.map((tag) => (
-              <span key={tag} className="orbit-chip">{tag}</span>
+              <span key={tag} className="orbit-chip">
+                {tag}
+              </span>
             ))}
           </div>
         )}
@@ -124,8 +121,12 @@ function ProjectCard({ project, isCenter }: ProjectCardProps) {
         >
           <div className="px-5 pb-5 border-t border-white/[0.06] pt-4">
             <div className="flex flex-wrap items-center gap-2">
-              {project.liveUrl ? <ViewLiveButton href={project.liveUrl} /> : null}
-              {project.githubUrl ? <SourceButton href={project.githubUrl} /> : null}
+              {project.liveUrl ? (
+                <ViewLiveButton href={project.liveUrl} />
+              ) : null}
+              {project.githubUrl ? (
+                <SourceButton href={project.githubUrl} />
+              ) : null}
             </div>
           </div>
         </motion.div>
@@ -168,7 +169,9 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
   const goPrev = useCallback(() => {
     if (!safeProjects.length) return;
     setDirection(-1);
-    setCurrentIndex((prev) => (prev - 1 + safeProjects.length) % safeProjects.length);
+    setCurrentIndex(
+      (prev) => (prev - 1 + safeProjects.length) % safeProjects.length,
+    );
   }, [safeProjects.length]);
 
   useEffect(() => {
@@ -289,20 +292,27 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
           <button
             key={p._id}
             type="button"
-            onClick={() => { setDirection(idx > currentIndex ? 1 : -1); setCurrentIndex(idx); }}
-            aria-label={`Go to project ${idx + 1}`}
-            style={idx === currentIndex ? {
-              width: "24px",
-              height: "6px",
-              borderRadius: "3px",
-              background: "rgba(167, 139, 250, 0.8)",
-              boxShadow: "0 0 8px rgba(167, 139, 250, 0.5)",
-            } : {
-              width: "6px",
-              height: "6px",
-              borderRadius: "50%",
-              background: "rgba(255, 255, 255, 0.2)",
+            onClick={() => {
+              setDirection(idx > currentIndex ? 1 : -1);
+              setCurrentIndex(idx);
             }}
+            aria-label={`Go to project ${idx + 1}`}
+            style={
+              idx === currentIndex
+                ? {
+                    width: "24px",
+                    height: "6px",
+                    borderRadius: "3px",
+                    background: "rgba(167, 139, 250, 0.8)",
+                    boxShadow: "0 0 8px rgba(167, 139, 250, 0.5)",
+                  }
+                : {
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    background: "rgba(255, 255, 255, 0.2)",
+                  }
+            }
             className="transition-all duration-300 hover:opacity-80"
           />
         ))}

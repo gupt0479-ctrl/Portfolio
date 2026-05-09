@@ -35,12 +35,12 @@ vi.mock("motion/react", () => {
         transition?: unknown;
         whileHover?: unknown;
       },
-      ref: React.Ref<HTMLDivElement>
+      ref: React.Ref<HTMLDivElement>,
     ) => (
       <div ref={ref} className={className} style={style} {...rest}>
         {children}
       </div>
-    )
+    ),
   );
   MotionDiv.displayName = "MotionDiv";
 
@@ -60,12 +60,12 @@ vi.mock("motion/react", () => {
         animate?: unknown;
         transition?: unknown;
       },
-      ref: React.Ref<HTMLSpanElement>
+      ref: React.Ref<HTMLSpanElement>,
     ) => (
       <span ref={ref} className={className} style={style} {...rest}>
         {children}
       </span>
-    )
+    ),
   );
   MotionSpan.displayName = "MotionSpan";
 

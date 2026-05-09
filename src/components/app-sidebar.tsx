@@ -1,6 +1,6 @@
 import { Suspense } from "react";
-import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 import { PortfolioLab } from "@/components/lab/PortfolioLab";
+import { Sidebar, SidebarContent } from "@/components/ui/sidebar";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (

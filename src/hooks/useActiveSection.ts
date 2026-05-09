@@ -2,8 +2,15 @@
 import { useEffect, useState } from "react";
 
 const SECTION_IDS = [
-  "home", "about", "experience", "projects",
-  "skills", "education", "certifications", "blog", "contact"
+  "home",
+  "about",
+  "experience",
+  "projects",
+  "skills",
+  "education",
+  "certifications",
+  "blog",
+  "contact",
 ];
 
 export function useActiveSection(): string | null {
@@ -22,7 +29,7 @@ export function useActiveSection(): string | null {
         }
         if (best) setActive(best);
       },
-      { threshold: [0.1, 0.3, 0.5], rootMargin: "-80px 0px -40% 0px" }
+      { threshold: [0.1, 0.3, 0.5], rootMargin: "-80px 0px -40% 0px" },
     );
 
     for (const id of SECTION_IDS) {

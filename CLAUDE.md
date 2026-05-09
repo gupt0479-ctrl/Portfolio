@@ -1,52 +1,34 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Claude Code should treat `AGENTS.md` as the canonical project brief. This file is a short compatibility guide for Claude-specific sessions and should not override Codex project guidance.
 
 ## Commands
 
 | Command | Description |
-|---------|-------------|
-| `pnpm dev` | Start Next.js development server |
-| `pnpm build` | Build for production (runs typegen, typecheck, then next build) |
-| `pnpm start` | Start Next.js production server |
-| `pnpm lint` | Run Biome formatter/linter |
-| `pnpm format` | Format code with Biome |
-| `pnpm typegen` | Generate Sanity types from schema |
-| `pnpm typecheck` | Run TypeScript compiler |
+| --- | --- |
+| `pnpm dev` | Start the Next.js development server |
+| `pnpm build` | Run typegen, typecheck, and production build |
+| `pnpm start` | Start the production server |
+| `pnpm lint` | Run Biome checks |
+| `pnpm format` | Format with Biome |
+| `pnpm typegen` | Regenerate Sanity schema/types |
+| `pnpm typecheck` | Run TypeScript |
+| `pnpm test` | Run Vitest |
 
-## Architecture
+## Current Architecture
 
-### Stack
-- **Framework**: Next.js 16.1.1 (App Router)
-- **UI**: React 19.2.3 with Tailwind CSS v4
-- **Styling**: shadcn/ui + Radix UI primitives
-- **3D Graphics**: Three.js with `@react-three/fiber`, `@react-three/drei`, `@react-three/postprocessing`
-- **CMS**: Sanity (v4.22.0) with live content API
-- **Auth**: Clerk (@clerk/nextjs)
+- Next.js 16 App Router with React 19, TypeScript, Tailwind CSS v4, pnpm, Biome, and Vitest.
+- Sanity Studio is mounted at `/studio` and protected by Clerk.
+- The public portfolio page renders the dark cosmic command-center experience with Three.js background, orbital navigation, portfolio sections, and the deterministic Portfolio Lab sidebar.
+- There is no active ChatKit, chatbot, AI Twin, or `components/chat/` feature. Do not reintroduce that framing in visible UI.
+- Content reads should go through `sanityFetch`; development falls back to `Data/*.ndjson` unless `PORTFOLIO_CONTENT_SOURCE=sanity` is set.
+- Local MCP and agent settings may contain secrets. Do not print or commit `.env.local`, `.mcp.json`, `.kiro/settings/`, `.claude/`, or local Cursor settings.
 
-### Project Structure
-- `src/app/` - Next.js App Router pages (main page, studio)
-- `src/components/` - Reusable React components
-  - `components/sections/` - Portfolio section components (Hero, About, Experience, Projects, etc.)
-  - `components/three/` - Three.js canvas components (ObsidianBackground, ProjectsSlider)
-  - `components/chat/` - AI ChatKit components (ChatWrapper, Chat)
-  - `components/ui/` - shadcn/ui components
-- `src/sanity/` - Sanity configuration
-  - `lib/` - Client setup and queries (`queries.ts`, `live.ts`, `client.ts`)
-  - `schemaTypes/` - Sanity document schemas
-  - `types/` - Auto-generated TypeScript types from schema
-  - `structure.ts` - Sanity Studio navigation structure
+## Files To Know
 
-### Key Patterns
-
-1. **Sanity Integration**: Uses `sanityFetch` from `next-sanity/live` for live content updates. Render `<SanityLive />` in layout for auto-updates.
-
-2. **Type Safety**: Schema-driven development with `sanity schema extract` and `sanity typegen generate` for type safety.
-
-3. **Styling**: Tailwind utilities only - no separate CSS files unless existing pattern.
-
-4. **Sidebar**: Uses Radix-based sidebar component with `SidebarProvider` context. Collapsible with offcanvas behavior.
-
-5. **Chat Feature**: OpenAI ChatKit React integrated as sidebar chat with workflow-based AI responses.
-
-6. **Theme**: Dark mode default with `next-themes` provider.
+- `AGENTS.md` - canonical repo instructions.
+- `proxy.ts` and `src/proxy.ts` - Clerk/Next proxy behavior; verify runtime routing before editing auth.
+- `src/components/PortfolioContent.tsx` - page section composition.
+- `src/components/lab/` and `src/lib/lab-data.ts` - Portfolio Lab UI and deterministic content.
+- `src/lib/localContent.ts` - local NDJSON fallback adapter.
+- `src/sanity/schemaTypes/` and `src/sanity/lib/queries.ts` - Sanity schema/query surface.

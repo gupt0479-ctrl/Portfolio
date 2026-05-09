@@ -25,7 +25,9 @@ export function EvidenceCard({ item }: EvidenceCardProps) {
       {item.tags.length > 0 && (
         <div className="flex flex-wrap gap-1 mt-2">
           {item.tags.map((tag) => (
-            <span key={tag} className="orbit-chip text-[10px]">{tag}</span>
+            <span key={tag} className="orbit-chip text-[10px]">
+              {tag}
+            </span>
           ))}
         </div>
       )}

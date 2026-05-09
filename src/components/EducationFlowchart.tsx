@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import type { Education } from "@/sanity/types";
 
 const BLOB_VARIANTS = ["stable", "forming", "amoeba"] as const;
-type BlobVariant = typeof BLOB_VARIANTS[number];
+type BlobVariant = (typeof BLOB_VARIANTS)[number];
 
 const BLOB_SIZES = ["w-44 h-44", "w-36 h-36", "w-28 h-28"] as const;
 const BLOB_COLORS = [
@@ -12,25 +12,6 @@ const BLOB_COLORS = [
   "bg-gradient-to-br from-violet-500/10 to-pink-500/5",
 ] as const;
 const BLOB_ICONS = ["●", "◐", "◌"] as const;
-
-// Polished static fallback stages — shown when Sanity has fewer than 3 items.
-// These look like real entries, not editor placeholders.
-const STATIC_FALLBACKS: FlowchartItem[] = [
-  {
-    _id: "fallback-hs",
-    degree: "High School Diploma",
-    institution: "Delhi Public School",
-    startDate: "2019-01-01",
-    endDate: "2023-01-01",
-  },
-  {
-    _id: "fallback-ms",
-    degree: "Middle School",
-    institution: "Delhi Public School",
-    startDate: "2016-01-01",
-    endDate: "2019-01-01",
-  },
-];
 
 interface FlowchartItem {
   _id: string;
@@ -53,16 +34,9 @@ export function EducationFlowchart({ items }: Props) {
     (b.startDate ?? "").localeCompare(a.startDate ?? ""),
   );
 
-  // Pad to exactly 3 stages using polished static fallbacks (no CMS copy shown)
-  const padded: FlowchartItem[] = [...sorted];
-  for (let i = sorted.length; i < 3; i++) {
-    const fallback = STATIC_FALLBACKS[i - 1];
-    if (fallback) padded.push(fallback);
-  }
-
   return (
     <div className="flex flex-col items-center gap-0">
-      {padded.map((edu, i) => {
+      {sorted.map((edu, i) => {
         const variant: BlobVariant = BLOB_VARIANTS[Math.min(i, 2)];
         const size = BLOB_SIZES[Math.min(i, 2)];
         const color = BLOB_COLORS[Math.min(i, 2)];
@@ -110,8 +84,8 @@ export function EducationFlowchart({ items }: Props) {
                   {edu.current
                     ? "Present"
                     : edu.endDate
-                    ? new Date(edu.endDate).getFullYear()
-                    : ""}
+                      ? new Date(edu.endDate).getFullYear()
+                      : ""}
                 </p>
                 {edu.gpa && (
                   <span className="inline-block mt-2 px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/15 text-xs text-white/70">

@@ -5,7 +5,6 @@ import { NextResponse } from "next/server";
 const isPublicRoute = createRouteMatcher([
   "/",
   "/api/sanity(.*)",
-  "/studio(.*)",
   "/api/draft-mode(.*)",
 ]);
 
@@ -27,6 +26,10 @@ const event = {
 };
 
 export async function proxy(req: NextRequest): Promise<NextResponse> {
+  if (isPublicRoute(req)) {
+    return NextResponse.next();
+  }
+
   capturedResponse = undefined;
   const result = await clerk(
     req,

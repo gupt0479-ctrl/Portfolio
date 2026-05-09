@@ -33,7 +33,7 @@ export async function AboutSection() {
       <div className="mx-auto max-w-4xl">
         {/* Heading */}
         <div className="text-center mb-10">
-          <p className="section-kicker">// scan report</p>
+          <p className="section-kicker">{"// scan report"}</p>
           <h2 className="text-4xl md:text-5xl font-display font-bold text-white mb-3">
             About Me
           </h2>

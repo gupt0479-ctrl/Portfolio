@@ -1,6 +1,6 @@
-import { readFileSync, readdirSync, statSync } from "fs";
-import { join } from "path";
-import { describe, expect, it } from "vitest";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join } from "node:path";
+import { describe, it } from "vitest";
 
 // Recursively get all .tsx and .ts files in a directory
 function getAllSourceFiles(dir: string): string[] {
@@ -9,7 +9,11 @@ function getAllSourceFiles(dir: string): string[] {
   for (const entry of entries) {
     const fullPath = join(dir, entry);
     const stat = statSync(fullPath);
-    if (stat.isDirectory() && !entry.startsWith(".") && entry !== "node_modules") {
+    if (
+      stat.isDirectory() &&
+      !entry.startsWith(".") &&
+      entry !== "node_modules"
+    ) {
       files.push(...getAllSourceFiles(fullPath));
     } else if (entry.endsWith(".tsx") || entry.endsWith(".ts")) {
       files.push(fullPath);
@@ -34,6 +38,8 @@ const BANNED_STRINGS = [
 //   repo but remove from visible UI") — these are not rendered in the visible UI
 const EXCLUDED_FILES = [
   "banned-text.test.ts",
+  // Bug condition test references ChatKit in comments describing the defect
+  "codebase-cleanup-bug-condition.test.ts",
   // ChatKit implementation files — kept in repo but not rendered in visible UI
   "src/components/chat/Chat.tsx",
   "src/components/chat/ChatWrapper.tsx",
@@ -57,7 +63,7 @@ const EXCLUDED_FILES = [
 describe("Property 11: Banned text exclusion across all components", () => {
   const srcDir = join(process.cwd(), "src");
   const allFiles = getAllSourceFiles(srcDir).filter(
-    (f) => !EXCLUDED_FILES.some((excluded) => f.endsWith(excluded))
+    (f) => !EXCLUDED_FILES.some((excluded) => f.endsWith(excluded)),
   );
 
   for (const bannedString of BANNED_STRINGS) {
@@ -67,14 +73,12 @@ describe("Property 11: Banned text exclusion across all components", () => {
         const content = readFileSync(file, "utf-8");
         if (content.includes(bannedString)) {
           // Get relative path for cleaner error messages
-          const relativePath = file.replace(process.cwd() + "/", "");
+          const relativePath = file.replace(`${process.cwd()}/`, "");
           violations.push(relativePath);
         }
       }
       if (violations.length > 0) {
-        throw new Error(
-          `Found "${bannedString}" in: ${violations.join(", ")}`
-        );
+        throw new Error(`Found "${bannedString}" in: ${violations.join(", ")}`);
       }
     });
   }

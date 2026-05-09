@@ -3,7 +3,17 @@
 sanity.types.ts
 
 # mcp
-.cursor/
+.cursor/*
+!.cursor/MEMORY/
+.cursor/MEMORY/*
+!.cursor/MEMORY/ecc-setup-guide.md
+.claude/
+.kiro/settings/
+.agents
+.agents/
+.mcp.json
+.mcp.local.json
+.vscode/
 
 # dependencies
 /node_modules

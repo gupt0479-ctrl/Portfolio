@@ -1,8 +1,8 @@
 import { ExternalLink } from "lucide-react";
 import { defineQuery } from "next-sanity";
+import { CometCard } from "@/components/ui/comet-card";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { Achievement } from "@/sanity/types";
-import { CometCard } from "@/components/ui/comet-card";
 
 const ACHIEVEMENTS_SECTION_QUERY = defineQuery(`
   *[_type == "achievement"] | order(featured desc, date desc){
