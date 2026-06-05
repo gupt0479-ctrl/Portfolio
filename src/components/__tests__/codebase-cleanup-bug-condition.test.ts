@@ -111,10 +111,11 @@ describe("Bug Condition: Dead Code, Duplicates, and Defects Exist", () => {
     expect(fileExists("src/lib/hooks/useIridescentEffect.ts")).toBe(false);
   });
 
-  it("MEMORY.md references .cursor/MEMORY/ecc-setup-guide.md (correct path)", () => {
-    // Requirement 1.16: MEMORY.md references wrong file path
-    // Expected: Correct path to .cursor/MEMORY/ecc-setup-guide.md
+  it("MEMORY.md references Claude documentation, not stale cursor path", () => {
+    // Requirement 1.16: MEMORY.md must reference Claude-specific documentation
+    // Expected: Points to .claude/CLAUDE.md, CLAUDE.md, AGENTS.md — not the old .cursor path
     const content = readFileContent("MEMORY.md");
-    expect(content).toContain(".cursor/MEMORY/ecc-setup-guide.md");
+    expect(content).toContain(".claude/CLAUDE.md");
+    expect(content).not.toContain(".cursor/MEMORY/ecc-setup-guide.md");
   });
 });

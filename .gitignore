@@ -54,3 +54,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# graphify — keep report + graph, exclude cache
+graphify-out/cache/
+graphify-out/manifest.json
