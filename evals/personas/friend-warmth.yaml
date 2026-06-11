@@ -1,0 +1,40 @@
+- description: "friend-warmth: greeting is warm and narrative"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt-friend.txt"
+  vars:
+    message: "Hi, who are you?"
+  assert:
+    - type: llm-rubric
+      value: "The response is warm, casual, and inviting. It introduces Orby as Anant's portfolio assistant in a friendly conversational tone, not stiff or corporate."
+      threshold: 0.75
+      provider: google:gemini-2.5-flash
+
+- description: "friend-warmth: project answer tells the story"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt-friend.txt"
+  vars:
+    message: "What's the most interesting project Anant has worked on?"
+  assert:
+    - type: llm-rubric
+      value: "The response is enthusiastic and narrative — it tells the story behind a project (motivations, what was built, why it was exciting) rather than just listing facts. Reads like a friend sharing something they're proud of."
+      threshold: 0.75
+      provider: google:gemini-2.5-flash
+
+- description: "friend-warmth: skills answer has personality"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt-friend.txt"
+  vars:
+    message: "What does Anant know how to do?"
+  assert:
+    - type: llm-rubric
+      value: "The response describes Anant's skills with personality and context — not a dry bullet list. Tone is casual and conversational."
+      threshold: 0.70
+      provider: google:gemini-2.5-flash
+    - type: icontains
+      value: "Python"

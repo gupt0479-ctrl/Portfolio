@@ -1,5 +1,4 @@
 import {
-  BellIcon,
   BookIcon,
   BulbOutlineIcon,
   CaseIcon,
@@ -73,35 +72,8 @@ export const structure: StructureResolver = (S) =>
             .title("Content")
             .items([
               S.documentTypeListItem("blog")
-                .title("Blog Posts")
+                .title("Reading & Resources")
                 .icon(DocumentIcon),
-            ]),
-        ),
-      S.divider(),
-
-      S.listItem()
-        .title("Contact Form Submissions")
-        .icon(MasterDetailIcon)
-        .child(
-          S.list()
-            .title("Contact Form Submissions")
-            .items([
-              S.listItem()
-                .title("New Submissions")
-                .icon(BellIcon)
-                .child(
-                  S.documentList()
-                    .title("New Submissions")
-                    .filter('_type == "contact" && status == "new"'),
-                ),
-              S.listItem()
-                .title("Archived")
-                .icon(CheckmarkCircleIcon)
-                .child(
-                  S.documentList()
-                    .title("Archived")
-                    .filter('_type == "contact" && status == "archived"'),
-                ),
             ]),
         ),
       S.divider(),

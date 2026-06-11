@@ -36,11 +36,26 @@
 
 ---
 
-## What Does NOT Exist
+## AI Chatbot — Phases 0–6 Complete
 
-- No chatbot, AI Twin, ChatKit, or `/api/chatkit` route — do not add these
+The chatbot is Orby, a portfolio AI companion. Current build state:
+
+| Phase | What | Status |
+|-------|------|--------|
+| 0 | `/api/chat` pipe (Gemini, server-only key) | ✅ |
+| 1 | Gates: origin check, HMAC token, Upstash rate-limit, scraper block | ✅ |
+| 2 | Grounding + refusal (Sanity catalog injected per turn) | ✅ |
+| 3 | Eval suite (`evals/`) + GitHub Actions gate | ✅ |
+| 4 | Four personas (recruiter/friend/weirdo/ceo) + power-prompts | ✅ |
+| 5 | Closed tool set (navigate, showProject, showExperience, lookupFact, getResume, contact) + evidence cards | ✅ |
+| 6 | Groq fallback + degraded mode (pre-written answers when all quotas exhausted) | ✅ |
+| 7 | Wire Orby navigation (scroll → section → on-arrival message) | 🔜 |
+
+Key server-only env vars: `GEMINI_API_KEY`, `GROQ_API_KEY`, `CHAT_TOKEN_SECRET`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN` — never `NEXT_PUBLIC_`.
+
 - No LangChain, OpenAI embedding pipeline, or Supabase pgvector
 - No OPENAI_API_KEY dependency in this project
+- Eval config: `evals/promptfooconfig.yaml` — run with `pnpm eval`
 
 ---
 
@@ -102,15 +117,23 @@ The `everything-claude-code` plugin is active. Use these workflows:
 | `src/components/PortfolioContent.tsx` | Page section composition (server) |
 | `src/components/sections/` | Hero, About, Experience, Projects, Skills, Education, Certs, Blog, Contact, Footer |
 | `src/components/three/` | ObsidianBackground + Graph (Three.js) |
-| `src/components/lab/` | Portfolio Lab sidebar panel |
+| `src/components/lab/` | Portfolio Lab sidebar panel + chat UI |
+| `src/components/orby/` | Orby companion component tree |
+| `src/lib/chat-context.ts` | Sanity catalog fetch + system-prompt builder |
+| `src/lib/chat-tools.ts` | Closed tool set definitions (6 tools) |
+| `src/lib/model-router.ts` | Gemini → Groq → degraded routing |
+| `src/lib/degraded-responses.ts` | Pre-written fallback answers per persona |
+| `src/lib/personas/` | Four persona system prompts |
 | `src/lib/lab-data.ts` | Lab static/deterministic data |
-| `src/lib/localContent.ts` | NDJSON fallback adapter |
+| `src/app/api/chat/route.ts` | Chat POST handler (gates → router → stream) |
+| `src/app/api/chat-token/route.ts` | Issues HMAC-signed session cookie |
 | `src/sanity/lib/live.ts` | `sanityFetch()` — the only way to read content |
 | `src/sanity/lib/queries.ts` | Shared GROQ queries |
 | `src/sanity/schemaTypes/` | Sanity document schemas |
 | `src/sanity/types/index.ts` | GENERATED — never edit manually |
 | `proxy.ts` / `src/proxy.ts` | Clerk auth proxy — verify which Next.js uses before editing |
-| `Data/*.ndjson` | Local dev fallback content |
+| `evals/` | Promptfoo eval suite (grounding, refusal, tools, personas) |
+| `docs/ORBY.md` | Orby feature spec (Phase 7) |
 
 ---
 
@@ -118,10 +141,9 @@ The `everything-claude-code` plugin is active. Use these workflows:
 
 `sanityFetch()` in `src/sanity/lib/live.ts` is the **only** way to read content.
 
-- **Dev**: NDJSON in `Data/` preferred unless `PORTFOLIO_CONTENT_SOURCE=sanity`
-- **Prod**: Live Sanity CMS
-- **Adding a new query**: update `src/lib/localContent.ts` + add/extend the matching NDJSON file
-- **After any schema change**: `pnpm typegen` → `pnpm typecheck` → update queries → update localContent.ts
+- **Dev + Prod**: Live Sanity CMS (NDJSON fallback layer was removed)
+- **Adding a new query**: add to `src/sanity/lib/queries.ts`, then `pnpm typegen`
+- **After any schema change**: `pnpm typegen` → `pnpm typecheck` → update queries
 
 ---
 

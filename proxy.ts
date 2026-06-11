@@ -4,8 +4,11 @@ import { NextResponse } from "next/server";
 
 const isPublicRoute = createRouteMatcher([
   "/",
+  "/sign-in(.*)",
+  "/sign-up(.*)",
   "/api/sanity(.*)",
   "/api/draft-mode(.*)",
+  "/api/chat(.*)",
 ]);
 
 const clerk = clerkMiddleware(async (auth, req) => {

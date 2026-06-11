@@ -1,18 +1,22 @@
 import { defineQuery } from "next-sanity";
 import { BlogFeed } from "@/components/BlogFeed";
 import { sanityFetch } from "@/sanity/lib/live";
+import { SITE_SETTINGS_QUERY } from "@/sanity/lib/queries";
 import type { Blog } from "@/sanity/types";
 
 const BLOG_SECTION_QUERY = defineQuery(`
   *[_type == "blog"] | order(publishedAt desc)[0...6]{
-    _id, title, slug, excerpt, publishedAt, readTime, category
+    _id, title, slug, excerpt, externalUrl, publishedAt, readTime, category
   }
 `);
 
 export async function BlogSection() {
-  const { data: posts } = await sanityFetch({
-    query: BLOG_SECTION_QUERY,
-  });
+  const [{ data: posts }, { data: settings }] = await Promise.all([
+    sanityFetch({ query: BLOG_SECTION_QUERY }),
+    sanityFetch({ query: SITE_SETTINGS_QUERY }),
+  ]);
+
+  if (settings?.showBlog === false) return null;
 
   const list = (posts ?? []) as Blog[];
 

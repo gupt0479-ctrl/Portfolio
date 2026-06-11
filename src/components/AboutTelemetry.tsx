@@ -3,49 +3,10 @@
 import { Cpu, Layers, Microscope, TrendingUp } from "lucide-react";
 import { motion } from "motion/react";
 
-// Canonical four readouts — labels match what the spec asks for.
-// If Sanity stats have matching labels (case-insensitive), those values are used.
-// Otherwise the component falls back to yearsOfExperience / hardcoded defaults.
-const CANONICAL_READOUTS = [
-  {
-    label: "Projects Built",
-    defaultValue: "10+",
-    Icon: Layers,
-    matchTerms: ["project"],
-  },
-  {
-    label: "Technologies",
-    defaultValue: "20+",
-    Icon: Cpu,
-    matchTerms: ["tech", "language", "tool", "stack"],
-  },
-  {
-    label: "Currently Learning",
-    defaultValue: "Rust · LLMs",
-    Icon: TrendingUp,
-    matchTerms: ["learn", "studying", "current"],
-  },
-  {
-    label: "Research Focus",
-    defaultValue: "AI Systems",
-    Icon: Microscope,
-    matchTerms: ["research", "focus", "interest"],
-  },
-] as const;
-
-type CanonicalReadout = (typeof CANONICAL_READOUTS)[number];
-
-/** Find the best matching stat from Sanity for a canonical readout. */
-function findStat(
-  stats: { label?: string; value?: string }[],
-  readout: CanonicalReadout,
-): string | null {
-  const lower = (s: string | undefined) => (s ?? "").toLowerCase();
-  const match = stats.find((s) =>
-    readout.matchTerms.some((term) => lower(s.label).includes(term)),
-  );
-  return match?.value ?? null;
-}
+// Stats are rendered directly from Sanity `profile.stats[]` in order (label + value
+// verbatim). Icons are picked by index from this ring — no keyword matching, no
+// canonical fixed slots, no hardcoded fallbacks. Populate stats in Studio.
+const STAT_ICONS = [Layers, Cpu, TrendingUp, Microscope] as const;
 
 // Sparkline heights — gives a "trending up" shape
 const SPARKLINE_BARS = [
@@ -99,20 +60,27 @@ export function AboutTelemetry({
 }: {
   stats: { label?: string; value?: string }[];
 }) {
+  const items = (stats ?? [])
+    .filter((s) => (s.value ?? "").trim().length > 0)
+    .slice(0, 4);
+
+  if (!items.length) return null;
+
   return (
     <div className="grid grid-cols-2 gap-4 mt-8">
-      {CANONICAL_READOUTS.map((readout, i) => {
-        const value = findStat(stats, readout) ?? readout.defaultValue;
-        return (
-          <TelemetryCard
-            key={readout.label}
-            label={readout.label}
-            value={value}
-            Icon={readout.Icon as React.FC<{ className?: string }>}
-            index={i}
-          />
-        );
-      })}
+      {items.map((stat, i) => (
+        <TelemetryCard
+          key={`${stat.label ?? "stat"}-${i}`}
+          label={stat.label ?? ""}
+          value={stat.value ?? ""}
+          Icon={
+            STAT_ICONS[i % STAT_ICONS.length] as React.FC<{
+              className?: string;
+            }>
+          }
+          index={i}
+        />
+      ))}
     </div>
   );
 }

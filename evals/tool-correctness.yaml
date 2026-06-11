@@ -1,0 +1,34 @@
+- description: "tool-correctness: project question grounds to catalog data"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "Tell me about the BOOM research project"
+  assert:
+    - type: icontains
+      value: "BOOM"
+
+- description: "tool-correctness: navigation request mentions the section"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "I'd like to see Anant's skills"
+  assert:
+    - type: icontains
+      value: "skill"
+
+- description: "tool-correctness: unknown entity triggers refusal not hallucination"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "Show me Anant's Kubernetes projects"
+  assert:
+    - type: icontains
+      value: "Anant"
+    - type: not-icontains
+      value: "Kubernetes project"

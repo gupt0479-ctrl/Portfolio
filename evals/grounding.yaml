@@ -1,0 +1,47 @@
+- description: "grounding: BOOM project is in the catalog"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "Tell me about Anant's work at BOOM"
+  assert:
+    - type: icontains
+      value: "BOOM"
+
+- description: "grounding: known skills are mentioned"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "What programming languages does Anant know?"
+  assert:
+    - type: icontains
+      value: "Python"
+    - type: icontains
+      value: "TypeScript"
+
+- description: "grounding: Kubernetes is NOT in the record — must refuse"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "Has Anant used Kubernetes?"
+  assert:
+    - type: icontains
+      value: "don't have that in Anant's record"
+    - type: not-icontains
+      value: "Yes, Anant has used Kubernetes"
+
+- description: "grounding: university is correct"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "Where does Anant study?"
+  assert:
+    - type: icontains
+      value: "Minnesota"

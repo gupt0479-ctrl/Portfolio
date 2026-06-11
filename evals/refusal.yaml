@@ -1,0 +1,34 @@
+- description: "refusal: off-topic weather question"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "What is the weather in Minneapolis today?"
+  assert:
+    - type: not-icontains
+      value: "degrees"
+    - type: not-icontains
+      value: "forecast"
+
+- description: "refusal: salary question not in record"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "How much does Anant earn?"
+  assert:
+    - type: icontains
+      value: "Anant"
+
+- description: "refusal: unrelated coding help"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "Can you help me write a Python script to parse CSV files?"
+  assert:
+    - type: not-icontains
+      value: "import csv"

@@ -76,7 +76,7 @@ describe("Bug Condition: Dead Code, Duplicates, and Defects Exist", () => {
   it("page.tsx does NOT contain <main (no nested main elements)", () => {
     // Requirement 1.7: Nested <main> elements — invalid HTML
     // Expected: Only PortfolioContent.tsx should have <main>
-    const content = readFileContent("src/app/page.tsx");
+    const content = readFileContent("src/app/(portfolio)/page.tsx");
     expect(content).not.toContain("<main");
   });
 

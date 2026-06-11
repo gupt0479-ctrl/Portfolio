@@ -1,0 +1,13 @@
+{
+  "enabled": true,
+  "name": "Orby Build Verification",
+  "description": "After completing an Orby implementation task, run typecheck to ensure no TypeScript errors were introduced and verify the build still passes.",
+  "version": "1",
+  "when": {
+    "type": "userTriggered"
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "pnpm typecheck"
+  }
+}

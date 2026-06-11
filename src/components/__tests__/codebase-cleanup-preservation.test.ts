@@ -70,51 +70,15 @@ describe("Preservation: Existing Portfolio Behavior Unchanged", () => {
     });
   });
 
-  describe("getLocalDataForQuery returns correct data types for known queries", () => {
-    const localContentSource = readSource("src/lib/localContent.ts");
+  describe("sanityFetch uses Sanity live content only (no local NDJSON fallback)", () => {
+    const liveSource = readSource("src/sanity/lib/live.ts");
 
-    // Known query type mappings that must be preserved
-    const QUERY_TYPE_MAPPINGS = [
-      { typeMatch: '_type == "profile"', handler: "getLocalProfile" },
-      { typeMatch: '_type == "siteSettings"', handler: "getLocalSiteSettings" },
-      { typeMatch: '_type == "navigation"', handler: "getLocalNavigation" },
-      { typeMatch: '_type == "project"', handler: "getLocalProjects" },
-      { typeMatch: '_type == "skill"', handler: "getLocalSkills" },
-      { typeMatch: '_type == "experience"', handler: "getLocalExperience" },
-      { typeMatch: '_type == "education"', handler: "getLocalEducation" },
-      {
-        typeMatch: '_type == "certification"',
-        handler: "getLocalCertifications",
-      },
-      { typeMatch: '_type == "achievement"', handler: "getLocalAchievements" },
-      { typeMatch: '_type == "blog"', handler: "getLocalBlog" },
-    ];
-
-    it("routes all known GROQ type strings to the correct handler", () => {
-      for (const mapping of QUERY_TYPE_MAPPINGS) {
-        // The getLocalDataForQuery function must contain a check for this type
-        expect(localContentSource).toContain(
-          `query.includes('${mapping.typeMatch}')`,
-        );
-        // And it must call the correct handler
-        expect(localContentSource).toContain(`return ${mapping.handler}()`);
-      }
-    });
-
-    it("getLocalDataForQuery handles all 10 known document types", () => {
-      // Verify the function exists and handles all types
-      expect(localContentSource).toContain(
-        "export async function getLocalDataForQuery",
-      );
-
-      for (const mapping of QUERY_TYPE_MAPPINGS) {
-        expect(localContentSource).toContain(mapping.typeMatch);
-      }
-    });
-
-    it("getLocalDataForQuery returns undefined for unrecognized queries", () => {
-      // The function should have a fallback return undefined
-      expect(localContentSource).toContain("return undefined");
+    it("reads portfolio content from Sanity only without local NDJSON fallback", () => {
+      expect(liveSource).toContain("defineLive");
+      expect(liveSource).not.toContain("localContent");
+      expect(liveSource).not.toContain("getLocalDataForQuery");
+      expect(liveSource).not.toContain("PORTFOLIO_CONTENT_SOURCE");
+      expect(liveSource).not.toContain("Data/");
     });
   });
 

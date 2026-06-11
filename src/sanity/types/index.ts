@@ -66,21 +66,6 @@ export type SanityImageHotspot = {
   width?: number;
 };
 
-export type Contact = {
-  _id: string;
-  _type: "contact";
-  _createdAt: string;
-  _updatedAt: string;
-  _rev: string;
-  name?: string;
-  email?: string;
-  subject?: string;
-  message?: string;
-  submittedAt?: string;
-  status?: "new" | "archived";
-  notes?: string;
-};
-
 export type Blog = {
   _id: string;
   _type: "blog";
@@ -90,6 +75,7 @@ export type Blog = {
   title?: string;
   slug?: Slug;
   excerpt?: string;
+  externalUrl?: string;
   category?: string;
   tags?: Array<string>;
   publishedAt?: string;
@@ -106,24 +92,6 @@ export type Blog = {
     crop?: SanityImageCrop;
     _type: "image";
   };
-  content?: Array<{
-    children?: Array<{
-      marks?: Array<string>;
-      text?: string;
-      _type: "span";
-      _key: string;
-    }>;
-    style?: "normal" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "blockquote";
-    listItem?: "bullet" | "number";
-    markDefs?: Array<{
-      href?: string;
-      _type: "link";
-      _key: string;
-    }>;
-    level?: number;
-    _type: "block";
-    _key: string;
-  }>;
 };
 
 export type Slug = {
@@ -139,7 +107,7 @@ export type Achievement = {
   _updatedAt: string;
   _rev: string;
   title?: string;
-  type?: "award" | "hackathon" | "publication" | "speaking" | "open-source" | "milestone" | "recognition" | "other";
+  type?: "award" | "experience" | "leadership" | "entrepreneurship" | "sports" | "hackathon" | "publication" | "speaking" | "open-source" | "milestone" | "recognition" | "other";
   issuer?: string;
   date?: string;
   description?: string;
@@ -495,7 +463,7 @@ export type Geopoint = {
   alt?: number;
 };
 
-export type AllSanitySchemaTypes = Navigation | SiteSettings | SanityImageCrop | SanityImageHotspot | Contact | Blog | Slug | Achievement | Certification | Education | Experience | Skill | Project | Profile | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
+export type AllSanitySchemaTypes = Navigation | SiteSettings | SanityImageCrop | SanityImageHotspot | Blog | Slug | Achievement | Certification | Education | Experience | Skill | Project | Profile | SanityImagePaletteSwatch | SanityImagePalette | SanityImageDimensions | SanityImageMetadata | SanityFileAsset | SanityAssetSourceData | SanityImageAsset | Geopoint;
 export declare const internalGroqTypeReferenceTo: unique symbol;
 // Source: ./src/components/sections/AboutSection.tsx
 // Variable: ABOUT_QUERY
@@ -534,25 +502,27 @@ export type ABOUT_QUERYResult = {
 
 // Source: ./src/components/sections/AchievementsSection.tsx
 // Variable: ACHIEVEMENTS_SECTION_QUERY
-// Query: *[_type == "achievement"] | order(featured desc, date desc){    _id, title, description, date, type, featured, url  }
+// Query: *[_type == "achievement"] | order(featured desc, date desc){    _id, title, description, date, type, issuer, featured, url  }
 export type ACHIEVEMENTS_SECTION_QUERYResult = Array<{
   _id: string;
   title: string | null;
   description: string | null;
   date: string | null;
-  type: "award" | "hackathon" | "milestone" | "open-source" | "other" | "publication" | "recognition" | "speaking" | null;
+  type: "award" | "entrepreneurship" | "experience" | "hackathon" | "leadership" | "milestone" | "open-source" | "other" | "publication" | "recognition" | "speaking" | "sports" | null;
+  issuer: string | null;
   featured: boolean | null;
   url: string | null;
 }>;
 
 // Source: ./src/components/sections/BlogSection.tsx
 // Variable: BLOG_SECTION_QUERY
-// Query: *[_type == "blog"] | order(publishedAt desc)[0...6]{    _id, title, slug, excerpt, publishedAt, readTime, category  }
+// Query: *[_type == "blog"] | order(publishedAt desc)[0...6]{    _id, title, slug, excerpt, externalUrl, publishedAt, readTime, category  }
 export type BLOG_SECTION_QUERYResult = Array<{
   _id: string;
   title: string | null;
   slug: Slug | null;
   excerpt: string | null;
+  externalUrl: string | null;
   publishedAt: string | null;
   readTime: number | null;
   category: string | null;
@@ -560,12 +530,13 @@ export type BLOG_SECTION_QUERYResult = Array<{
 
 // Source: ./src/components/sections/CertificationsSection.tsx
 // Variable: CERTS_SECTION_QUERY
-// Query: *[_type == "certification"] | order(issueDate desc){    _id, name, issuer, issueDate, credentialId, credentialUrl, logo,    skills[]->{ _id, name, category }  }
+// Query: *[_type == "certification"] | order(issueDate desc){    _id, name, issuer, issueDate, expiryDate, credentialId, credentialUrl, logo, description,    skills[]->{ _id, name, category }  }
 export type CERTS_SECTION_QUERYResult = Array<{
   _id: string;
   name: string | null;
   issuer: string | null;
   issueDate: string | null;
+  expiryDate: string | null;
   credentialId: string | null;
   credentialUrl: string | null;
   logo: {
@@ -580,6 +551,7 @@ export type CERTS_SECTION_QUERYResult = Array<{
     crop?: SanityImageCrop;
     _type: "image";
   } | null;
+  description: string | null;
   skills: Array<{
     _id: string;
     name: string | null;
@@ -603,7 +575,7 @@ export type CONTACT_QUERYResult = {
 
 // Source: ./src/components/sections/EducationSection.tsx
 // Variable: EDUCATION_SECTION_QUERY
-// Query: *[_type == "education"] | order(startDate desc){    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa  }
+// Query: *[_type == "education"] | order(startDate desc){    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa, logo  }
 export type EDUCATION_SECTION_QUERYResult = Array<{
   _id: string;
   institution: string | null;
@@ -614,6 +586,18 @@ export type EDUCATION_SECTION_QUERYResult = Array<{
   current: boolean | null;
   description: string | null;
   gpa: string | null;
+  logo: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
 }>;
 
 // Source: ./src/sanity/lib/queries.ts
@@ -928,7 +912,7 @@ export type EDUCATION_QUERYResult = Array<{
   gpa: string | null;
 }>;
 // Variable: CERTIFICATIONS_QUERY
-// Query: *[_type == "certification"] | order(issueDate desc){    _id, name, issuer, issueDate, credentialId, credentialUrl, logo  }
+// Query: *[_type == "certification"] | order(issueDate desc){    _id, name, issuer, issueDate, credentialId, credentialUrl, logo, description  }
 export type CERTIFICATIONS_QUERYResult = Array<{
   _id: string;
   name: string | null;
@@ -948,24 +932,27 @@ export type CERTIFICATIONS_QUERYResult = Array<{
     crop?: SanityImageCrop;
     _type: "image";
   } | null;
+  description: string | null;
 }>;
 // Variable: ACHIEVEMENTS_QUERY
-// Query: *[_type == "achievement"] | order(date desc){    _id, title, description, date, type, featured  }
+// Query: *[_type == "achievement"] | order(featured desc, order asc, date desc){    _id, title, description, date, type, featured, url  }
 export type ACHIEVEMENTS_QUERYResult = Array<{
   _id: string;
   title: string | null;
   description: string | null;
   date: string | null;
-  type: "award" | "hackathon" | "milestone" | "open-source" | "other" | "publication" | "recognition" | "speaking" | null;
+  type: "award" | "entrepreneurship" | "experience" | "hackathon" | "leadership" | "milestone" | "open-source" | "other" | "publication" | "recognition" | "speaking" | "sports" | null;
   featured: boolean | null;
+  url: string | null;
 }>;
 // Variable: BLOG_QUERY
-// Query: *[_type == "blog"] | order(publishedAt desc)[0...6]{    _id, title, slug, excerpt, publishedAt, readTime, category, featuredImage  }
+// Query: *[_type == "blog"] | order(publishedAt desc)[0...6]{    _id, title, slug, excerpt, externalUrl, publishedAt, readTime, category, featuredImage  }
 export type BLOG_QUERYResult = Array<{
   _id: string;
   title: string | null;
   slug: Slug | null;
   excerpt: string | null;
+  externalUrl: string | null;
   publishedAt: string | null;
   readTime: number | null;
   category: string | null;
@@ -982,25 +969,139 @@ export type BLOG_QUERYResult = Array<{
     _type: "image";
   } | null;
 }>;
+// Variable: PROJECT_BY_SLUG_QUERY
+// Query: *[_type == "project" && slug.current == $slug][0]{    _id, title, "slug": slug.current, tagline,    "technologies": technologies[]->{ name },    liveUrl, githubUrl, description  }
+export type PROJECT_BY_SLUG_QUERYResult = {
+  _id: string;
+  title: string | null;
+  slug: string | null;
+  tagline: string | null;
+  technologies: Array<{
+    name: string | null;
+  }> | null;
+  liveUrl: string | null;
+  githubUrl: string | null;
+  description: null;
+} | null;
+// Variable: EXPERIENCE_BY_ID_QUERY
+// Query: *[_type == "experience" && _id == $id][0]{    _id, company, position, employmentType, location,    startDate, endDate, current, description,    responsibilities, "technologies": technologies[]->{ name }  }
+export type EXPERIENCE_BY_ID_QUERYResult = {
+  _id: string;
+  company: string | null;
+  position: string | null;
+  employmentType: "contract" | "freelance" | "full-time" | "internship" | "part-time" | null;
+  location: string | null;
+  startDate: string | null;
+  endDate: string | null;
+  current: null;
+  description: Array<{
+    children?: Array<{
+      marks?: Array<string>;
+      text?: string;
+      _type: "span";
+      _key: string;
+    }>;
+    style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+    listItem?: "bullet" | "number";
+    markDefs?: Array<{
+      href?: string;
+      _type: "link";
+      _key: string;
+    }>;
+    level?: number;
+    _type: "block";
+    _key: string;
+  }> | null;
+  responsibilities: Array<string> | null;
+  technologies: Array<{
+    name: string | null;
+  }> | null;
+} | null;
+// Variable: CHAT_CATALOG_QUERY
+// Query: {  "projects": *[_type == "project"] | order(order asc, title asc){    _id, title, "slug": slug.current, tagline  },  "experience": *[_type == "experience"] | order(order asc, startDate desc){    _id, company, position,    "current": select(current == true => true, tenure == "current" => true, false),    description  },  "skills": *[_type == "skill"] | order(category asc, name asc){    _id, name, category, proficiency  },  "education": *[_type == "education"] | order(startDate desc){    _id, institution, degree, fieldOfStudy, startDate, endDate  },  "certifications": *[_type == "certification"] | order(issueDate desc){    _id, name, issuer, issueDate  },  "achievements": *[_type == "achievement"] | order(featured desc, order asc){    _id, title, description, date, type, featured  }}
+export type CHAT_CATALOG_QUERYResult = {
+  projects: Array<{
+    _id: string;
+    title: string | null;
+    slug: string | null;
+    tagline: string | null;
+  }>;
+  experience: Array<{
+    _id: string;
+    company: string | null;
+    position: string | null;
+    current: false | true;
+    description: Array<{
+      children?: Array<{
+        marks?: Array<string>;
+        text?: string;
+        _type: "span";
+        _key: string;
+      }>;
+      style?: "blockquote" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "normal";
+      listItem?: "bullet" | "number";
+      markDefs?: Array<{
+        href?: string;
+        _type: "link";
+        _key: string;
+      }>;
+      level?: number;
+      _type: "block";
+      _key: string;
+    }> | null;
+  }>;
+  skills: Array<{
+    _id: string;
+    name: string | null;
+    category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    proficiency: "advanced" | "beginner" | "expert" | "intermediate" | null;
+  }>;
+  education: Array<{
+    _id: string;
+    institution: string | null;
+    degree: string | null;
+    fieldOfStudy: string | null;
+    startDate: string | null;
+    endDate: string | null;
+  }>;
+  certifications: Array<{
+    _id: string;
+    name: string | null;
+    issuer: string | null;
+    issueDate: string | null;
+  }>;
+  achievements: Array<{
+    _id: string;
+    title: string | null;
+    description: string | null;
+    date: string | null;
+    type: "award" | "entrepreneurship" | "experience" | "hackathon" | "leadership" | "milestone" | "open-source" | "other" | "publication" | "recognition" | "speaking" | "sports" | null;
+    featured: boolean | null;
+  }>;
+};
 
 // Query TypeMap
 import "@sanity/client";
 declare module "@sanity/client" {
   interface SanityQueries {
     "\n  coalesce(\n    *[_type == \"profile\" && _id == \"singleton-profile\"][0],\n    *[_type == \"profile\"][0]\n  ){\n    firstName,\n    lastName,\n    fullBio,\n    yearsOfExperience,\n    stats,\n    email,\n    phone,\n    location\n  }\n": ABOUT_QUERYResult;
-    "\n  *[_type == \"achievement\"] | order(featured desc, date desc){\n    _id, title, description, date, type, featured, url\n  }\n": ACHIEVEMENTS_SECTION_QUERYResult;
-    "\n  *[_type == \"blog\"] | order(publishedAt desc)[0...6]{\n    _id, title, slug, excerpt, publishedAt, readTime, category\n  }\n": BLOG_SECTION_QUERYResult;
-    "\n  *[_type == \"certification\"] | order(issueDate desc){\n    _id, name, issuer, issueDate, credentialId, credentialUrl, logo,\n    skills[]->{ _id, name, category }\n  }\n": CERTS_SECTION_QUERYResult;
+    "\n  *[_type == \"achievement\"] | order(featured desc, date desc){\n    _id, title, description, date, type, issuer, featured, url\n  }\n": ACHIEVEMENTS_SECTION_QUERYResult;
+    "\n  *[_type == \"blog\"] | order(publishedAt desc)[0...6]{\n    _id, title, slug, excerpt, externalUrl, publishedAt, readTime, category\n  }\n": BLOG_SECTION_QUERYResult;
+    "\n  *[_type == \"certification\"] | order(issueDate desc){\n    _id, name, issuer, issueDate, expiryDate, credentialId, credentialUrl, logo, description,\n    skills[]->{ _id, name, category }\n  }\n": CERTS_SECTION_QUERYResult;
     "\n  coalesce(\n    *[_type == \"profile\" && _id == \"singleton-profile\"][0],\n    *[_type == \"profile\"][0]\n  ){\n    email,\n    location,\n    socialLinks{\n      github,\n      linkedin,\n      twitter,\n      website\n    }\n  }\n": CONTACT_QUERYResult;
-    "\n  *[_type == \"education\"] | order(startDate desc){\n    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa\n  }\n": EDUCATION_SECTION_QUERYResult | EDUCATION_QUERYResult;
+    "\n  *[_type == \"education\"] | order(startDate desc){\n    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa, logo\n  }\n": EDUCATION_SECTION_QUERYResult;
     "\ncoalesce(\n  *[_type == \"profile\" && _id == \"singleton-profile\"][0],\n  *[_type == \"profile\"][0]\n){\n  _id,\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  profileImage,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks{\n    github,\n    linkedin,\n    twitter,\n    website,\n    medium,\n    devto,\n    youtube,\n    stackoverflow\n  },\n  yearsOfExperience,\n  stats[]{\n    label,\n    value\n  }\n}\n": PROFILE_QUERYResult;
     "\ncoalesce(\n  *[_type == \"siteSettings\" && _id == \"singleton-site-settings\"][0],\n  *[_type == \"siteSettings\" && _id == \"singleton-siteSettings\"][0],\n  *[_type == \"siteSettings\"][0]\n){\n  _id,\n  siteTitle,\n  siteDescription,\n  siteLogo,\n  showBlog,\n  _createdAt,\n  _updatedAt\n}\n": SITE_SETTINGS_QUERYResult;
     "\n*[_type == \"navigation\"] | order(order asc){\n  _id,\n  title,\n  href,\n  icon,\n  \"isExternal\": select(\n    isExternal == true => true,\n    linkType == \"external\" => true,\n    false\n  ),\n  order\n}\n": NAVIGATION_QUERYResult;
     "\n*[_type == \"project\"] | order(order asc, title asc){\n  _id,\n  title,\n  slug{ current },\n  tagline,\n  coverImage,\n  technologies[]->{\n    _id,\n    name,\n    category,\n    proficiency,\n    percentage,\n    yearsOfExperience,\n    tone\n  },\n  category,\n  liveUrl,\n  githubUrl,\n  \"featured\": select(\n    featured == true => true,\n    visibility == \"featured\" => true,\n    false\n  ),\n  \"visibility\": select(\n    defined(visibility) => visibility,\n    featured == true => \"featured\",\n    \"standard\"\n  ),\n  order\n}\n": PROJECTS_QUERYResult;
     "\n*[_type == \"skill\"] | order(category asc, name asc){\n  _id,\n  name,\n  category,\n  proficiency,\n  percentage,\n  yearsOfExperience,\n  \"tone\": coalesce(tone, \"neutral\")\n}\n": SKILLS_QUERYResult;
     "\n*[_type == \"experience\"] | order(order asc, startDate desc){\n  _id,\n  company,\n  position,\n  employmentType,\n  location,\n  startDate,\n  endDate,\n  \"current\": select(\n    current == true => true,\n    tenure == \"current\" => true,\n    false\n  ),\n  \"tenure\": select(\n    defined(tenure) => tenure,\n    current == true => \"current\",\n    \"past\"\n  ),\n  description,\n  responsibilities[],\n  achievements[],\n  technologies[]->{\n    _id,\n    name,\n    category,\n    proficiency,\n    percentage,\n    yearsOfExperience,\n    tone\n  },\n  companyLogo,\n  companyWebsite,\n  order\n}\n": EXPERIENCE_QUERYResult;
-    "\n  *[_type == \"certification\"] | order(issueDate desc){\n    _id, name, issuer, issueDate, credentialId, credentialUrl, logo\n  }\n": CERTIFICATIONS_QUERYResult;
-    "\n  *[_type == \"achievement\"] | order(date desc){\n    _id, title, description, date, type, featured\n  }\n": ACHIEVEMENTS_QUERYResult;
-    "\n  *[_type == \"blog\"] | order(publishedAt desc)[0...6]{\n    _id, title, slug, excerpt, publishedAt, readTime, category, featuredImage\n  }\n": BLOG_QUERYResult;
+    "\n  *[_type == \"education\"] | order(startDate desc){\n    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa\n  }\n": EDUCATION_QUERYResult;
+    "\n  *[_type == \"certification\"] | order(issueDate desc){\n    _id, name, issuer, issueDate, credentialId, credentialUrl, logo, description\n  }\n": CERTIFICATIONS_QUERYResult;
+    "\n  *[_type == \"achievement\"] | order(featured desc, order asc, date desc){\n    _id, title, description, date, type, featured, url\n  }\n": ACHIEVEMENTS_QUERYResult;
+    "\n  *[_type == \"blog\"] | order(publishedAt desc)[0...6]{\n    _id, title, slug, excerpt, externalUrl, publishedAt, readTime, category, featuredImage\n  }\n": BLOG_QUERYResult;
+    "\n  *[_type == \"project\" && slug.current == $slug][0]{\n    _id, title, \"slug\": slug.current, tagline,\n    \"technologies\": technologies[]->{ name },\n    liveUrl, githubUrl, description\n  }\n": PROJECT_BY_SLUG_QUERYResult;
+    "\n  *[_type == \"experience\" && _id == $id][0]{\n    _id, company, position, employmentType, location,\n    startDate, endDate, current, description,\n    responsibilities, \"technologies\": technologies[]->{ name }\n  }\n": EXPERIENCE_BY_ID_QUERYResult;
+    "{\n  \"projects\": *[_type == \"project\"] | order(order asc, title asc){\n    _id, title, \"slug\": slug.current, tagline\n  },\n  \"experience\": *[_type == \"experience\"] | order(order asc, startDate desc){\n    _id, company, position,\n    \"current\": select(current == true => true, tenure == \"current\" => true, false),\n    description\n  },\n  \"skills\": *[_type == \"skill\"] | order(category asc, name asc){\n    _id, name, category, proficiency\n  },\n  \"education\": *[_type == \"education\"] | order(startDate desc){\n    _id, institution, degree, fieldOfStudy, startDate, endDate\n  },\n  \"certifications\": *[_type == \"certification\"] | order(issueDate desc){\n    _id, name, issuer, issueDate\n  },\n  \"achievements\": *[_type == \"achievement\"] | order(featured desc, order asc){\n    _id, title, description, date, type, featured\n  }\n}": CHAT_CATALOG_QUERYResult;
   }
 }

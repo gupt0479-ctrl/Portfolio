@@ -1,0 +1,25 @@
+description: "Orby chatbot eval suite"
+
+commandLineOptions:
+  maxConcurrency: 2
+
+providers:
+  - id: google:gemini-2.5-flash
+    label: neutral
+    config:
+      systemInstruction: "file://fixtures/system-prompt.txt"
+
+prompts:
+  - "{{message}}"
+
+tests:
+  - file://grounding.yaml
+  - file://refusal.yaml
+  - file://injection.yaml
+  - file://fail-safe.yaml
+  - file://tool-correctness.yaml
+  - file://persona-warmth.yaml
+  - file://personas/recruiter-warmth.yaml
+  - file://personas/friend-warmth.yaml
+  - file://personas/weirdo-warmth.yaml
+  - file://personas/ceo-warmth.yaml

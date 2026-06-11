@@ -1,7 +1,7 @@
 "use client";
 
+import { ChatTokenInit } from "@/components/ChatTokenInit";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +11,8 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <SidebarProvider defaultOpen={false}>{children}</SidebarProvider>
+      <ChatTokenInit />
+      {children}
     </ThemeProvider>
   );
 }

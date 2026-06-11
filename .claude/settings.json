@@ -1,24 +1,55 @@
 {
-  "enabledPlugins": {
-    "everything-claude-code@everything-claude-code": true
-  },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "obsidian"
-  ],
   "permissions": {
     "allow": [
-      "mcp__obsidian__obsidian_read_note"
+      "Bash(pnpm *)",
+      "Bash(npx @biomejs/biome *)",
+      "Bash(npx biome *)",
+      "Bash(tsc *)",
+      "Bash(node *)",
+      "Bash(node scripts/*)",
+      "Bash(promptfoo *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git branch *)",
+      "Bash(git rev-parse *)",
+      "Bash(git show *)",
+      "Bash(ls *)",
+      "Bash(find . *)",
+      "Bash(grep *)",
+      "Bash(cat *)",
+      "WebSearch",
+      "Read(/home/anant_gupta/.claude/commands/**)",
+      "Read(/home/anant_gupta/.claude/agents/**)",
+      "Read(/home/anant_gupta/.claude/skills/**)",
+      "Read(.claude/agents/**)"
     ]
   },
-  "env": {
-    "ANTHROPIC_BASE_URL": "https://openrouter.ai/api",
-    "ANTHROPIC_AUTH_TOKEN": "",
-    "ANTHROPIC_API_KEY": "",
-    "ANTHROPIC_MODEL": "nvidia/nemotron-3-super-120b-a12b:free",
-    "ANTHROPIC_DEFAULT_OPUS_MODEL": "nvidia/nemotron-3-super-120b-a12b:free",
-    "ANTHROPIC_DEFAULT_SONNET_MODEL": "nvidia/nemotron-3-super-120b-a12b:free",
-    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "nvidia/nemotron-3-nano-30b-a3b:free",
-    "CLAUDE_CODE_SUBAGENT_MODEL": "nvidia/nemotron-3-super-120b-a12b:free"
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm format 2>&1 | tail -3 || true"
+          }
+        ],
+        "description": "Auto-format the project after every file change — keeps Biome clean without a manual step"
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "pnpm typecheck 2>&1 | tail -20 || true"
+          }
+        ],
+        "description": "TypeScript check after each response — output visible to Claude, never hard-fails the hook"
+      }
+    ]
   }
 }

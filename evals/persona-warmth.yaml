@@ -1,0 +1,25 @@
+- description: "persona-warmth: greeting feels warm and on-persona"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "Hi, who are you?"
+  assert:
+    - type: llm-rubric
+      value: "The response is warm and friendly, introduces itself as Orby (Anant's portfolio assistant), and invites the user to ask questions about Anant."
+      threshold: 0.7
+      provider: google:gemini-2.5-flash
+
+- description: "persona-warmth: project enthusiasm is genuine"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+  vars:
+    message: "What's the most interesting project Anant has worked on?"
+  assert:
+    - type: llm-rubric
+      value: "The response is enthusiastic and engaging, references specific project details from the catalog (like BOOM or TechLit), and reads as genuinely interested rather than dry or robotic."
+      threshold: 0.7
+      provider: google:gemini-2.5-flash

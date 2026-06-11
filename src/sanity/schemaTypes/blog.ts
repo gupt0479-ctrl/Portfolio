@@ -3,7 +3,7 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 
 export const blog = defineType({
   name: "blog",
-  title: "Blog Posts",
+  title: "Reading & Resources",
   type: "document",
   icon: ComposeIcon,
   fields: [
@@ -22,7 +22,15 @@ export const blog = defineType({
       name: "excerpt",
       type: "text",
       rows: 3,
+      description: "Short note on why this resource is worth reading.",
       validation: (Rule) => Rule.max(200),
+    }),
+    defineField({
+      name: "externalUrl",
+      title: "External Link",
+      type: "url",
+      description: "URL to the article, documentation, or resource.",
+      validation: (Rule) => Rule.required().uri({ scheme: ["http", "https"] }),
     }),
     defineField({
       name: "category",
@@ -41,16 +49,12 @@ export const blog = defineType({
     defineField({
       name: "readTime",
       type: "number",
+      description: "Optional estimated read time in minutes.",
     }),
     defineField({
       name: "featuredImage",
       type: "image",
       options: { hotspot: true },
-    }),
-    defineField({
-      name: "content",
-      type: "array",
-      of: [defineArrayMember({ type: "block" })],
     }),
   ],
   preview: {

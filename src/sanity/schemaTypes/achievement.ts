@@ -18,6 +18,10 @@ export const achievement = defineType({
       options: {
         list: [
           { title: "Award", value: "award" },
+          { title: "Experience", value: "experience" },
+          { title: "Leadership", value: "leadership" },
+          { title: "Entrepreneurship", value: "entrepreneurship" },
+          { title: "Sports", value: "sports" },
           { title: "Hackathon Win", value: "hackathon" },
           { title: "Publication", value: "publication" },
           { title: "Speaking", value: "speaking" },

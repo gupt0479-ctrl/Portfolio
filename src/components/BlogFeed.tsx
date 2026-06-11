@@ -109,6 +109,11 @@ export function BlogFeed({ posts }: { posts: Blog[] }) {
                 <span />
               )}
             </div>
+            {post.externalUrl ? (
+              <div className="mt-3 flex justify-end">
+                <MagneticButton href={post.externalUrl}>Visit →</MagneticButton>
+              </div>
+            ) : null}
           </article>
         ))}
       </div>

@@ -8,7 +8,7 @@ import type { Certification } from "@/sanity/types";
 // Include skills reference so we can render optional skill tags
 const CERTS_SECTION_QUERY = defineQuery(`
   *[_type == "certification"] | order(issueDate desc){
-    _id, name, issuer, issueDate, credentialId, credentialUrl, logo,
+    _id, name, issuer, issueDate, expiryDate, credentialId, credentialUrl, logo, description,
     skills[]->{ _id, name, category }
   }
 `);
@@ -62,6 +62,12 @@ export async function CertificationsSection() {
                 {cert.name}
               </h3>
 
+              {cert.credentialId && (
+                <p className="text-[11px] text-white/35 mt-1 font-mono break-all">
+                  ID: {cert.credentialId}
+                </p>
+              )}
+
               {/* Issuer */}
               <p className="text-white/55 text-sm mt-1 font-sans">
                 {cert.issuer}
@@ -76,6 +82,22 @@ export async function CertificationsSection() {
                   })}
                 </p>
               )}
+
+              {cert.expiryDate && (
+                <p className="text-xs text-white/35 mt-0.5 font-mono">
+                  Expires{" "}
+                  {new Date(cert.expiryDate).toLocaleDateString("en-US", {
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </p>
+              )}
+
+              {cert.description ? (
+                <p className="mt-2 text-sm text-white/45 font-sans leading-relaxed line-clamp-3">
+                  {cert.description}
+                </p>
+              ) : null}
 
               {/* Optional skill tags */}
               {cert.skills && cert.skills.length > 0 && (

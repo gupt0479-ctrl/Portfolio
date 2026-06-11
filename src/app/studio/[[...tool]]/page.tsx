@@ -9,14 +9,15 @@
 import { auth } from "@clerk/nextjs/server";
 
 export const dynamic = "force-dynamic";
-export { metadata, viewport } from "next-sanity/studio";
 
 import StudioClient from "./StudioClient";
 
 export default async function StudioPage() {
   const { userId, redirectToSignIn } = await auth();
 
-  if (!userId) return redirectToSignIn();
+  if (!userId) {
+    return redirectToSignIn({ returnBackUrl: "/studio" });
+  }
 
   return <StudioClient />;
 }

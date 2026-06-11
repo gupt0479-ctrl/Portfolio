@@ -1,6 +1,52 @@
 # AGENTS.md
 
-This is the canonical Codex project brief for this repository. Read it before making changes.
+Canonical project brief — read by Claude Code, Cursor, and Codex before making changes. For visual identity rules and component contracts see `CLAUDE.md`. For deep technical detail see `.claude/CLAUDE.md`.
+
+---
+
+## Claude Code — ECC Workflow
+
+The `everything-claude-code` plugin is active. Use these commands:
+
+| Situation | Command |
+|-----------|---------|
+| Planning a feature | `/plan` |
+| After writing code | `/code-review` |
+| Build/type errors | `/build-fix` |
+| Before deploying | `/deploy` |
+| UI flows / E2E | `/e2e` |
+| Session start | `/resume-session` |
+| Session end | `/save-session` |
+| Docs lookup | `/docs <library>` |
+| Security audit | `/review` |
+| Performance | `/performance` |
+
+### Agent Delegation (Claude Code)
+
+Project agents live in `.claude/agents/`:
+
+| Task | Agent |
+|------|-------|
+| Three.js / R3F / animations / space background | `three-artist` |
+| Next.js components / routing / server-client boundary | `frontend-builder` |
+| Pre-deploy security review | `security-reviewer` |
+| Vitest tests / TDD | `test-runner` |
+| GROQ query review / localContent.ts fallback | `sanity-schema` |
+| Deep TypeScript / type errors | ECC `typescript-reviewer` |
+| Build failures | ECC `build-error-resolver` |
+| Performance / Core Web Vitals | ECC `vercel:performance-optimizer` |
+| Architecture decisions | ECC `architect` |
+
+### Hard Rules (Claude Code sessions)
+
+- Never `as any` or `@ts-ignore` — fix the type
+- Never manually edit `src/sanity/types/index.ts` — run `pnpm typegen`
+- Never `console.log` in production code
+- Never chatbot / AI Twin / ChatKit UI — removed and must stay removed
+- pnpm only — never npm or yarn
+- Biome only — never ESLint or Prettier
+
+---
 
 ## Product Context
 
@@ -14,7 +60,7 @@ The current visual direction is a dark cosmic command-center portfolio:
 - Floating buttons, cosmic cards, section kickers, orbit chips, and readable dark section backdrops.
 - No visible "AI Twin", "Chat with Anant", ChatKit branding, or chatbot framing.
 
-`ORBY.md` contains a future scroll companion concept. It is not implemented yet. Treat it as a product spec, not current code.
+`docs/ORBY.md` contains the Orby scroll-companion spec. It is not fully implemented yet. Treat it as a product spec, not current code.
 
 ## Stack
 
@@ -229,7 +275,7 @@ These tests encode product/design requirements, not just implementation details.
 - `README.md` is still the default Next.js starter README and does not describe the real project.
 - Root `.mcp.json` is intentionally deleted from the working tree and ignored; use `.mcp.example.json` as the template.
 - A previous zero-byte `.codex` placeholder was removed; use tracked `codex/` for project setup assets.
-- `ORBY.md` is a planned feature spec and may be the next major UI addition.
+- `docs/ORBY.md` is the Orby feature spec and is the next major UI addition (Phase 7).
 - `BlogFeed.tsx` contains a TODO for an archive toggle that needs a Sanity schema change.
 
 ## Before Handing Off

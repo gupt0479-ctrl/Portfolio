@@ -2,8 +2,10 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useIridescentEffect } from "@/hooks/useIridescentEffect";
+import { urlFor } from "@/sanity/lib/image";
 import type { PROJECTS_QUERYResult } from "@/sanity/types";
 
 type Project = PROJECTS_QUERYResult[number];
@@ -80,6 +82,17 @@ function ProjectCard({ project, isCenter }: ProjectCardProps) {
       onMouseEnter={() => isCenter && setHovered(true)}
       onMouseLeave={() => isCenter && setHovered(false)}
     >
+      {project.coverImage && (
+        <div className="relative h-40 w-full overflow-hidden rounded-t-xl border-b border-white/[0.06]">
+          <Image
+            src={urlFor(project.coverImage).width(600).height(280).url()}
+            alt={title}
+            fill
+            sizes="(max-width: 768px) 100vw, 600px"
+            className="object-cover"
+          />
+        </div>
+      )}
       <div className="p-5">
         <h3 className="font-display text-lg font-semibold text-white leading-snug">
           {title}

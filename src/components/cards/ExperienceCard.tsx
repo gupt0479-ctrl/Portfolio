@@ -1,10 +1,20 @@
 "use client";
 
-import { MapPin } from "lucide-react";
+import { ExternalLink, MapPin } from "lucide-react";
+import Image from "next/image";
 import { CometCard } from "@/components/ui/comet-card";
+import { urlFor } from "@/sanity/lib/image";
 import type { EXPERIENCE_QUERYResult } from "@/sanity/types";
 
 type Experience = EXPERIENCE_QUERYResult[0];
+
+const EMPLOYMENT_LABELS: Record<string, string> = {
+  "full-time": "Full-time",
+  "part-time": "Part-time",
+  contract: "Contract",
+  freelance: "Freelance",
+  internship: "Internship",
+};
 
 const CATEGORY_COLORS: Record<string, string> = {
   frontend: "rgba(143, 124, 247, 0.7)",
@@ -31,6 +41,10 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
     .filter((r): r is string => typeof r === "string" && r.trim().length > 0)
     .slice(0, 3);
 
+  const achievements = (experience.achievements ?? [])
+    .filter((a): a is string => typeof a === "string" && a.trim().length > 0)
+    .slice(0, 2);
+
   return (
     <div
       className="group"
@@ -52,19 +66,60 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
           </div>
           <div className="relative z-10">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-              <div className="flex-1">
-                <h3 className="text-lg font-display font-semibold text-white">
-                  {experience.position}
-                </h3>
-                <p className="text-white/70 mt-1 font-sans">
-                  {experience.company}
-                </p>
-                {experience.location && (
-                  <p className="text-sm text-white/50 mt-1.5 font-sans flex items-center gap-1.5">
-                    <MapPin className="size-[13px] shrink-0 text-white/35" />
-                    {experience.location}
-                  </p>
+              <div className="flex flex-1 items-start gap-3">
+                {experience.companyLogo && (
+                  <Image
+                    src={urlFor(experience.companyLogo)
+                      .width(80)
+                      .height(80)
+                      .url()}
+                    alt={
+                      experience.company
+                        ? `${experience.company} logo`
+                        : "Company logo"
+                    }
+                    width={40}
+                    height={40}
+                    className="size-10 shrink-0 rounded-lg object-contain bg-white/[0.04] border border-white/10 p-1"
+                  />
                 )}
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="text-lg font-display font-semibold text-white">
+                      {experience.position}
+                    </h3>
+                    {experience.employmentType && (
+                      <span className="orbit-chip">
+                        {EMPLOYMENT_LABELS[experience.employmentType] ??
+                          experience.employmentType}
+                      </span>
+                    )}
+                  </div>
+                  {experience.companyWebsite ? (
+                    <a
+                      href={experience.companyWebsite}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white/70 mt-1 font-sans inline-flex items-center gap-1.5 hover:text-white transition-colors"
+                    >
+                      {experience.company}
+                      <ExternalLink
+                        className="size-3.5 text-white/35"
+                        aria-hidden
+                      />
+                    </a>
+                  ) : (
+                    <p className="text-white/70 mt-1 font-sans">
+                      {experience.company}
+                    </p>
+                  )}
+                  {experience.location && (
+                    <p className="text-sm text-white/50 mt-1.5 font-sans flex items-center gap-1.5">
+                      <MapPin className="size-[13px] shrink-0 text-white/35" />
+                      {experience.location}
+                    </p>
+                  )}
+                </div>
               </div>
               <div className="text-sm text-white/50 whitespace-nowrap font-sans shrink-0">
                 {experience.startDate}{" "}
@@ -82,6 +137,17 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
                   <li key={r} className="flex gap-3">
                     <span className="text-white/35 shrink-0 font-sans">→</span>
                     <span className="font-sans leading-relaxed">{r}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {achievements.length > 0 && (
+              <ul className="mt-3 space-y-1.5 text-sm">
+                {achievements.map((a) => (
+                  <li key={a} className="flex gap-2 text-emerald-300/85">
+                    <span className="shrink-0 text-emerald-400/60">★</span>
+                    <span className="font-sans leading-relaxed">{a}</span>
                   </li>
                 ))}
               </ul>

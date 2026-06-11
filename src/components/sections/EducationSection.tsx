@@ -5,7 +5,7 @@ import type { Education } from "@/sanity/types";
 
 const EDUCATION_SECTION_QUERY = defineQuery(`
   *[_type == "education"] | order(startDate desc){
-    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa
+    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa, logo
   }
 `);
 

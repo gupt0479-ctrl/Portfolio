@@ -1,39 +1,31 @@
 "use client";
+
 import { X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
-import type { LabMode, LabResponse } from "@/lib/lab-data";
-import { LAB_CHIPS, LAB_RESPONSES } from "@/lib/lab-data";
-import { EvidenceCard } from "./EvidenceCard";
-import { ProofPack } from "./ProofPack";
+import { ChatInputBar } from "./ChatInputBar";
+import type { ChatMessage, ToolResult } from "./ChatThread";
+import { ChatThread } from "./ChatThread";
+import { PanelOrby } from "./PanelOrby";
+import type { Persona } from "./PersonaSelector";
+import { PersonaSelector } from "./PersonaSelector";
+import { PowerPromptBlock } from "./PowerPromptBlock";
+import { SuggestedChips } from "./SuggestedChips";
 
-const MODES: LabMode[] = ["Recruiter", "Builder", "Research", "Skeptic"];
+type PanelOrbyState = "idle" | "thinking" | "responding";
 
-const MODE_DESCRIPTIONS: Record<LabMode, string> = {
-  Recruiter: "Hiring signal",
-  Builder: "Technical depth",
-  Research: "Academic lens",
-  Skeptic: "Show me proof",
-};
+function generateId(): string {
+  return typeof crypto !== "undefined" && crypto.randomUUID
+    ? crypto.randomUUID()
+    : Date.now().toString(36);
+}
 
 export function PortfolioLab() {
-  const [activeMode, setActiveMode] = useState<LabMode>("Recruiter");
-  const [activeResponse, setActiveResponse] = useState<LabResponse | null>(
-    null,
-  );
   const { toggleSidebar } = useSidebar();
-
-  const chips = LAB_CHIPS[activeMode];
-
-  const handleChipClick = (responseKey: string) => {
-    const response = LAB_RESPONSES[responseKey];
-    if (response) setActiveResponse(response);
-  };
-
-  const handleModeChange = (mode: LabMode) => {
-    setActiveMode(mode);
-    setActiveResponse(null);
-  };
+  const [persona, setPersona] = useState<Persona>("friend");
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [panelOrbyState, setPanelOrbyState] = useState<PanelOrbyState>("idle");
+  const abortRef = useRef<AbortController | null>(null);
 
   // Escape key closes the lab panel
   useEffect(() => {
@@ -43,6 +35,164 @@ export function PortfolioLab() {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [toggleSidebar]);
+
+  // Abort any in-flight request on unmount
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
+
+  const handleSubmit = useCallback(
+    async (text: string) => {
+      if (!text.trim()) return;
+
+      // Abort any ongoing request
+      abortRef.current?.abort();
+
+      // Add user message
+      const userMessage: ChatMessage = {
+        id: generateId(),
+        role: "user",
+        text,
+        timestamp: Date.now(),
+      };
+
+      // Add empty assistant placeholder
+      const assistantId = generateId();
+      const assistantPlaceholder: ChatMessage = {
+        id: assistantId,
+        role: "assistant",
+        text: "",
+        timestamp: Date.now(),
+      };
+
+      setMessages((prev) => [...prev, userMessage, assistantPlaceholder]);
+      setPanelOrbyState("thinking");
+
+      // Build conversation history for the API (text only — strip toolResults)
+      const conversationHistory = messages.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.text,
+      }));
+
+      const ctrl = new AbortController();
+      abortRef.current = ctrl;
+
+      try {
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            messages: [...conversationHistory, { role: "user", content: text }],
+            persona,
+          }),
+          signal: ctrl.signal,
+        });
+
+        if (!res.ok) {
+          setPanelOrbyState("idle");
+          setMessages((prev) => {
+            const updated = [...prev];
+            const lastIdx = updated.length - 1;
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              text: "Couldn't reach Orby — try again?",
+            };
+            return updated;
+          });
+          return;
+        }
+
+        setPanelOrbyState("responding");
+
+        if (!res.body) {
+          setPanelOrbyState("idle");
+          return;
+        }
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let assistantText = "";
+        const toolResults: ToolResult[] = [];
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          // Process complete lines
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            if (line.startsWith("0:")) {
+              try {
+                assistantText += JSON.parse(line.slice(2));
+              } catch {
+                // ignore malformed text fragment
+              }
+            } else if (line.startsWith("a:")) {
+              try {
+                const parsed = JSON.parse(line.slice(2)) as {
+                  toolCallId: string;
+                  toolName: string;
+                  result: Record<string, unknown>;
+                };
+                toolResults.push({
+                  toolName: parsed.toolName,
+                  result: parsed.result,
+                });
+                // navigate side-effect
+                if (
+                  parsed.toolName === "navigate" &&
+                  parsed.result?.ok === true &&
+                  typeof parsed.result.sectionId === "string"
+                ) {
+                  const el = document.getElementById(parsed.result.sectionId);
+                  el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                }
+              } catch {
+                // ignore malformed tool result
+              }
+            }
+            // d: (finish) and e: (error) handled implicitly — stream ends naturally
+          }
+
+          setMessages((prev) => {
+            const updated = [...prev];
+            const lastIdx = updated.length - 1;
+            updated[lastIdx] = {
+              ...updated[lastIdx],
+              text: assistantText,
+              toolResults: [...toolResults],
+            };
+            return updated;
+          });
+        }
+
+        setPanelOrbyState("idle");
+      } catch (err) {
+        if (err instanceof Error && err.name === "AbortError") return;
+        setPanelOrbyState("idle");
+        setMessages((prev) => {
+          const updated = [...prev];
+          const lastIdx = updated.length - 1;
+          updated[lastIdx] = {
+            ...updated[lastIdx],
+            text: "Couldn't reach Orby — try again?",
+          };
+          return updated;
+        });
+      }
+    },
+    [messages, persona],
+  );
+
+  const currentAssistantText =
+    messages.length > 0 && messages[messages.length - 1].role === "assistant"
+      ? messages[messages.length - 1].text
+      : "";
 
   return (
     <div className="flex flex-col h-full">
@@ -64,83 +214,27 @@ export function PortfolioLab() {
         </button>
       </div>
 
-      {/* Mode selector */}
-      <div className="px-4 py-3 border-b border-white/[0.06]">
-        <div className="grid grid-cols-2 gap-1.5">
-          {MODES.map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              onClick={() => handleModeChange(mode)}
-              className={[
-                "float-btn rounded-lg px-3 py-2 text-left transition-colors",
-                activeMode === mode
-                  ? "bg-violet-500/20 border border-violet-500/40 text-white"
-                  : "border border-white/10 text-white/50 hover:text-white/75 hover:border-white/20",
-              ].join(" ")}
-            >
-              <p className="text-xs font-medium">{mode}</p>
-              <p className="text-[10px] text-white/35 mt-0.5">
-                {MODE_DESCRIPTIONS[mode]}
-              </p>
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Persona selector */}
+      <PersonaSelector active={persona} onChange={setPersona} />
 
-      {/* Chips */}
-      <div className="px-4 py-3 border-b border-white/[0.06]">
-        <p className="text-[10px] text-white/30 font-mono mb-2">{"// ask"}</p>
-        <div className="flex flex-col gap-1.5">
-          {chips.map((chip) => (
-            <button
-              key={chip.id}
-              type="button"
-              onClick={() => handleChipClick(chip.responseKey)}
-              className="float-btn text-left rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-white/60 hover:text-white/85 hover:border-white/20 transition-colors font-sans"
-            >
-              {chip.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Suggested chips */}
+      <SuggestedChips persona={persona} onSend={handleSubmit} />
 
-      {/* Response area */}
-      <div className="flex-1 overflow-y-auto px-4 py-3">
-        {activeResponse ? (
-          <div className="space-y-3">
-            <div>
-              <h3 className="text-sm font-display font-semibold text-white">
-                {activeResponse.heading}
-              </h3>
-              <p className="mt-1 text-xs text-white/55 font-sans leading-relaxed">
-                {activeResponse.summary}
-              </p>
-            </div>
-            <div className="space-y-2">
-              {activeResponse.evidence.map((item) => (
-                <EvidenceCard
-                  key={`${item.title}-${item.sectionLink ?? item.description}`}
-                  item={item}
-                />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full text-center py-8">
-            <p className="text-xs text-white/25 font-mono">
-              {"// select a question above"}
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Proof pack (Recruiter mode only) */}
-      {activeMode === "Recruiter" && (
-        <div className="px-4 pb-4 pt-2 border-t border-white/[0.06]">
-          <ProofPack mode={activeMode} />
-        </div>
+      {/* Power prompt — only for recruiter / ceo */}
+      {(persona === "recruiter" || persona === "ceo") && (
+        <PowerPromptBlock persona={persona} />
       )}
+
+      {/* PanelOrby area — fixed at top of chat area */}
+      <PanelOrby state={panelOrbyState} responseText={currentAssistantText} />
+
+      {/* Chat thread — flex-1, overflow-y-auto */}
+      <ChatThread messages={messages} />
+
+      {/* Chat input bar — pinned at bottom */}
+      <div className="px-4 pb-4 pt-2">
+        <ChatInputBar onSubmit={handleSubmit} onPersonaDetected={setPersona} />
+      </div>
     </div>
   );
 }

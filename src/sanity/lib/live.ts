@@ -1,76 +1,50 @@
-// Querying with "sanityFetch" will keep content automatically updated
-// Before using it, import and render "<SanityLive />" in your layout, see
-// https://github.com/sanity-io/next-sanity#live-content-api for more information.
+// Querying with "sanityFetch" will keep content automatically updated.
+// Render "<SanityLive />" in the portfolio layout for live updates.
+// https://github.com/sanity-io/next-sanity#live-content-api
 import type { ClientReturn } from "@sanity/client";
 import { defineLive } from "next-sanity/live";
-import { getLocalDataForQuery } from "@/lib/localContent";
 import { client } from "./client";
 
-const live = defineLive({
-  client,
-  serverToken: process.env.SANITY_SERVER_API_TOKEN,
-  browserToken: process.env.SANITY_API_TOKEN,
-  fetchOptions: { revalidate: 0 },
-});
+const hasLiveTokens =
+  Boolean(process.env.SANITY_SERVER_API_TOKEN) &&
+  Boolean(process.env.SANITY_API_TOKEN);
 
-const { SanityLive } = live;
+const live = hasLiveTokens
+  ? defineLive({
+      client,
+      serverToken: process.env.SANITY_SERVER_API_TOKEN,
+      browserToken: process.env.SANITY_API_TOKEN,
+      fetchOptions: { revalidate: 0 },
+    })
+  : null;
 
-const preferLocalContent =
-  process.env.PORTFOLIO_CONTENT_SOURCE === "local" ||
-  (process.env.NODE_ENV === "development" &&
-    process.env.PORTFOLIO_CONTENT_SOURCE !== "sanity");
-
-function hasUsableData(data: unknown) {
-  if (Array.isArray(data)) return data.length > 0;
-  return data !== null && data !== undefined;
-}
-
-async function loadLocalQueryResult<QueryString extends string>(
-  query: QueryString,
-) {
-  const localData = await getLocalDataForQuery(query);
-  if (localData === undefined) return null;
-
-  return {
-    data: localData as ClientReturn<QueryString>,
-    sourceMap: null,
-    tags: ["local-data"],
+function createFetchFallback() {
+  return async function sanityFetch<const QueryString extends string>({
+    query,
+    params,
+  }: {
+    query: QueryString;
+    params?: Record<string, unknown>;
+  }): Promise<{
+    data: ClientReturn<QueryString>;
+    sourceMap: null;
+    tags: string[];
+  }> {
+    const data = await client.fetch(query, params ?? {});
+    return {
+      data: data as ClientReturn<QueryString>,
+      sourceMap: null,
+      tags: ["sanity-fetch"],
+    };
   };
 }
 
-export async function sanityFetch<const QueryString extends string>(
-  options: Parameters<typeof live.sanityFetch<QueryString>>[0],
-): Promise<Awaited<ReturnType<typeof live.sanityFetch<QueryString>>>> {
-  if (preferLocalContent) {
-    const localResult = await loadLocalQueryResult(options.query);
-    if (localResult) {
-      return localResult;
-    }
-  }
+export const sanityFetch = hasLiveTokens
+  ? live!.sanityFetch
+  : createFetchFallback();
 
-  try {
-    const result = await live.sanityFetch(options);
-    if (hasUsableData(result.data)) {
-      return result;
-    }
-
-    const localResult = await loadLocalQueryResult(options.query);
-    if (localResult) {
-      return {
-        ...result,
-        ...localResult,
-      };
-    }
-
-    return result;
-  } catch (error) {
-    const localResult = await loadLocalQueryResult(options.query);
-    if (localResult) {
-      return localResult;
-    }
-
-    throw error;
-  }
-}
-
-export { SanityLive };
+export const SanityLive = hasLiveTokens
+  ? live!.SanityLive
+  : function SanityLiveFallback() {
+      return null;
+    };

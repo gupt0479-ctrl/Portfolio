@@ -16,6 +16,8 @@ export const siteSettings = defineType({
       name: "siteDescription",
       type: "text",
       rows: 3,
+      description:
+        "Default meta description for SEO, link previews, and browser tab context.",
     }),
     defineField({
       name: "siteLogo",

@@ -1,0 +1,40 @@
+- description: "recruiter-warmth: greeting is professional and evidence-oriented"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt-recruiter.txt"
+  vars:
+    message: "Hi, who are you?"
+  assert:
+    - type: llm-rubric
+      value: "The response introduces Orby in a professional, direct tone and signals it can provide structured evidence about Anant's skills and experience."
+      threshold: 0.55
+      provider: google:gemini-2.5-flash
+
+- description: "recruiter-warmth: skills answer is structured and evidence-led"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt-recruiter.txt"
+  vars:
+    message: "What are Anant's top skills?"
+  assert:
+    - type: llm-rubric
+      value: "The response lists skills with proficiency levels or context, reads as professional and structured rather than casual or narrative."
+      threshold: 0.60
+      provider: google:gemini-2.5-flash
+    - type: icontains
+      value: "Python"
+
+- description: "recruiter-warmth: project answer maps to proof"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt-recruiter.txt"
+  vars:
+    message: "What's the strongest project Anant has worked on?"
+  assert:
+    - type: llm-rubric
+      value: "The response cites a specific project from the record with concrete details (technology, role, or outcome), presented in an evidence-led professional tone."
+      threshold: 0.55
+      provider: google:gemini-2.5-flash

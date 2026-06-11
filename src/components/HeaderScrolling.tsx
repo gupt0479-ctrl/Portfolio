@@ -35,17 +35,83 @@ const CORE_NAV: NavItem[] = [
   { _id: "co", title: "Contact", href: "#contact" },
 ];
 
+function isExternalHref(href: string, isExternal?: boolean) {
+  return (
+    isExternal === true || href.startsWith("http") || href.startsWith("mailto:")
+  );
+}
+
+function buildNavItems(nav: NavItem[]) {
+  const internalFromSanity = nav.filter(
+    (item) => !isExternalHref(item.href, item.isExternal),
+  );
+  const externalItems = nav.filter((item) =>
+    isExternalHref(item.href, item.isExternal),
+  );
+
+  const sectionItems =
+    internalFromSanity.length > 0
+      ? internalFromSanity
+      : CORE_NAV.map(
+          (fallbackItem) =>
+            nav.find((item) => item.href.toLowerCase() === fallbackItem.href) ??
+            fallbackItem,
+        );
+
+  return { sectionItems, externalItems };
+}
+
+function NavLink({
+  item,
+  isActive,
+  className,
+}: {
+  item: NavItem;
+  isActive: boolean;
+  className: string;
+}) {
+  const external = isExternalHref(item.href, item.isExternal);
+
+  if (external) {
+    return (
+      <a
+        href={item.href}
+        target={item.href.startsWith("mailto:") ? undefined : "_blank"}
+        rel={
+          item.href.startsWith("mailto:") ? undefined : "noopener noreferrer"
+        }
+        className={className}
+      >
+        {item.title}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={item.href} className={className}>
+      {item.title}
+      <span
+        className={[
+          "absolute bottom-1 left-1/2 h-px -translate-x-1/2 rounded-full transition-all duration-300",
+          isActive ? "w-[60%]" : "w-0 group-hover:w-[60%]",
+        ].join(" ")}
+        style={{
+          background: "rgba(167,139,250,0.9)",
+          boxShadow:
+            "0 0 8px rgba(167,139,250,0.8), 0 0 18px rgba(167,139,250,0.4)",
+        }}
+      />
+    </Link>
+  );
+}
+
 export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
   const show = useShowOnScroll(80);
   const { open, openMobile, isMobile } = useSidebar();
   const isSidebarOpen = isMobile ? openMobile : open;
   const activeSection = useActiveSection();
-
-  const items = CORE_NAV.map(
-    (fallbackItem) =>
-      nav.find((item) => item.href.toLowerCase() === fallbackItem.href) ??
-      fallbackItem,
-  );
+  const { sectionItems, externalItems } = buildNavItems(nav);
+  const allItems = [...sectionItems, ...externalItems];
 
   return (
     <header
@@ -63,7 +129,6 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
       ].join(" ")}
     >
       <div className="flex w-full items-center gap-4 px-4 py-3 sm:px-6 lg:px-8">
-        {/* Logo */}
         <Link
           href="#home"
           className="shrink-0 select-none text-sm font-bold tracking-tight text-white"
@@ -71,55 +136,45 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
           Anant<span className="text-violet-400">.</span>
         </Link>
 
-        {/* Desktop nav */}
         <nav
           className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 overflow-x-auto [scrollbar-width:none] md:flex [&::-webkit-scrollbar]:hidden"
           aria-label="Main navigation"
         >
-          {items.map((item) => {
+          {allItems.map((item) => {
             const sectionId = item.href.replace("#", "");
-            const isActive = activeSection === sectionId;
+            const isActive =
+              !isExternalHref(item.href, item.isExternal) &&
+              activeSection === sectionId;
+
             return (
-              <Link
+              <NavLink
                 key={item._id}
-                href={item.href}
+                item={item}
+                isActive={isActive}
                 className={[
                   "group relative whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition-colors duration-200",
-                  isActive
-                    ? "text-white/90"
-                    : "text-white/45 hover:text-white/90",
+                  isExternalHref(item.href, item.isExternal)
+                    ? "text-white/40 hover:text-violet-300"
+                    : isActive
+                      ? "text-white/90"
+                      : "text-white/45 hover:text-white/90",
                 ].join(" ")}
-              >
-                {item.title}
-                <span
-                  className={[
-                    "absolute bottom-1 left-1/2 h-px -translate-x-1/2 rounded-full transition-all duration-300",
-                    isActive ? "w-[60%]" : "w-0 group-hover:w-[60%]",
-                  ].join(" ")}
-                  style={{
-                    background: "rgba(167,139,250,0.9)",
-                    boxShadow:
-                      "0 0 8px rgba(167,139,250,0.8), 0 0 18px rgba(167,139,250,0.4)",
-                  }}
-                />
-              </Link>
+              />
             );
           })}
         </nav>
 
-        {/* Dark mode indicator */}
-        <div className="ml-auto shrink-0 hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs text-white/50">
+        <div className="ml-auto hidden shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 md:flex">
           <Moon className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Dark</span>
         </div>
 
-        {/* Mobile hamburger */}
-        <div className="md:hidden ml-auto">
+        <div className="ml-auto md:hidden">
           <Sheet>
             <SheetTrigger asChild>
               <button
                 type="button"
-                className="float-btn p-2 rounded-lg border border-white/10 bg-white/5"
+                className="float-btn rounded-lg border border-white/10 bg-white/5 p-2"
                 aria-label="Open navigation"
               >
                 <Menu className="size-5 text-white/70" />
@@ -127,16 +182,16 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
             </SheetTrigger>
             <SheetContent
               side="right"
-              className="cosmic-card border-l border-white/[0.06] w-72 p-0"
+              className="cosmic-card w-72 border-l border-white/[0.06] p-0"
             >
-              <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-white/[0.06]">
+              <div className="flex items-center justify-between border-b border-white/[0.06] px-5 pb-3 pt-5">
                 <span className="text-sm font-bold tracking-tight text-white">
                   Anant<span className="text-violet-400">.</span>
                 </span>
                 <SheetClose asChild>
                   <button
                     type="button"
-                    className="p-1.5 rounded-lg text-white/50 hover:text-white/90 hover:bg-white/[0.06] transition-colors"
+                    className="rounded-lg p-1.5 text-white/50 transition-colors hover:bg-white/[0.06] hover:text-white/90"
                     aria-label="Close navigation"
                   >
                     <X className="size-4" />
@@ -147,23 +202,49 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
                 className="flex flex-col gap-1 px-3 py-4"
                 aria-label="Mobile navigation"
               >
-                {items.map((item) => {
+                {allItems.map((item) => {
                   const sectionId = item.href.replace("#", "");
-                  const isActive = activeSection === sectionId;
+                  const isActive =
+                    !isExternalHref(item.href, item.isExternal) &&
+                    activeSection === sectionId;
+                  const external = isExternalHref(item.href, item.isExternal);
+
+                  const linkClass = [
+                    "flex items-center gap-3 rounded-lg px-4 py-3 text-sm transition-colors",
+                    isActive
+                      ? "border border-violet-500/20 bg-white/[0.06] text-white"
+                      : "text-white/60 hover:bg-white/[0.04] hover:text-white",
+                  ].join(" ");
+
+                  if (external) {
+                    return (
+                      <SheetClose asChild key={item._id}>
+                        <a
+                          href={item.href}
+                          target={
+                            item.href.startsWith("mailto:")
+                              ? undefined
+                              : "_blank"
+                          }
+                          rel={
+                            item.href.startsWith("mailto:")
+                              ? undefined
+                              : "noopener noreferrer"
+                          }
+                          className={linkClass}
+                        >
+                          {item.title}
+                        </a>
+                      </SheetClose>
+                    );
+                  }
+
                   return (
                     <SheetClose asChild key={item._id}>
-                      <Link
-                        href={item.href}
-                        className={[
-                          "flex items-center gap-3 px-4 py-3 rounded-lg text-sm transition-colors",
-                          isActive
-                            ? "text-white bg-white/[0.06] border border-violet-500/20"
-                            : "text-white/60 hover:text-white hover:bg-white/[0.04]",
-                        ].join(" ")}
-                      >
+                      <Link href={item.href} className={linkClass}>
                         {isActive && (
                           <span
-                            className="w-1.5 h-1.5 rounded-full shrink-0"
+                            className="h-1.5 w-1.5 shrink-0 rounded-full"
                             style={{
                               background: "rgba(167,139,250,0.9)",
                               boxShadow: "0 0 6px rgba(167,139,250,0.8)",
@@ -176,7 +257,7 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
                   );
                 })}
               </nav>
-              <div className="mt-auto px-5 pb-5 pt-3 border-t border-white/[0.06]">
+              <div className="mt-auto border-t border-white/[0.06] px-5 pb-5 pt-3">
                 <div className="flex items-center gap-1.5 text-xs text-white/30">
                   <Moon className="h-3 w-3" />
                   <span>Dark mode</span>

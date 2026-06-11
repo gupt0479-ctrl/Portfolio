@@ -2,11 +2,8 @@
 
 sanity.types.ts
 
-# mcp
-.cursor/*
-!.cursor/MEMORY/
-.cursor/MEMORY/*
-!.cursor/MEMORY/ecc-setup-guide.md
+# IDE / agent config (local state, secrets)
+.cursor/
 .claude/
 .kiro/settings/
 .agents

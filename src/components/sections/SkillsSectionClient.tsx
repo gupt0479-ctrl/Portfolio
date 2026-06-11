@@ -1,5 +1,12 @@
 "use client";
 
+// Skills are rendered as a category-grouped pill grid (SkillsCategoryGrid).
+// The earlier Three.js/R3F skills "sphere" visualization was intentionally
+// removed in favor of this readable 2D layout (Phase H, Option 2 — see
+// .kiro/specs/sanity-render-alignment). Sanity fields percentage /
+// yearsOfExperience / tone remain available in SKILLS_QUERY for a future
+// graph but are intentionally unused here.
+
 import { type CSSProperties, useMemo, useState } from "react";
 import { useIridescentEffect } from "@/hooks/useIridescentEffect";
 import { formatCategory, normalizeCategoryKey } from "@/lib/utils";

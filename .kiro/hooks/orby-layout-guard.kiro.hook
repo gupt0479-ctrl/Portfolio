@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Orby Layout Integration Guard",
+  "description": "Before writing to layout.tsx, verify the Orby integration does not break existing provider tree structure, sidebar functionality, or introduce render-blocking imports.",
+  "version": "1",
+  "when": {
+    "type": "preToolUse",
+    "toolTypes": [
+      "write"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A write operation is about to happen. If the target file is src/app/layout.tsx, verify: 1) Orby is lazy-loaded (dynamic import or Suspense boundary). 2) Orby is rendered near SidebarToggle, not inside the main content flow. 3) The existing ClerkProvider, ThemeProvider, SidebarProvider, AppSidebar, and SanityLive wrappers are not disturbed. 4) No synchronous heavy imports are added to layout. If the target is NOT layout.tsx, this check does not apply — allow the write."
+  }
+}

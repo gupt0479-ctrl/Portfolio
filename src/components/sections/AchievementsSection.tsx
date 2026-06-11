@@ -6,7 +6,7 @@ import type { Achievement } from "@/sanity/types";
 
 const ACHIEVEMENTS_SECTION_QUERY = defineQuery(`
   *[_type == "achievement"] | order(featured desc, date desc){
-    _id, title, description, date, type, featured, url
+    _id, title, description, date, type, issuer, featured, url
   }
 `);
 
@@ -80,6 +80,11 @@ export async function AchievementsSection() {
                         <span className="orbit-chip">{item.type}</span>
                       ) : null}
                     </div>
+                    {item.issuer ? (
+                      <p className="mt-0.5 text-xs text-white/35 font-sans">
+                        {item.issuer}
+                      </p>
+                    ) : null}
                     {item.description ? (
                       <p className="mt-1 text-sm leading-relaxed text-white/40">
                         {item.description}

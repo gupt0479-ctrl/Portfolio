@@ -1,0 +1,38 @@
+- description: "ceo-warmth: greeting is strategic and outcome-focused"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt-ceo.txt"
+  vars:
+    message: "Hi, who are you?"
+  assert:
+    - type: llm-rubric
+      value: "The response introduces Orby in a high-level, outcome-oriented tone. Strategic framing, not casual or overly detailed."
+      threshold: 0.50
+      provider: google:gemini-2.5-flash
+
+- description: "ceo-warmth: skills answer focuses on trajectory and impact"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt-ceo.txt"
+  vars:
+    message: "What are Anant's top skills?"
+  assert:
+    - type: llm-rubric
+      value: "The response frames skills in terms of impact and trajectory rather than just listing proficiency levels. Strategic, high-signal, low-noise tone."
+      threshold: 0.50
+      provider: google:gemini-2.5-flash
+
+- description: "ceo-warmth: experience answer is outcome-led"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://evals/fixtures/system-prompt-ceo.txt"
+  vars:
+    message: "Tell me about Anant's experience."
+  assert:
+    - type: llm-rubric
+      value: "The response emphasizes outcomes, direction, and impact of Anant's experience — not implementation details. Reads like an executive summary."
+      threshold: 0.55
+      provider: google:gemini-2.5-flash

@@ -1,5 +1,7 @@
 "use client";
 import { motion } from "motion/react";
+import Image from "next/image";
+import { urlFor } from "@/sanity/lib/image";
 import type { Education } from "@/sanity/types";
 
 const BLOB_VARIANTS = ["stable", "forming", "amoeba"] as const;
@@ -22,6 +24,8 @@ interface FlowchartItem {
   endDate?: string | null;
   current?: boolean | null;
   gpa?: string | null;
+  description?: string | null;
+  logo?: Education["logo"] | null;
 }
 
 interface Props {
@@ -63,7 +67,23 @@ export function EducationFlowchart({ items }: Props) {
                   "border border-white/10 flex items-center justify-center shrink-0",
                 ].join(" ")}
               >
-                <span className="text-white/20 text-xs font-mono">{icon}</span>
+                {edu.logo ? (
+                  <Image
+                    src={urlFor(edu.logo).width(96).height(96).url()}
+                    alt={
+                      edu.institution
+                        ? `${edu.institution} logo`
+                        : "Institution logo"
+                    }
+                    width={48}
+                    height={48}
+                    className="size-12 rounded-full object-contain"
+                  />
+                ) : (
+                  <span className="text-white/20 text-xs font-mono">
+                    {icon}
+                  </span>
+                )}
               </div>
 
               {/* Text panel */}
@@ -91,6 +111,11 @@ export function EducationFlowchart({ items }: Props) {
                   <span className="inline-block mt-2 px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/15 text-xs text-white/70">
                     GPA: {edu.gpa}
                   </span>
+                )}
+                {edu.description && (
+                  <p className="text-xs text-white/45 mt-2 font-sans leading-relaxed line-clamp-3">
+                    {edu.description}
+                  </p>
                 )}
               </div>
             </motion.div>

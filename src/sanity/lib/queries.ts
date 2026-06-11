@@ -159,18 +159,57 @@ export const EDUCATION_QUERY = defineQuery(`
 
 export const CERTIFICATIONS_QUERY = defineQuery(`
   *[_type == "certification"] | order(issueDate desc){
-    _id, name, issuer, issueDate, credentialId, credentialUrl, logo
+    _id, name, issuer, issueDate, credentialId, credentialUrl, logo, description
   }
 `);
 
 export const ACHIEVEMENTS_QUERY = defineQuery(`
-  *[_type == "achievement"] | order(date desc){
-    _id, title, description, date, type, featured
+  *[_type == "achievement"] | order(featured desc, order asc, date desc){
+    _id, title, description, date, type, featured, url
   }
 `);
 
 export const BLOG_QUERY = defineQuery(`
   *[_type == "blog"] | order(publishedAt desc)[0...6]{
-    _id, title, slug, excerpt, publishedAt, readTime, category, featuredImage
+    _id, title, slug, excerpt, externalUrl, publishedAt, readTime, category, featuredImage
   }
 `);
+
+export const PROJECT_BY_SLUG_QUERY = defineQuery(`
+  *[_type == "project" && slug.current == $slug][0]{
+    _id, title, "slug": slug.current, tagline,
+    "technologies": technologies[]->{ name },
+    liveUrl, githubUrl, description
+  }
+`);
+
+export const EXPERIENCE_BY_ID_QUERY = defineQuery(`
+  *[_type == "experience" && _id == $id][0]{
+    _id, company, position, employmentType, location,
+    startDate, endDate, current, description,
+    responsibilities, "technologies": technologies[]->{ name }
+  }
+`);
+
+export const CHAT_CATALOG_QUERY = defineQuery(`{
+  "projects": *[_type == "project"] | order(order asc, title asc){
+    _id, title, "slug": slug.current, tagline
+  },
+  "experience": *[_type == "experience"] | order(order asc, startDate desc){
+    _id, company, position,
+    "current": select(current == true => true, tenure == "current" => true, false),
+    description
+  },
+  "skills": *[_type == "skill"] | order(category asc, name asc){
+    _id, name, category, proficiency
+  },
+  "education": *[_type == "education"] | order(startDate desc){
+    _id, institution, degree, fieldOfStudy, startDate, endDate
+  },
+  "certifications": *[_type == "certification"] | order(issueDate desc){
+    _id, name, issuer, issueDate
+  },
+  "achievements": *[_type == "achievement"] | order(featured desc, order asc){
+    _id, title, description, date, type, featured
+  }
+}`);
