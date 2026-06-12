@@ -312,6 +312,18 @@
 
 /* --- Floating buttons --- */
 
+@keyframes cosmic-float {
+  0%,
+  100% {
+    transform: translateY(-1px);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-4px);
+    opacity: 0.92;
+  }
+}
+
 .float-btn {
   position: relative;
   transform: translateY(-1px);
@@ -323,8 +335,11 @@
     box-shadow 200ms ease,
     border-color 200ms ease;
   will-change: transform;
+  animation: cosmic-float 5s ease-in-out infinite;
+  animation-delay: var(--float-delay, 0ms);
 }
 .float-btn:hover {
+  animation-play-state: paused;
   transform: perspective(600px) rotateX(6deg) translateY(-4px) scale(1.03);
   box-shadow:
     0 8px 24px rgba(0, 0, 0, 0.3),
@@ -334,6 +349,43 @@
 .float-btn:active {
   transform: translateY(0px) scale(0.98);
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes cosmic-drift {
+  0% {
+    translate: 0 0;
+  }
+  14% {
+    translate: 45px -25px;
+  }
+  28% {
+    translate: 20px -50px;
+  }
+  42% {
+    translate: -30px -20px;
+  }
+  57% {
+    translate: -50px 30px;
+  }
+  71% {
+    translate: -15px 50px;
+  }
+  85% {
+    translate: 35px 25px;
+  }
+  100% {
+    translate: 0 0;
+  }
+}
+
+.cosmic-drift {
+  animation: cosmic-drift 18s ease-in-out infinite;
+}
+
+.terminal-glow {
+  text-shadow:
+    0 0 6px rgba(103, 232, 249, 0.5),
+    0 0 12px rgba(167, 139, 250, 0.3);
 }
 
 /* --- Section kicker label --- */
@@ -588,6 +640,12 @@
   [class*="animate-pulse"],
   [class*="animate-blink"],
   [class*="animate-deploy"] {
+    animation: none;
+  }
+  .float-btn {
+    animation: none;
+  }
+  .cosmic-drift {
     animation: none;
   }
 }

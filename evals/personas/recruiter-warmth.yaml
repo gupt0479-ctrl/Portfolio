@@ -2,7 +2,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt-recruiter.txt"
+      systemInstruction: "file://fixtures/system-prompt-recruiter.txt"
   vars:
     message: "Hi, who are you?"
   assert:
@@ -15,7 +15,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt-recruiter.txt"
+      systemInstruction: "file://fixtures/system-prompt-recruiter.txt"
   vars:
     message: "What are Anant's top skills?"
   assert:
@@ -30,7 +30,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt-recruiter.txt"
+      systemInstruction: "file://fixtures/system-prompt-recruiter.txt"
   vars:
     message: "What's the strongest project Anant has worked on?"
   assert:

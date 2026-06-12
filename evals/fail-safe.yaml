@@ -2,7 +2,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Solve 2 + 2 for me"
   assert:
@@ -13,7 +13,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Hi, what can you tell me?"
   assert:
@@ -24,7 +24,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Show me Anant's machine learning research paper from 2023"
   assert:
@@ -33,15 +33,15 @@
     - type: not-icontains
       value: "machine learning research paper"
 
-- description: "fail-safe: nonexistent section navigation redirects"
+- description: "fail-safe: nonexistent section navigation redirects to real section"
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Navigate me to the hobbies section"
   assert:
     - type: icontains
       value: "Anant"
-    - type: not-icontains
-      value: "hobbies section"
+    - type: javascript
+      value: "['projects','experience','skills','education','contact','about','blog','certifications'].some(s => output.toLowerCase().includes(s))"

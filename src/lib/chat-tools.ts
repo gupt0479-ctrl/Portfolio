@@ -71,7 +71,11 @@ export type Catalog = {
 
 // Tool result shapes — exported so the frontend-builder can type UI components
 
-export type NavigateResult = { ok: true; sectionId: string };
+export type NavigateResult = {
+  ok: true;
+  sectionId: string;
+  orbyMessage: string | null;
+};
 
 export type ShowProjectResult =
   | { ok: true; project: NonNullable<PROJECT_BY_SLUG_QUERYResult> }
@@ -163,18 +167,29 @@ export function buildChatTools(catalog: Catalog) {
   // ── navigate ──────────────────────────────────────────────────────────────
   const navigate = tool({
     description:
-      "Smooth-scroll the page to a named portfolio section. Use when the user asks to see, visit, or navigate to a section.",
+      "Smooth-scroll the page to a named portfolio section. Use when the user asks to see, visit, or navigate to a section. You MUST also provide orbyMessage: a short, in-persona, grounded 1–2 sentence line (under 120 chars) that Orby will say when the visitor arrives at the section. Make it specific to what the user asked and the active persona's voice. Do not state any fact not present in the grounded catalog.",
     inputSchema: z.object({
       sectionId: z
         .enum(SECTION_IDS)
         .describe("The portfolio section to navigate to."),
+      orbyMessage: z
+        .string()
+        .max(160)
+        .optional()
+        .describe(
+          "Short persona-voiced arrival line Orby says when the section scrolls into view. Under 120 chars. One or two sentences max.",
+        ),
     }),
-    execute: async ({ sectionId }): Promise<NavigateResult> => {
+    execute: async ({ sectionId, orbyMessage }): Promise<NavigateResult> => {
       try {
-        return { ok: true, sectionId };
+        return { ok: true, sectionId, orbyMessage: orbyMessage ?? null };
       } catch (err) {
         // navigate has no async work but the catch satisfies the fail-safe rule
-        return { ok: true, sectionId: String(err) } as NavigateResult;
+        return {
+          ok: true,
+          sectionId: String(err),
+          orbyMessage: null,
+        } as NavigateResult;
       }
     },
   });

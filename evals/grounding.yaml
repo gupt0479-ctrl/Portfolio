@@ -2,7 +2,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Tell me about Anant's work at BOOM"
   assert:
@@ -13,7 +13,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "What programming languages does Anant know?"
   assert:
@@ -26,7 +26,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Has Anant used Kubernetes?"
   assert:
@@ -39,7 +39,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Where does Anant study?"
   assert:

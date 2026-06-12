@@ -1,5 +1,6 @@
 import { Footer } from "@/components/Footer";
 import { HeaderScrolling } from "@/components/HeaderScrolling";
+import { HeroTerminal } from "@/components/HeroTerminal";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { AchievementsSection } from "@/components/sections/AchievementsSection";
 import { BlogSection } from "@/components/sections/BlogSection";
@@ -41,6 +42,9 @@ export default async function PortfolioContent() {
       </div>
       <main className="relative z-10 min-h-screen text-white">
         <HeroSection />
+        <div className="relative z-10 flex justify-center py-8">
+          <HeroTerminal />
+        </div>
         <AboutSection />
         <ExperienceSection />
         <section

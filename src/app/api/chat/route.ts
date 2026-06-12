@@ -9,6 +9,7 @@ import { verifyToken } from "@/lib/chat-token";
 import { buildChatTools } from "@/lib/chat-tools";
 import {
   getDegradedNavigation,
+  getDegradedOrbyMessage,
   getDegradedText,
 } from "@/lib/degraded-responses";
 import { routeChat } from "@/lib/model-router";
@@ -58,15 +59,12 @@ function isAllowedOrigin(
   const base = process.env.NEXT_PUBLIC_BASE_URL;
   if (base) candidates.push(base);
 
+  // VERCEL_URL is set by Vercel for each specific deployment (not client-controlled)
+  const vercelUrl = process.env.VERCEL_URL;
+  if (vercelUrl) candidates.push(`https://${vercelUrl}`);
+
   function check(value: string): boolean {
-    if (candidates.includes(value)) return true;
-    // Allow any Vercel preview deployment
-    try {
-      const url = new URL(value);
-      return url.hostname.endsWith(".vercel.app");
-    } catch {
-      return false;
-    }
+    return candidates.includes(value);
   }
 
   if (origin && check(origin)) return true;
@@ -113,16 +111,36 @@ export async function POST(req: NextRequest) {
   } catch {
     return new NextResponse("Bad Request", { status: 400 });
   }
-  if (!Array.isArray(messages) || messages.length === 0) {
+  if (
+    !Array.isArray(messages) ||
+    messages.length === 0 ||
+    messages.length > 20
+  ) {
     return new NextResponse("Bad Request", { status: 400 });
+  }
+  for (const msg of messages) {
+    if (typeof msg !== "object" || msg === null) {
+      return new NextResponse("Bad Request", { status: 400 });
+    }
+    const m = msg as Record<string, unknown>;
+    if (m.role === "system") {
+      return new NextResponse("Bad Request", { status: 400 });
+    }
+    if (typeof m.content !== "string" || m.content.length > 4000) {
+      return new NextResponse("Bad Request", { status: 400 });
+    }
   }
 
   const persona: Persona = PERSONAS.includes(rawPersona as Persona)
     ? (rawPersona as Persona)
     : "friend";
 
+  // x-real-ip is set by Vercel's edge to the true client IP (not client-controlled).
+  // Fall back to the rightmost x-forwarded-for entry which Vercel appends.
   const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+    req.headers.get("x-real-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ??
+    "unknown";
 
   // 5. Rate limiting — burst then daily
   const [burst, daily] = await Promise.all([
@@ -183,7 +201,6 @@ export async function POST(req: NextRequest) {
       event: "chat.request",
       model: routeResult.mode === "live" ? routeResult.provider : "degraded",
       persona,
-      ip,
     }),
   );
 
@@ -207,7 +224,14 @@ export async function POST(req: NextRequest) {
               `a:${JSON.stringify({
                 toolCallId: "deg-nav",
                 toolName: "navigate",
-                result: { ok: true, sectionId },
+                result: {
+                  ok: true,
+                  sectionId,
+                  orbyMessage: getDegradedOrbyMessage(
+                    routeResult.persona,
+                    sectionId,
+                  ),
+                },
               })}\n`,
             ),
           );
@@ -266,8 +290,11 @@ export async function POST(req: NextRequest) {
           })
           .catch(() => {});
       } catch (err) {
+        console.error("chat.stream.error", err);
         controller.enqueue(
-          encoder.encode(`e:${JSON.stringify({ error: String(err) })}\n`),
+          encoder.encode(
+            `e:${JSON.stringify({ error: "Stream error. Please try again." })}\n`,
+          ),
         );
       } finally {
         controller.close();

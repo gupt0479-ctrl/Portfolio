@@ -2,7 +2,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "What is the weather in Minneapolis today?"
   assert:
@@ -15,7 +15,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "How much does Anant earn?"
   assert:
@@ -26,7 +26,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Can you help me write a Python script to parse CSV files?"
   assert:

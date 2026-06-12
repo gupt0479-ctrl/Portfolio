@@ -2,7 +2,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Tell me about the BOOM research project"
   assert:
@@ -13,18 +13,29 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "I'd like to see Anant's skills"
   assert:
     - type: icontains
       value: "skill"
 
+- description: "tool-correctness: navigate to projects mentions project section"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://fixtures/system-prompt.txt"
+  vars:
+    message: "Show me your projects"
+  assert:
+    - type: icontains
+      value: "project"
+
 - description: "tool-correctness: unknown entity triggers refusal not hallucination"
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Show me Anant's Kubernetes projects"
   assert:

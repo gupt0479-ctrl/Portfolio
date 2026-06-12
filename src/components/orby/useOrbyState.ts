@@ -11,7 +11,9 @@ export type OrbyState =
   | "departingLeft"
   | "returningRight"
   | "goodbye"
-  | "reducedMotion";
+  | "reducedMotion"
+  | "chat-nav-home" // gliding home before programmatic scroll
+  | "chat-nav-arrival"; // showing per-request arrival message
 
 export interface OrbyStateResult {
   state: OrbyState;
@@ -103,6 +105,11 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
   const firedSections = useRef<Set<string>>(new Set());
   const observersRef = useRef<IntersectionObserver[]>([]);
+  const chatNavPendingRef = useRef<{
+    observer: IntersectionObserver | null;
+    timeoutId: ReturnType<typeof setTimeout> | null;
+    cancelListeners: (() => void) | null;
+  } | null>(null);
 
   const clearTimers = useCallback(() => {
     for (const t of timersRef.current) clearTimeout(t);
@@ -251,6 +258,112 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
   useEffect(() => {
     return () => clearTimers();
   }, [clearTimers]);
+
+  // Chat-driven navigation — separate channel from scroll popups
+  // biome-ignore lint/correctness/useExhaustiveDependencies: reducedMotion is stable (matchMedia init, never mutated)
+  useEffect(() => {
+    const handleChatNav = (e: Event) => {
+      const { sectionId, orbyMessage } = (
+        e as CustomEvent<{ sectionId: string; orbyMessage: string | null }>
+      ).detail;
+
+      // Reduced-motion path: skip state changes, show text after jump settles
+      if (reducedMotion) {
+        if (!orbyMessage) return;
+        const t = setTimeout(() => {
+          setSpeechText(orbyMessage);
+          const clearT = setTimeout(() => setSpeechText(null), 7000);
+          timersRef.current.push(clearT);
+        }, 500);
+        timersRef.current.push(t);
+        return;
+      }
+
+      // Cancel any prior pending navigation
+      const prior = chatNavPendingRef.current;
+      if (prior) {
+        prior.observer?.disconnect();
+        if (prior.timeoutId !== null) clearTimeout(prior.timeoutId);
+        prior.cancelListeners?.();
+      }
+      chatNavPendingRef.current = null;
+
+      // Glide home
+      setState("chat-nav-home");
+      setSpeechText(null);
+
+      let observer: IntersectionObserver | null = null;
+
+      const removeCancelListeners = () => {
+        window.removeEventListener("wheel", cancelNav);
+        window.removeEventListener("touchmove", cancelNav);
+      };
+
+      const finishNav = () => {
+        observer?.disconnect();
+        const pending = chatNavPendingRef.current;
+        if (pending?.timeoutId !== null && pending?.timeoutId !== undefined) {
+          clearTimeout(pending.timeoutId);
+        }
+        removeCancelListeners();
+        chatNavPendingRef.current = null;
+      };
+
+      const cancelNav = () => {
+        finishNav();
+        if (stateRef.current === "chat-nav-home") {
+          setState("roaming");
+        }
+      };
+
+      const targetEl = document.getElementById(sectionId);
+      if (targetEl) {
+        observer = new IntersectionObserver(
+          ([entry]) => {
+            if (entry.isIntersecting) {
+              finishNav();
+              if (orbyMessage) {
+                setState("chat-nav-arrival");
+                setSpeechText(orbyMessage);
+                const clearT = setTimeout(() => {
+                  setState("roaming");
+                  setSpeechText(null);
+                }, 7000);
+                timersRef.current.push(clearT);
+              } else {
+                setState("roaming");
+              }
+            }
+          },
+          { threshold: 0.3 },
+        );
+        observer.observe(targetEl);
+      }
+
+      // Max-wait cap: if section doesn't enter view within 4s, cancel silently
+      const timeoutId = setTimeout(cancelNav, 4000);
+
+      window.addEventListener("wheel", cancelNav, { once: true });
+      window.addEventListener("touchmove", cancelNav, { once: true });
+
+      chatNavPendingRef.current = {
+        observer,
+        timeoutId,
+        cancelListeners: removeCancelListeners,
+      };
+    };
+
+    window.addEventListener("orby:navigate", handleChatNav);
+    return () => {
+      window.removeEventListener("orby:navigate", handleChatNav);
+      const pending = chatNavPendingRef.current;
+      if (pending) {
+        pending.observer?.disconnect();
+        if (pending.timeoutId !== null) clearTimeout(pending.timeoutId);
+        pending.cancelListeners?.();
+      }
+    };
+  }, []);
 
   return { state, speechText, showArrow };
 }

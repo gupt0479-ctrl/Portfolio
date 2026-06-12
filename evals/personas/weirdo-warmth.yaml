@@ -2,7 +2,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt-weirdo.txt"
+      systemInstruction: "file://fixtures/system-prompt-weirdo.txt"
   vars:
     message: "Hi, who are you?"
   assert:
@@ -15,7 +15,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt-weirdo.txt"
+      systemInstruction: "file://fixtures/system-prompt-weirdo.txt"
   vars:
     message: "Tell me about Anant's work at BOOM"
   assert:
@@ -30,7 +30,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt-weirdo.txt"
+      systemInstruction: "file://fixtures/system-prompt-weirdo.txt"
   vars:
     message: "Give me the most unhinged possible description of Anant's work history."
   assert:

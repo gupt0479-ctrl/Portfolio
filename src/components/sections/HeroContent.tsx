@@ -32,16 +32,19 @@ function IridCTA({
   href,
   primary,
   children,
+  style,
 }: {
   href: string;
   primary: boolean;
   children: React.ReactNode;
+  style?: React.CSSProperties;
 }) {
   const { ref } = useIridescentEffect({ gradientAlpha: 0.14 });
   return (
     <div
       ref={ref}
       className="relative inline-flex overflow-hidden rounded-full"
+      style={style}
     >
       <span
         className="pointer-events-none absolute inset-0 z-10 rounded-full"
@@ -102,14 +105,6 @@ export function HeroContent({
         <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
           <div>
             <p className="section-kicker">{"// hi, I'm"}</p>
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45 }}
-              className="text-xs font-medium tracking-[0.2em] text-white/60"
-            >
-              NEXT.JS • SANITY • 3D • TYPESCRIPT
-            </motion.p>
 
             <motion.h1
               initial={{ opacity: 0, y: 14 }}
@@ -151,8 +146,15 @@ export function HeroContent({
               transition={{ duration: 0.55, delay: 0.14 }}
               className="mt-8 flex flex-wrap items-center gap-3"
             >
-              {CTA_BUTTONS.map(({ label, href, primary }) => (
-                <IridCTA key={label} href={href} primary={primary}>
+              {CTA_BUTTONS.map(({ label, href, primary }, idx) => (
+                <IridCTA
+                  key={label}
+                  href={href}
+                  primary={primary}
+                  style={
+                    { "--float-delay": `${idx * 200}ms` } as React.CSSProperties
+                  }
+                >
                   {label}
                 </IridCTA>
               ))}
@@ -166,7 +168,7 @@ export function HeroContent({
                 transition={{ duration: 0.55, delay: 0.17 }}
                 className="mt-6 flex gap-3"
               >
-                {socials.map(({ label, url, Icon }) => (
+                {socials.map(({ label, url, Icon }, idx) => (
                   <a
                     key={label}
                     href={url}
@@ -179,6 +181,11 @@ export function HeroContent({
                     title={label}
                     aria-label={label}
                     className="float-btn flex h-9 w-9 items-center justify-center rounded-full border border-white/20 bg-white/5 text-white/70 transition-colors duration-200 hover:border-violet-400/40 hover:bg-white/10 hover:text-white"
+                    style={
+                      {
+                        "--float-delay": `${600 + idx * 200}ms`,
+                      } as React.CSSProperties
+                    }
                   >
                     <Icon className="h-[15px] w-[15px]" />
                   </a>

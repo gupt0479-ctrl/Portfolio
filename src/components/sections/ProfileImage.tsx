@@ -5,9 +5,6 @@ import Image from "next/image";
 import { useState } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
 
-// Two orbiting chips shown around the profile image
-const ORBIT_CHIPS = ["Next.js", "AI/ML"];
-
 export function ProfileImage({
   imageUrl,
   firstName,
@@ -22,15 +19,6 @@ export function ProfileImage({
 
   return (
     <div className="relative">
-      {/* Orbiting chips — positioned outside the image */}
-      <div className="absolute -top-3 -left-3 z-10 flex gap-1.5">
-        {ORBIT_CHIPS.map((chip) => (
-          <span key={chip} className="orbit-chip text-[10px]">
-            {chip}
-          </span>
-        ))}
-      </div>
-
       <button
         type="button"
         onClick={toggleSidebar}
@@ -46,15 +34,6 @@ export function ProfileImage({
           priority
           className="object-cover transition-transform duration-300"
         />
-
-        {/* Availability indicator */}
-        <div className="absolute top-4 right-4 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1.5 backdrop-blur-sm">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
-            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
-          </span>
-          <span className="text-xs font-medium text-white">Online</span>
-        </div>
 
         {/* Hover overlay */}
         <div

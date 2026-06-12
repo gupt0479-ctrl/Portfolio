@@ -26,6 +26,7 @@ export function PortfolioLab() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [panelOrbyState, setPanelOrbyState] = useState<PanelOrbyState>("idle");
   const abortRef = useRef<AbortController | null>(null);
+  const navFiredRef = useRef(false);
 
   // Escape key closes the lab panel
   useEffect(() => {
@@ -45,6 +46,7 @@ export function PortfolioLab() {
 
   const handleSubmit = useCallback(
     async (text: string) => {
+      navFiredRef.current = false;
       if (!text.trim()) return;
 
       // Abort any ongoing request
@@ -151,6 +153,21 @@ export function PortfolioLab() {
                 ) {
                   const el = document.getElementById(parsed.result.sectionId);
                   el?.scrollIntoView({ behavior: "smooth", block: "start" });
+                  // Dispatch chat-driven nav to Orby — first navigate per turn only
+                  if (!navFiredRef.current) {
+                    navFiredRef.current = true;
+                    window.dispatchEvent(
+                      new CustomEvent("orby:navigate", {
+                        detail: {
+                          sectionId: parsed.result.sectionId as string,
+                          orbyMessage:
+                            typeof parsed.result.orbyMessage === "string"
+                              ? parsed.result.orbyMessage
+                              : null,
+                        },
+                      }),
+                    );
+                  }
                 }
               } catch {
                 // ignore malformed tool result

@@ -271,6 +271,26 @@ export default function Orby() {
           followK = 0.08;
           break;
 
+        case "chat-nav-home":
+          // Glide back to home — signals intentional navigation is underway
+          targetX = rightX;
+          targetY = rightY;
+          orbitRx = 4;
+          orbitRy = 3;
+          orbitSpd = 0.4;
+          followK = 0.12;
+          break;
+
+        case "chat-nav-arrival":
+          // Hold at home while showing the per-request arrival message
+          targetX = rightX;
+          targetY = rightY;
+          orbitRx = 4;
+          orbitRy = 3;
+          orbitSpd = 0.4;
+          followK = 0.065;
+          break;
+
         default:
           targetX = rightX;
           targetY = rightY;
@@ -338,6 +358,8 @@ export default function Orby() {
 
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-40">
+      {/* biome-ignore lint/a11y/noStaticElementInteractions: aria-hidden decorative companion — AT never reaches this element */}
+      {/* biome-ignore lint/a11y/useKeyWithClickEvents: aria-hidden decorative companion — AT never reaches this element */}
       <div
         ref={wrapperRef}
         className="absolute pointer-events-auto cursor-pointer"

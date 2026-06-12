@@ -131,3 +131,68 @@ export function getDegradedText(persona: Persona, userMessage: string): string {
   const intent = detectIntent(userMessage);
   return TEMPLATES[persona][intent];
 }
+
+// ---------------------------------------------------------------------------
+// Degraded-mode orbyMessage — canned arrival lines per persona × section
+// ---------------------------------------------------------------------------
+
+const DEGRADED_ORBY_MESSAGES: Record<
+  Persona,
+  Partial<Record<string, string>>
+> = {
+  friend: {
+    hero: "Welcome! This is where the journey starts.",
+    about: "Here's the backstory — pretty cool origin story.",
+    experience: "All the roles and adventures, right here.",
+    projects: "These are some of Anant's proudest builds — dig in!",
+    skills: "A whole stack of interesting stuff right here.",
+    education: "Where it all started — University of Minnesota!",
+    certifications: "Proof and credentials, neatly stacked.",
+    blog: "Thoughts in progress — check back soon.",
+    contact: "Reach out — he's genuinely good at getting back to people.",
+  },
+  recruiter: {
+    hero: "Anant Gupta — AI and Data Systems Engineer.",
+    about: "Professional background and summary.",
+    experience: "Work history and responsibilities are documented here.",
+    projects: "Project portfolio — deliverables and technology stack below.",
+    skills: "Technical competencies — full stack and data systems.",
+    education: "Academic credentials — University of Minnesota, CS.",
+    certifications: "Verified credentials from recognized programs.",
+    blog: "Published writing and technical notes.",
+    contact: "Direct contact channel — response time is typically prompt.",
+  },
+  weirdo: {
+    hero: "Entry point. You have arrived at the command center.",
+    about: "The biography scroll. Know the lore.",
+    experience: "The career timeline — read the runes.",
+    projects: "The artifact archive. Inspect the constructs.",
+    skills: "The capability lattice. Absorb the matrix.",
+    education: "The origin planet. Where it all began.",
+    certifications: "The credential vault. Verified truths.",
+    blog: "Dispatches from the void. Thoughts made text.",
+    contact: "The communication channel. Send your signal.",
+  },
+  ceo: {
+    hero: "The overview. Start here.",
+    about: "Background. Know who you're dealing with.",
+    experience: "Track record. Each role, each outcome.",
+    projects: "Portfolio. High-signal work, shipping velocity.",
+    skills: "Capability stack. Breadth and depth both present.",
+    education: "Foundation. Strong institutional base.",
+    certifications: "Verified credentials.",
+    blog: "Published thinking.",
+    contact: "Direct line. Let's make it happen.",
+  },
+};
+
+/**
+ * Returns a canned Orby arrival line for degraded-mode navigation, or null
+ * if no entry is defined for this persona/section combination.
+ */
+export function getDegradedOrbyMessage(
+  persona: Persona,
+  sectionId: string,
+): string | null {
+  return DEGRADED_ORBY_MESSAGES[persona]?.[sectionId] ?? null;
+}

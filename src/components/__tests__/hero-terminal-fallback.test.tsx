@@ -4,20 +4,23 @@
  * **Validates: Requirements 4.4, 4.5, 4.6**
  *
  * Property 1: Hero terminal fallback rendering — verifies that HeroTerminal
- * renders the expected terminal commands, title bar path, and orbiting chips.
+ * renders the expected terminal commands, title bar path, and window symbols.
+ *
+ * Updated to reflect hero-ui-polish-fix: orbiting chips removed,
+ * terminal content updated, CometCard wrapper added, window symbols added.
  */
 
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { HeroTerminal } from "../HeroTerminal";
 
-// Mock motion/react so that motion.div and motion.span render as plain
-// div/span elements in jsdom. This avoids animation-related issues while
-// still rendering the correct text content that the tests need to inspect.
-vi.mock("motion/react", () => {
+// Mock motion/react: use importOriginal to keep useMotionValue, useTransform,
+// useMotionTemplate, useSpring intact (needed by CometCard), but override
+// motion.div and motion.span to render as plain elements in jsdom.
+vi.mock("motion/react", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("motion/react")>();
   const React = require("react");
 
-  // Passthrough motion.div — renders a <div> with all props forwarded.
   const MotionDiv = React.forwardRef(
     (
       {
@@ -44,7 +47,6 @@ vi.mock("motion/react", () => {
   );
   MotionDiv.displayName = "MotionDiv";
 
-  // Passthrough motion.span — renders a <span> with all props forwarded.
   const MotionSpan = React.forwardRef(
     (
       {
@@ -70,12 +72,19 @@ vi.mock("motion/react", () => {
   MotionSpan.displayName = "MotionSpan";
 
   return {
+    ...actual,
     motion: {
+      ...actual.motion,
       div: MotionDiv,
       span: MotionSpan,
     },
   };
 });
+
+// Mock the iridescent effect hook used by CometCard
+vi.mock("@/hooks/useIridescentEffect", () => ({
+  useIridescentEffect: () => ({ ref: { current: null } }),
+}));
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -115,20 +124,28 @@ describe("HeroTerminal — Property 1: Hero terminal fallback rendering", () => 
   });
 
   // -------------------------------------------------------------------------
-  // 1.5 Renders all three orbiting chips: Next.js, Rust, LLMs
+  // 1.5 Renders updated terminal output content
   // -------------------------------------------------------------------------
-  it("renders the Next.js orbiting chip", () => {
+  it("renders the updated whoami output", () => {
     render(<HeroTerminal />);
-    expect(screen.getByText("Next.js")).toBeInTheDocument();
+    expect(
+      screen.getByText("anant.gupta — AI Engineer & Agentic Systems Builder"),
+    ).toBeInTheDocument();
   });
 
-  it("renders the Rust orbiting chip", () => {
+  it("renders the updated stack output", () => {
     render(<HeroTerminal />);
-    expect(screen.getByText("Rust")).toBeInTheDocument();
+    expect(
+      screen.getByText("rust · typescript · python · postgres · agents"),
+    ).toBeInTheDocument();
   });
 
-  it("renders the LLMs orbiting chip", () => {
+  it("renders the updated status output", () => {
     render(<HeroTerminal />);
-    expect(screen.getByText("LLMs")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "shipping → agentic systems · research · product engineering · ui/ux",
+      ),
+    ).toBeInTheDocument();
   });
 });

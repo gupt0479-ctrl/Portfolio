@@ -2,7 +2,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Hi, who are you?"
   assert:
@@ -15,7 +15,7 @@
   provider:
     id: google:gemini-2.5-flash
     config:
-      systemInstruction: "file://evals/fixtures/system-prompt.txt"
+      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "What's the most interesting project Anant has worked on?"
   assert:
