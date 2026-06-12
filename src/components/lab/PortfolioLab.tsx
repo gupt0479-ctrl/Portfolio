@@ -25,6 +25,12 @@ export function PortfolioLab() {
   const [persona, setPersona] = useState<Persona>("friend");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [panelOrbyState, setPanelOrbyState] = useState<PanelOrbyState>("idle");
+  const [chatStarted, setChatStarted] = useState(false);
+  const [orbyWaving, setOrbyWaving] = useState(false);
+  const [promptCopied, setPromptCopied] = useState(false);
+  const [perPersonaMessages, setPerPersonaMessages] = useState<
+    Record<Persona, ChatMessage[]>
+  >({ friend: [], recruiter: [], ceo: [], weirdo: [] });
   const abortRef = useRef<AbortController | null>(null);
   const navFiredRef = useRef(false);
 
@@ -42,6 +48,29 @@ export function PortfolioLab() {
     return () => {
       abortRef.current?.abort();
     };
+  }, []);
+
+  const handlePersonaChange = useCallback(
+    (newPersona: Persona) => {
+      if (newPersona === persona) return;
+      abortRef.current?.abort();
+      // Save current messages only if a chat was already underway
+      if (chatStarted) {
+        setPerPersonaMessages((prev) => ({ ...prev, [persona]: messages }));
+      }
+      const existing = perPersonaMessages[newPersona];
+      setMessages(existing);
+      setChatStarted(existing.length > 0);
+      setOrbyWaving(false);
+      setPanelOrbyState("idle");
+      setPersona(newPersona);
+    },
+    [chatStarted, persona, messages, perPersonaMessages],
+  );
+
+  const handleCopied = useCallback(() => {
+    setPromptCopied(true);
+    setTimeout(() => setPromptCopied(false), 2000);
   }, []);
 
   const handleSubmit = useCallback(
@@ -71,6 +100,12 @@ export function PortfolioLab() {
 
       setMessages((prev) => [...prev, userMessage, assistantPlaceholder]);
       setPanelOrbyState("thinking");
+
+      // Trigger wave on the very first message for this persona
+      if (!chatStarted) {
+        setOrbyWaving(true);
+        // chatStarted=true fires via PanelOrby onWaveComplete after 1500ms
+      }
 
       // Build conversation history for the API (text only — strip toolResults)
       const conversationHistory = messages.map((m) => ({
@@ -203,7 +238,7 @@ export function PortfolioLab() {
         });
       }
     },
-    [messages, persona],
+    [messages, persona, chatStarted],
   );
 
   const currentAssistantText =
@@ -231,27 +266,51 @@ export function PortfolioLab() {
         </button>
       </div>
 
-      {/* Persona selector */}
-      <PersonaSelector active={persona} onChange={setPersona} />
+      {/* Persona selector — always visible */}
+      <PersonaSelector active={persona} onChange={handlePersonaChange} />
 
-      {/* Suggested chips */}
-      <SuggestedChips persona={persona} onSend={handleSubmit} />
+      {chatStarted ? (
+        /* ── In-chat layout: personas + messages + input ── */
+        <>
+          <ChatThread messages={messages} />
+          <div className="px-4 pb-4 pt-2">
+            <ChatInputBar
+              onSubmit={handleSubmit}
+              onPersonaDetected={handlePersonaChange}
+            />
+          </div>
+        </>
+      ) : (
+        /* ── Pre-chat layout: chips + Orby + power prompt + input ── */
+        <>
+          <SuggestedChips persona={persona} onSend={handleSubmit} />
 
-      {/* Power prompt — only for recruiter / ceo */}
-      {(persona === "recruiter" || persona === "ceo") && (
-        <PowerPromptBlock persona={persona} />
+          <PanelOrby
+            state={panelOrbyState}
+            responseText={currentAssistantText}
+            isWaving={orbyWaving}
+            onWaveComplete={() => {
+              setOrbyWaving(false);
+              setChatStarted(true);
+            }}
+            copyConfirmation={promptCopied}
+          />
+
+          {/* Spacer pushes power prompt + input to bottom */}
+          <div className="flex-1" />
+
+          {(persona === "recruiter" || persona === "ceo") && (
+            <PowerPromptBlock persona={persona} onCopied={handleCopied} />
+          )}
+
+          <div className="px-4 pb-4 pt-2">
+            <ChatInputBar
+              onSubmit={handleSubmit}
+              onPersonaDetected={handlePersonaChange}
+            />
+          </div>
+        </>
       )}
-
-      {/* PanelOrby area — fixed at top of chat area */}
-      <PanelOrby state={panelOrbyState} responseText={currentAssistantText} />
-
-      {/* Chat thread — flex-1, overflow-y-auto */}
-      <ChatThread messages={messages} />
-
-      {/* Chat input bar — pinned at bottom */}
-      <div className="px-4 pb-4 pt-2">
-        <ChatInputBar onSubmit={handleSubmit} onPersonaDetected={setPersona} />
-      </div>
     </div>
   );
 }

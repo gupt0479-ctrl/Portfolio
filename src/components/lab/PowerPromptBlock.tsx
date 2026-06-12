@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface PowerPromptBlockProps {
   persona: "recruiter" | "ceo";
+  onCopied?: () => void;
 }
 
 const POWER_PROMPTS: Record<"recruiter" | "ceo", string> = {
@@ -13,13 +14,14 @@ const POWER_PROMPTS: Record<"recruiter" | "ceo", string> = {
   ceo: `[PERSONA:ceo] Executive summary on Anant Gupta — where is he now, where is he heading, and what makes him a high-leverage bet? Outcomes and trajectory only, no skills list.`,
 };
 
-export function PowerPromptBlock({ persona }: PowerPromptBlockProps) {
+export function PowerPromptBlock({ persona, onCopied }: PowerPromptBlockProps) {
   const [copied, setCopied] = useState(false);
   const text = POWER_PROMPTS[persona];
 
   const handleCopy = () => {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
+      onCopied?.();
       setTimeout(() => setCopied(false), 2000);
     });
   };
@@ -52,9 +54,6 @@ export function PowerPromptBlock({ persona }: PowerPromptBlockProps) {
           )}
         </button>
       </div>
-      <pre className="text-xs font-mono text-white/60 bg-white/[0.03] rounded-lg p-2.5 leading-relaxed whitespace-pre-wrap break-words">
-        {text}
-      </pre>
     </div>
   );
 }

@@ -1,22 +1,37 @@
 "use client";
 
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect } from "react";
 import { OrbyCanvas } from "@/components/orby/OrbyCanvas";
 import { cn } from "@/lib/utils";
-
-const COMING_SOON_RESPONSE =
-  "Still warming up! This feature is actively being built — check back soon.";
 
 type PanelOrbyState = "idle" | "thinking" | "responding";
 
 interface PanelOrbyProps {
   state: PanelOrbyState;
   responseText?: string;
+  isWaving?: boolean;
+  onWaveComplete?: () => void;
+  copyConfirmation?: boolean;
 }
 
-export function PanelOrby({ state, responseText }: PanelOrbyProps) {
-  const pose = state === "idle" ? "idle" : "idle";
-  const displayText = responseText ?? COMING_SOON_RESPONSE;
+export function PanelOrby({
+  state,
+  responseText,
+  isWaving,
+  onWaveComplete,
+  copyConfirmation,
+}: PanelOrbyProps) {
+  const pose = isWaving ? "wave" : "idle";
+
+  // Fire onWaveComplete after 1500ms when waving starts
+  useEffect(() => {
+    if (!isWaving) return;
+    const timer = setTimeout(() => {
+      onWaveComplete?.();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [isWaving, onWaveComplete]);
 
   return (
     <div
@@ -26,35 +41,66 @@ export function PanelOrby({ state, responseText }: PanelOrbyProps) {
       {/* Orby model with state-based wrapper animations */}
       <motion.div
         animate={
-          state === "idle"
-            ? { y: [0, -4, 0], x: [0, 3, 0] }
-            : state === "thinking"
-              ? { x: [0, 12, 12], y: [0, -2, 0] }
-              : { y: [0, -2, 0] }
+          isWaving
+            ? { y: [0, -4, 0], x: [0, 2, 0] }
+            : state === "idle"
+              ? { y: [0, -4, 0], x: [0, 3, 0] }
+              : state === "thinking"
+                ? { x: [0, 12, 12], y: [0, -2, 0] }
+                : { y: [0, -2, 0] }
         }
         transition={
-          state === "idle"
+          isWaving
             ? {
-                y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-                x: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+                y: { duration: 1.5, ease: "easeInOut" },
+                x: { duration: 2, ease: "easeInOut" },
               }
-            : state === "thinking"
+            : state === "idle"
               ? {
-                  x: { duration: 0.6, ease: "easeOut" },
-                  y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                  y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
+                  x: { duration: 4, repeat: Infinity, ease: "easeInOut" },
                 }
-              : {
-                  y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
-                }
+              : state === "thinking"
+                ? {
+                    x: { duration: 0.6, ease: "easeOut" },
+                    y: { duration: 2, repeat: Infinity, ease: "easeInOut" },
+                  }
+                : {
+                    y: { duration: 2.5, repeat: Infinity, ease: "easeInOut" },
+                  }
         }
       >
-        <OrbyCanvas pose={pose} speaking={state === "responding"} size={72} />
+        <OrbyCanvas
+          pose={pose}
+          speaking={state === "responding" && !isWaving}
+          size={72}
+        />
       </motion.div>
 
       {/* Speech cloud area */}
       <div className="relative mt-3 min-h-[48px] w-full flex items-center justify-center">
         <AnimatePresence mode="wait">
-          {state === "thinking" && (
+          {copyConfirmation && !isWaving && (
+            <motion.div
+              key="copy-cloud"
+              initial={{ opacity: 0, scale: 0.85, y: 4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: -4 }}
+              transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              className={cn(
+                "max-w-[220px] px-3 py-2 rounded-xl",
+                "bg-[rgba(15,15,30,0.92)]",
+                "border border-[rgba(139,92,246,0.3)]",
+                "backdrop-blur-[8px]",
+                "shadow-[0_4px_12px_rgba(0,0,0,0.4),0_0_8px_rgba(139,92,246,0.15)]",
+                "font-sans text-[11px] leading-[1.4] text-[rgba(255,255,255,0.85)] text-center",
+              )}
+            >
+              Prompt copied — paste it in the chat box ↓
+            </motion.div>
+          )}
+
+          {!copyConfirmation && !isWaving && state === "thinking" && (
             <motion.div
               key="thinking-cloud"
               initial={{ opacity: 0, scale: 0.85 }}
@@ -81,7 +127,7 @@ export function PanelOrby({ state, responseText }: PanelOrbyProps) {
             </motion.div>
           )}
 
-          {state === "responding" && (
+          {!copyConfirmation && !isWaving && state === "responding" && (
             <motion.div
               key="responding-cloud"
               initial={{ opacity: 0, scale: 0.85, y: 4 }}
@@ -97,7 +143,7 @@ export function PanelOrby({ state, responseText }: PanelOrbyProps) {
                 "font-sans text-[11px] leading-[1.4] text-[rgba(255,255,255,0.85)]",
               )}
             >
-              {displayText}
+              {responseText}
             </motion.div>
           )}
         </AnimatePresence>
