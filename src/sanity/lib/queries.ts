@@ -75,6 +75,7 @@ export const PROJECTS_QUERY = defineQuery(`
   title,
   slug{ current },
   tagline,
+  summary,
   coverImage,
   technologies[]->{
     _id,
@@ -124,8 +125,8 @@ export const EXPERIENCE_QUERY = defineQuery(`
   startDate,
   endDate,
   "current": select(
+    defined(tenure) => tenure == "current",
     current == true => true,
-    tenure == "current" => true,
     false
   ),
   "tenure": select(
@@ -153,7 +154,7 @@ export const EXPERIENCE_QUERY = defineQuery(`
 
 export const EDUCATION_QUERY = defineQuery(`
   *[_type == "education"] | order(startDate desc){
-    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa
+    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa, logo
   }
 `);
 
@@ -177,9 +178,9 @@ export const BLOG_QUERY = defineQuery(`
 
 export const PROJECT_BY_SLUG_QUERY = defineQuery(`
   *[_type == "project" && slug.current == $slug][0]{
-    _id, title, "slug": slug.current, tagline,
+    _id, title, "slug": slug.current, tagline, summary,
     "technologies": technologies[]->{ name },
-    liveUrl, githubUrl, description
+    liveUrl, githubUrl
   }
 `);
 

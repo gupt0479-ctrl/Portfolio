@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  Bloom,
+  ChromaticAberration,
+  EffectComposer,
+} from "@react-three/postprocessing";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -188,9 +193,10 @@ type GraphProps = {
   planetCount: number;
   ringCount: number;
   starCount: number;
+  skipEffects: boolean;
 };
 
-function Graph({ planetCount, ringCount, starCount }: GraphProps) {
+function Graph({ planetCount, ringCount, starCount, skipEffects }: GraphProps) {
   const planetPointsRef = useRef<THREE.Points>(null);
   const ringPointsRef = useRef<THREE.Points>(null);
   const starPointsRef = useRef<THREE.Points>(null);
@@ -483,7 +489,11 @@ function Graph({ planetCount, ringCount, starCount }: GraphProps) {
     // Planet brightens as it becomes the focal element
     if (planetPointsRef.current) {
       const mat = planetPointsRef.current.material as THREE.PointsMaterial;
-      mat.opacity = lerpN(0.52, 0.76, stretchT);
+      mat.opacity = lerpN(0.32, 0.55, stretchT);
+      // Slow hue drift: violet (#9D8BBF) ↔ cyan (#8BBFC0) over ~60s half-period
+      if (!skipEffects) {
+        mat.color.setHSL(0.615 + Math.sin(t * 0.03) * 0.115, 0.31, 0.65);
+      }
     }
 
     // Effective pointer world (gracefully fades when cursor leaves)
@@ -807,7 +817,8 @@ function Graph({ planetCount, ringCount, starCount }: GraphProps) {
           size={0.017}
           color={COL_RING}
           transparent
-          opacity={0.46}
+          opacity={0.3}
+          blending={THREE.AdditiveBlending}
           depthWrite={false}
           sizeAttenuation={true}
           alphaMap={pointTex}
@@ -818,7 +829,8 @@ function Graph({ planetCount, ringCount, starCount }: GraphProps) {
           size={0.022}
           color={COL_PLANET}
           transparent
-          opacity={0.52}
+          opacity={0.32}
+          blending={THREE.AdditiveBlending}
           depthWrite={false}
           sizeAttenuation={true}
           alphaMap={pointTex}
@@ -832,6 +844,21 @@ function Graph({ planetCount, ringCount, starCount }: GraphProps) {
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
     </>
+  );
+}
+
+// ─── Post-processing effects (desktop / full-motion only) ────────────────────
+
+function SceneEffects() {
+  return (
+    <EffectComposer>
+      <Bloom
+        luminanceThreshold={0.18}
+        luminanceSmoothing={0.9}
+        intensity={0.35}
+      />
+      <ChromaticAberration offset={new THREE.Vector2(0.0004, 0.0004)} />
+    </EffectComposer>
   );
 }
 
@@ -870,11 +897,13 @@ export default function ObsidianBackground({
 }) {
   const [mounted, setMounted] = useState(false);
   const isMobile = useIsMobile();
+  const reducedMotion = useReducedMotion();
   useEffect(() => {
     setMounted(true);
   }, []);
   if (!mounted) return null;
 
+  const skipEffects = isMobile || reducedMotion;
   const planetCount = isMobile ? PLANET_COUNT_MOBILE : PLANET_COUNT_DESKTOP;
   const ringCount = isMobile ? RING_COUNT_MOBILE : RING_COUNT_DESKTOP;
   const starCount = isMobile ? STAR_COUNT_MOBILE : STAR_COUNT_DESKTOP;
@@ -945,7 +974,9 @@ export default function ObsidianBackground({
             planetCount={planetCount}
             ringCount={ringCount}
             starCount={starCount}
+            skipEffects={skipEffects}
           />
+          {!skipEffects && <SceneEffects />}
         </Canvas>
       </Suspense>
     </div>

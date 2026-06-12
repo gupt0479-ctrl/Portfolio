@@ -1776,6 +1776,13 @@
         },
         "optional": true
       },
+      "summary": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "string"
+        },
+        "optional": true
+      },
       "coverImage": {
         "type": "objectAttribute",
         "value": {

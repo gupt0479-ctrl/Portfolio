@@ -31,6 +31,11 @@ export const project = defineType({
       ],
     }),
     defineField({
+      name: "summary",
+      type: "text",
+      description: "Long-form project description for the detail view.",
+    }),
+    defineField({
       name: "coverImage",
       type: "image",
       options: { hotspot: true },

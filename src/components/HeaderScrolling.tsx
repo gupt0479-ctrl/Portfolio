@@ -1,6 +1,7 @@
 "use client";
 
 import { Menu, Moon, X } from "lucide-react";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 import {
   Sheet,
@@ -107,6 +108,7 @@ function NavLink({
 
 export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
   const show = useShowOnScroll(80);
+  useTheme();
   const { open, openMobile, isMobile } = useSidebar();
   const isSidebarOpen = isMobile ? openMobile : open;
   const activeSection = useActiveSection();
@@ -164,10 +166,17 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
           })}
         </nav>
 
-        <div className="ml-auto hidden shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 md:flex">
+        <button
+          type="button"
+          onClick={() => {
+            /* light mode not yet designed — wire setTheme('light') here later */
+          }}
+          aria-label="Color theme — dark mode active (light mode coming soon)"
+          className="float-btn ml-auto hidden shrink-0 cursor-default items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 md:flex"
+        >
           <Moon className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Dark</span>
-        </div>
+        </button>
 
         <div className="ml-auto md:hidden">
           <Sheet>

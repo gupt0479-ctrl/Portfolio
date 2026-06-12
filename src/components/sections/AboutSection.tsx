@@ -43,11 +43,7 @@ export async function AboutSection() {
         </div>
 
         {/* Bio */}
-        <CometCard
-          variant="ghost"
-          rotateDepth={4}
-          translateDepth={6}
-        >
+        <CometCard variant="ghost" rotateDepth={4} translateDepth={6}>
           <div className="prose prose-lg dark:prose-invert max-w-none p-6">
             {profile.fullBio && (
               <PortableText

@@ -1,6 +1,7 @@
 import { ExternalLink } from "lucide-react";
 import { defineQuery } from "next-sanity";
 import { CometCard } from "@/components/ui/comet-card";
+import { SpaceRail } from "@/components/ui/space-rail";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { Achievement } from "@/sanity/types";
 
@@ -25,18 +26,14 @@ export async function AchievementsSection() {
       </h2>
 
       <CometCard variant="subtle" rotateDepth={4} translateDepth={6}>
-        <div className="relative overflow-hidden rounded-xl p-6">
-          {/* Vertical glowing rail */}
-          <div
-            className="absolute left-6 top-0 bottom-0 w-px"
-            style={{
-              background:
-                "linear-gradient(180deg, rgba(143,124,247,0.3) 0%, rgba(143,124,247,0.1) 100%)",
-            }}
-            aria-hidden
-          />
+        {/* SpaceRail sits as a flex sibling to the items list.
+            SpaceRail is "use client"; AchievementsSection stays async/server. */}
+        <div className="flex rounded-xl overflow-hidden">
+          {/* Timeline track — SpaceRail spans the full height of the items column */}
+          <SpaceRail itemCount={list.length} width="w-10" className="py-0" />
 
-          <div className="border-t border-white/[0.06]">
+          {/* Items list — full width, no left padding needed (rail is its own column) */}
+          <div className="flex-1 min-w-0 border-t border-white/[0.06] pr-4">
             {list.map((item) => {
               const year = item.date
                 ? String(new Date(item.date).getFullYear())
@@ -44,17 +41,8 @@ export async function AchievementsSection() {
               return (
                 <div
                   key={item._id}
-                  className={[
-                    "group relative flex gap-4 border-b border-white/[0.06] py-5 pl-10 transition-colors duration-150 ease-out",
-                    "hover:bg-[rgba(167,139,250,0.04)]",
-                  ].join(" ")}
+                  className="group relative flex gap-4 border-b border-white/[0.06] py-5 transition-colors duration-150 ease-out hover:bg-[rgba(167,139,250,0.04)]"
                 >
-                  {/* Rail dot */}
-                  <div
-                    className="absolute left-[21px] top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-violet-500/30 group-hover:bg-violet-500/60 transition-colors"
-                    aria-hidden
-                  />
-
                   <div className="flex w-16 shrink-0 flex-col items-start gap-1.5">
                     <div className="flex min-h-[10px] items-center gap-2">
                       {item.featured ? (

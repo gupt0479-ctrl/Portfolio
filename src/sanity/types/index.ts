@@ -274,6 +274,7 @@ export type Project = {
   title?: string;
   slug?: Slug;
   tagline?: string;
+  summary?: string;
   coverImage?: {
     asset?: {
       _ref: string;
@@ -793,7 +794,7 @@ export type NAVIGATION_QUERYResult = Array<{
   order: number | null;
 }>;
 // Variable: PROJECTS_QUERY
-// Query: *[_type == "project"] | order(order asc, title asc){  _id,  title,  slug{ current },  tagline,  coverImage,  technologies[]->{    _id,    name,    category,    proficiency,    percentage,    yearsOfExperience,    tone  },  category,  liveUrl,  githubUrl,  "featured": select(    featured == true => true,    visibility == "featured" => true,    false  ),  "visibility": select(    defined(visibility) => visibility,    featured == true => "featured",    "standard"  ),  order}
+// Query: *[_type == "project"] | order(order asc, title asc){  _id,  title,  slug{ current },  tagline,  summary,  coverImage,  technologies[]->{    _id,    name,    category,    proficiency,    percentage,    yearsOfExperience,    tone  },  category,  liveUrl,  githubUrl,  "featured": select(    featured == true => true,    visibility == "featured" => true,    false  ),  "visibility": select(    defined(visibility) => visibility,    featured == true => "featured",    "standard"  ),  order}
 export type PROJECTS_QUERYResult = Array<{
   _id: string;
   title: string | null;
@@ -801,6 +802,7 @@ export type PROJECTS_QUERYResult = Array<{
     current: string | null;
   } | null;
   tagline: string | null;
+  summary: string | null;
   coverImage: {
     asset?: {
       _ref: string;
@@ -842,7 +844,7 @@ export type SKILLS_QUERYResult = Array<{
   tone: "accent" | "highlight" | "muted" | "neutral";
 }>;
 // Variable: EXPERIENCE_QUERY
-// Query: *[_type == "experience"] | order(order asc, startDate desc){  _id,  company,  position,  employmentType,  location,  startDate,  endDate,  "current": select(    current == true => true,    tenure == "current" => true,    false  ),  "tenure": select(    defined(tenure) => tenure,    current == true => "current",    "past"  ),  description,  responsibilities[],  achievements[],  technologies[]->{    _id,    name,    category,    proficiency,    percentage,    yearsOfExperience,    tone  },  companyLogo,  companyWebsite,  order}
+// Query: *[_type == "experience"] | order(order asc, startDate desc){  _id,  company,  position,  employmentType,  location,  startDate,  endDate,  "current": select(    defined(tenure) => tenure == "current",    current == true => true,    false  ),  "tenure": select(    defined(tenure) => tenure,    current == true => "current",    "past"  ),  description,  responsibilities[],  achievements[],  technologies[]->{    _id,    name,    category,    proficiency,    percentage,    yearsOfExperience,    tone  },  companyLogo,  companyWebsite,  order}
 export type EXPERIENCE_QUERYResult = Array<{
   _id: string;
   company: string | null;
@@ -899,7 +901,7 @@ export type EXPERIENCE_QUERYResult = Array<{
   order: number | null;
 }>;
 // Variable: EDUCATION_QUERY
-// Query: *[_type == "education"] | order(startDate desc){    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa  }
+// Query: *[_type == "education"] | order(startDate desc){    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa, logo  }
 export type EDUCATION_QUERYResult = Array<{
   _id: string;
   institution: string | null;
@@ -910,6 +912,18 @@ export type EDUCATION_QUERYResult = Array<{
   current: boolean | null;
   description: string | null;
   gpa: string | null;
+  logo: {
+    asset?: {
+      _ref: string;
+      _type: "reference";
+      _weak?: boolean;
+      [internalGroqTypeReferenceTo]?: "sanity.imageAsset";
+    };
+    media?: unknown;
+    hotspot?: SanityImageHotspot;
+    crop?: SanityImageCrop;
+    _type: "image";
+  } | null;
 }>;
 // Variable: CERTIFICATIONS_QUERY
 // Query: *[_type == "certification"] | order(issueDate desc){    _id, name, issuer, issueDate, credentialId, credentialUrl, logo, description  }
@@ -970,18 +984,18 @@ export type BLOG_QUERYResult = Array<{
   } | null;
 }>;
 // Variable: PROJECT_BY_SLUG_QUERY
-// Query: *[_type == "project" && slug.current == $slug][0]{    _id, title, "slug": slug.current, tagline,    "technologies": technologies[]->{ name },    liveUrl, githubUrl, description  }
+// Query: *[_type == "project" && slug.current == $slug][0]{    _id, title, "slug": slug.current, tagline, summary,    "technologies": technologies[]->{ name },    liveUrl, githubUrl  }
 export type PROJECT_BY_SLUG_QUERYResult = {
   _id: string;
   title: string | null;
   slug: string | null;
   tagline: string | null;
+  summary: string | null;
   technologies: Array<{
     name: string | null;
   }> | null;
   liveUrl: string | null;
   githubUrl: string | null;
-  description: null;
 } | null;
 // Variable: EXPERIENCE_BY_ID_QUERY
 // Query: *[_type == "experience" && _id == $id][0]{    _id, company, position, employmentType, location,    startDate, endDate, current, description,    responsibilities, "technologies": technologies[]->{ name }  }
@@ -1089,18 +1103,17 @@ declare module "@sanity/client" {
     "\n  *[_type == \"blog\"] | order(publishedAt desc)[0...6]{\n    _id, title, slug, excerpt, externalUrl, publishedAt, readTime, category\n  }\n": BLOG_SECTION_QUERYResult;
     "\n  *[_type == \"certification\"] | order(issueDate desc){\n    _id, name, issuer, issueDate, expiryDate, credentialId, credentialUrl, logo, description,\n    skills[]->{ _id, name, category }\n  }\n": CERTS_SECTION_QUERYResult;
     "\n  coalesce(\n    *[_type == \"profile\" && _id == \"singleton-profile\"][0],\n    *[_type == \"profile\"][0]\n  ){\n    email,\n    location,\n    socialLinks{\n      github,\n      linkedin,\n      twitter,\n      website\n    }\n  }\n": CONTACT_QUERYResult;
-    "\n  *[_type == \"education\"] | order(startDate desc){\n    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa, logo\n  }\n": EDUCATION_SECTION_QUERYResult;
+    "\n  *[_type == \"education\"] | order(startDate desc){\n    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa, logo\n  }\n": EDUCATION_SECTION_QUERYResult | EDUCATION_QUERYResult;
     "\ncoalesce(\n  *[_type == \"profile\" && _id == \"singleton-profile\"][0],\n  *[_type == \"profile\"][0]\n){\n  _id,\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  profileImage,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks{\n    github,\n    linkedin,\n    twitter,\n    website,\n    medium,\n    devto,\n    youtube,\n    stackoverflow\n  },\n  yearsOfExperience,\n  stats[]{\n    label,\n    value\n  }\n}\n": PROFILE_QUERYResult;
     "\ncoalesce(\n  *[_type == \"siteSettings\" && _id == \"singleton-site-settings\"][0],\n  *[_type == \"siteSettings\" && _id == \"singleton-siteSettings\"][0],\n  *[_type == \"siteSettings\"][0]\n){\n  _id,\n  siteTitle,\n  siteDescription,\n  siteLogo,\n  showBlog,\n  _createdAt,\n  _updatedAt\n}\n": SITE_SETTINGS_QUERYResult;
     "\n*[_type == \"navigation\"] | order(order asc){\n  _id,\n  title,\n  href,\n  icon,\n  \"isExternal\": select(\n    isExternal == true => true,\n    linkType == \"external\" => true,\n    false\n  ),\n  order\n}\n": NAVIGATION_QUERYResult;
-    "\n*[_type == \"project\"] | order(order asc, title asc){\n  _id,\n  title,\n  slug{ current },\n  tagline,\n  coverImage,\n  technologies[]->{\n    _id,\n    name,\n    category,\n    proficiency,\n    percentage,\n    yearsOfExperience,\n    tone\n  },\n  category,\n  liveUrl,\n  githubUrl,\n  \"featured\": select(\n    featured == true => true,\n    visibility == \"featured\" => true,\n    false\n  ),\n  \"visibility\": select(\n    defined(visibility) => visibility,\n    featured == true => \"featured\",\n    \"standard\"\n  ),\n  order\n}\n": PROJECTS_QUERYResult;
+    "\n*[_type == \"project\"] | order(order asc, title asc){\n  _id,\n  title,\n  slug{ current },\n  tagline,\n  summary,\n  coverImage,\n  technologies[]->{\n    _id,\n    name,\n    category,\n    proficiency,\n    percentage,\n    yearsOfExperience,\n    tone\n  },\n  category,\n  liveUrl,\n  githubUrl,\n  \"featured\": select(\n    featured == true => true,\n    visibility == \"featured\" => true,\n    false\n  ),\n  \"visibility\": select(\n    defined(visibility) => visibility,\n    featured == true => \"featured\",\n    \"standard\"\n  ),\n  order\n}\n": PROJECTS_QUERYResult;
     "\n*[_type == \"skill\"] | order(category asc, name asc){\n  _id,\n  name,\n  category,\n  proficiency,\n  percentage,\n  yearsOfExperience,\n  \"tone\": coalesce(tone, \"neutral\")\n}\n": SKILLS_QUERYResult;
-    "\n*[_type == \"experience\"] | order(order asc, startDate desc){\n  _id,\n  company,\n  position,\n  employmentType,\n  location,\n  startDate,\n  endDate,\n  \"current\": select(\n    current == true => true,\n    tenure == \"current\" => true,\n    false\n  ),\n  \"tenure\": select(\n    defined(tenure) => tenure,\n    current == true => \"current\",\n    \"past\"\n  ),\n  description,\n  responsibilities[],\n  achievements[],\n  technologies[]->{\n    _id,\n    name,\n    category,\n    proficiency,\n    percentage,\n    yearsOfExperience,\n    tone\n  },\n  companyLogo,\n  companyWebsite,\n  order\n}\n": EXPERIENCE_QUERYResult;
-    "\n  *[_type == \"education\"] | order(startDate desc){\n    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa\n  }\n": EDUCATION_QUERYResult;
+    "\n*[_type == \"experience\"] | order(order asc, startDate desc){\n  _id,\n  company,\n  position,\n  employmentType,\n  location,\n  startDate,\n  endDate,\n  \"current\": select(\n    defined(tenure) => tenure == \"current\",\n    current == true => true,\n    false\n  ),\n  \"tenure\": select(\n    defined(tenure) => tenure,\n    current == true => \"current\",\n    \"past\"\n  ),\n  description,\n  responsibilities[],\n  achievements[],\n  technologies[]->{\n    _id,\n    name,\n    category,\n    proficiency,\n    percentage,\n    yearsOfExperience,\n    tone\n  },\n  companyLogo,\n  companyWebsite,\n  order\n}\n": EXPERIENCE_QUERYResult;
     "\n  *[_type == \"certification\"] | order(issueDate desc){\n    _id, name, issuer, issueDate, credentialId, credentialUrl, logo, description\n  }\n": CERTIFICATIONS_QUERYResult;
     "\n  *[_type == \"achievement\"] | order(featured desc, order asc, date desc){\n    _id, title, description, date, type, featured, url\n  }\n": ACHIEVEMENTS_QUERYResult;
     "\n  *[_type == \"blog\"] | order(publishedAt desc)[0...6]{\n    _id, title, slug, excerpt, externalUrl, publishedAt, readTime, category, featuredImage\n  }\n": BLOG_QUERYResult;
-    "\n  *[_type == \"project\" && slug.current == $slug][0]{\n    _id, title, \"slug\": slug.current, tagline,\n    \"technologies\": technologies[]->{ name },\n    liveUrl, githubUrl, description\n  }\n": PROJECT_BY_SLUG_QUERYResult;
+    "\n  *[_type == \"project\" && slug.current == $slug][0]{\n    _id, title, \"slug\": slug.current, tagline, summary,\n    \"technologies\": technologies[]->{ name },\n    liveUrl, githubUrl\n  }\n": PROJECT_BY_SLUG_QUERYResult;
     "\n  *[_type == \"experience\" && _id == $id][0]{\n    _id, company, position, employmentType, location,\n    startDate, endDate, current, description,\n    responsibilities, \"technologies\": technologies[]->{ name }\n  }\n": EXPERIENCE_BY_ID_QUERYResult;
     "{\n  \"projects\": *[_type == \"project\"] | order(order asc, title asc){\n    _id, title, \"slug\": slug.current, tagline\n  },\n  \"experience\": *[_type == \"experience\"] | order(order asc, startDate desc){\n    _id, company, position,\n    \"current\": select(current == true => true, tenure == \"current\" => true, false),\n    description\n  },\n  \"skills\": *[_type == \"skill\"] | order(category asc, name asc){\n    _id, name, category, proficiency\n  },\n  \"education\": *[_type == \"education\"] | order(startDate desc){\n    _id, institution, degree, fieldOfStudy, startDate, endDate\n  },\n  \"certifications\": *[_type == \"certification\"] | order(issueDate desc){\n    _id, name, issuer, issueDate\n  },\n  \"achievements\": *[_type == \"achievement\"] | order(featured desc, order asc){\n    _id, title, description, date, type, featured\n  }\n}": CHAT_CATALOG_QUERYResult;
   }
