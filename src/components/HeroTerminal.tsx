@@ -13,8 +13,7 @@ const TERMINAL_LINES = [
   },
   {
     prompt: "$ status",
-    output:
-      "shipping → agentic systems · research · product engineering · ui/ux",
+    output: "shipping → agentic systems · research · product engineering",
   },
 ];
 

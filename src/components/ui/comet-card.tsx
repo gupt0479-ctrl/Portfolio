@@ -10,7 +10,7 @@ import type React from "react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
 
-type CometCardVariant = "default" | "dark" | "subtle";
+type CometCardVariant = "default" | "dark" | "subtle" | "ghost";
 
 export const CometCard = ({
   rotateDepth = 17.5,
@@ -25,9 +25,11 @@ export const CometCard = ({
   className?: string;
   children: React.ReactNode;
 }) => {
-  // Subtle variant caps rotateDepth at 6
+  // Subtle and ghost variants cap rotateDepth at 6
   const effectiveRotateDepth =
-    variant === "subtle" ? Math.min(rotateDepth, 6) : rotateDepth;
+    variant === "subtle" || variant === "ghost"
+      ? Math.min(rotateDepth, 6)
+      : rotateDepth;
   const ref = useRef<HTMLDivElement>(null);
 
   const x = useMotionValue(0);
@@ -99,10 +101,20 @@ export const CometCard = ({
       ? "cosmic-card--dark"
       : variant === "subtle"
         ? "cosmic-card--subtle"
-        : "cosmic-card";
+        : variant === "ghost"
+          ? ""
+          : "cosmic-card";
   const glareOpacity =
-    variant === "dark" ? 0.35 : variant === "subtle" ? 0.25 : 0.5;
+    variant === "dark"
+      ? 0.35
+      : variant === "subtle" || variant === "ghost"
+        ? 0.25
+        : 0.5;
   const hoverScale = variant === "default" ? 1.05 : 1.02;
+  const cardShadow =
+    variant === "ghost"
+      ? "none"
+      : "rgba(0, 0, 0, 0.05) 0px 5px 6px 0px, rgba(0, 0, 0, 0.08) 0px 10px 15px 0px, rgba(0, 0, 0, 0.12) 0px 15px 25px 0px";
 
   return (
     <div className={cn("perspective-distant transform-3d", className)}>
@@ -115,8 +127,7 @@ export const CometCard = ({
           rotateY,
           translateX,
           translateY,
-          boxShadow:
-            "rgba(0, 0, 0, 0.05) 0px 5px 6px 0px, rgba(0, 0, 0, 0.08) 0px 10px 15px 0px, rgba(0, 0, 0, 0.12) 0px 15px 25px 0px",
+          boxShadow: cardShadow,
         }}
         initial={{ scale: 1, z: 0 }}
         whileHover={{

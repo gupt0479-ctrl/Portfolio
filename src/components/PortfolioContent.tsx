@@ -42,7 +42,7 @@ export default async function PortfolioContent() {
       </div>
       <main className="relative z-10 min-h-screen text-white">
         <HeroSection />
-        <div className="relative z-10 flex justify-center py-8">
+        <div className="relative z-10 flex justify-center">
           <HeroTerminal />
         </div>
         <AboutSection />

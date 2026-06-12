@@ -1,0 +1,18 @@
+{
+  "enabled": false,
+  "name": "Lint on Save",
+  "description": "Run Biome lint check after editing TypeScript/CSS files to catch formatting issues immediately",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/**/*.tsx",
+      "src/**/*.ts",
+      "src/**/*.css"
+    ]
+  },
+  "then": {
+    "type": "runCommand",
+    "command": "pnpm lint"
+  }
+}

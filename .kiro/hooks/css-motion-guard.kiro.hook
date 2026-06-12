@@ -1,0 +1,16 @@
+{
+  "enabled": true,
+  "name": "Reduced Motion Guard",
+  "description": "After editing globals.css, verify that prefers-reduced-motion media query still exists and covers all new animation classes",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "src/app/globals.css"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "globals.css was just edited. Verify that EVERY animation class introduced (cosmic-float on .float-btn, .cosmic-drift, and any other new keyframe-based animation) has a corresponding override inside the @media (prefers-reduced-motion: reduce) block that sets animation: none. If any new animation is missing from the reduced-motion block, add it immediately."
+  }
+}

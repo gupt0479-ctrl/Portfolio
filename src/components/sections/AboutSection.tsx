@@ -43,7 +43,11 @@ export async function AboutSection() {
         </div>
 
         {/* Bio */}
-        <CometCard variant="subtle" rotateDepth={4} translateDepth={6}>
+        <CometCard
+          variant="ghost"
+          rotateDepth={4}
+          translateDepth={6}
+        >
           <div className="prose prose-lg dark:prose-invert max-w-none p-6">
             {profile.fullBio && (
               <PortableText
@@ -116,9 +120,7 @@ export async function AboutSection() {
         {/* Telemetry stats */}
         {profile.stats && profile.stats.length > 0 && (
           <div className="mt-8">
-            <CometCard variant="subtle" rotateDepth={4} translateDepth={6}>
-              <AboutTelemetry stats={profile.stats} />
-            </CometCard>
+            <AboutTelemetry stats={profile.stats} />
           </div>
         )}
       </div>
