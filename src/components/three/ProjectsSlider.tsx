@@ -4,7 +4,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CometCard } from "@/components/ui/comet-card";
 import { useIridescentEffect } from "@/hooks/useIridescentEffect";
+import { useSpaceFloat } from "@/hooks/use-space-float";
+import { getSkillColor } from "@/lib/category-colors";
 import { urlFor } from "@/sanity/lib/image";
 import type { PROJECTS_QUERYResult } from "@/sanity/types";
 
@@ -12,13 +15,6 @@ type Project = PROJECTS_QUERYResult[number];
 
 interface ProjectsSliderProps {
   projects: PROJECTS_QUERYResult;
-}
-
-function getTechTags(project: Project): string[] {
-  return (project.technologies ?? [])
-    .map((t) => t?.name ?? null)
-    .filter((v): v is string => typeof v === "string" && v.trim().length > 0)
-    .slice(0, 4);
 }
 
 function ViewLiveButton({ href }: { href: string }) {
@@ -68,7 +64,11 @@ interface ProjectCardProps {
 
 function ProjectCard({ project, isCenter }: ProjectCardProps) {
   const [hovered, setHovered] = useState(false);
-  const tags = getTechTags(project);
+  const tags = (project.technologies ?? [])
+    .filter(
+      (t): t is NonNullable<typeof t> => t != null && Boolean(t.name?.trim()),
+    )
+    .slice(0, 4);
   const title = project.title?.trim() || "Untitled";
 
   return (
@@ -105,21 +105,29 @@ function ProjectCard({ project, isCenter }: ProjectCardProps) {
 
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mt-3">
-            {tags.map((tag) => (
-              <span key={tag} className="orbit-chip">
-                {tag}
+            {tags.map((tech) => (
+              <span
+                key={tech._id}
+                className="orbit-chip"
+                style={
+                  {
+                    "--chip-color": getSkillColor(tech.color, tech.category),
+                  } as React.CSSProperties
+                }
+              >
+                {tech.name}
               </span>
             ))}
           </div>
         )}
 
-        {isCenter && (
+        {isCenter && project.summary && (
           <div className="mt-4 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
-            <p className="text-[11px] text-white/35 font-mono">case note</p>
-            <p className="text-xs text-white/50 mt-1 font-sans">
-              {project.category ? `Category: ${project.category}` : ""}
-              {project.liveUrl ? " · Live" : ""}
-              {project.githubUrl ? " · Open Source" : ""}
+            <p className="text-[11px] text-white/35 font-mono mb-1">
+              case note
+            </p>
+            <p className="text-xs text-white/55 font-sans leading-relaxed line-clamp-3">
+              {project.summary}
             </p>
           </div>
         )}
@@ -171,17 +179,38 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
   const safeProjects = projects ?? [];
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState(0);
+  const [tetherActive, setTetherActive] = useState(false);
+  const tetherDirRef = useRef(0);
   const dragRef = useRef({ startX: 0, currentX: 0, isDragging: false });
+
+  const { ref: centerFloatRef, style: centerFloatStyle } = useSpaceFloat({
+    radius: 5,
+    rotate: 0.4,
+  });
+  const { ref: leftFloatRef, style: leftFloatStyle } = useSpaceFloat({
+    radius: 4,
+    rotate: 0.3,
+  });
+  const { ref: rightFloatRef, style: rightFloatStyle } = useSpaceFloat({
+    radius: 4,
+    rotate: 0.3,
+  });
 
   const goNext = useCallback(() => {
     if (!safeProjects.length) return;
     setDirection(1);
+    tetherDirRef.current = 1;
+    setTetherActive(true);
+    setTimeout(() => setTetherActive(false), 440);
     setCurrentIndex((prev) => (prev + 1) % safeProjects.length);
   }, [safeProjects.length]);
 
   const goPrev = useCallback(() => {
     if (!safeProjects.length) return;
     setDirection(-1);
+    tetherDirRef.current = -1;
+    setTetherActive(true);
+    setTimeout(() => setTetherActive(false), 440);
     setCurrentIndex(
       (prev) => (prev - 1 + safeProjects.length) % safeProjects.length,
     );
@@ -242,6 +271,7 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
   return (
     <section
       aria-label="Projects carousel"
+      className="relative"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -250,9 +280,32 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {tetherActive && (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-[6] flex items-center justify-center overflow-hidden"
+        >
+          <div
+            className="h-[2px] w-full max-w-sm rounded-full"
+            style={{
+              background:
+                tetherDirRef.current > 0
+                  ? "linear-gradient(90deg, transparent 0%, rgba(167,139,250,0.0) 5%, rgba(167,139,250,0.65) 35%, rgba(103,232,249,0.85) 55%, rgba(167,139,250,0.35) 80%, transparent 100%)"
+                  : "linear-gradient(270deg, transparent 0%, rgba(167,139,250,0.0) 5%, rgba(167,139,250,0.65) 35%, rgba(103,232,249,0.85) 55%, rgba(167,139,250,0.35) 80%, transparent 100%)",
+              boxShadow:
+                "0 0 14px rgba(167,139,250,0.55), 0 0 4px rgba(103,232,249,0.35)",
+              animation: "tether-flash 0.44s ease-out forwards",
+            }}
+          />
+        </div>
+      )}
       <div className="flex items-center gap-3">
         {showSideCards && (
-          <div className="hidden md:block w-[260px] shrink-0 self-center opacity-35 scale-[0.88] blur-[1px] pointer-events-none transition-all duration-300">
+          <div
+            ref={leftFloatRef as React.RefObject<HTMLDivElement>}
+            style={leftFloatStyle}
+            className="hidden md:block w-[260px] shrink-0 self-center opacity-35 scale-[0.88] blur-[1px] pointer-events-none transition-all duration-300"
+          >
             <ProjectCard project={safeProjects[prevIndex]} isCenter={false} />
           </div>
         )}
@@ -266,22 +319,28 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
           <ChevronLeft size={18} />
         </button>
 
-        <div className="flex-1 min-w-0 scale-[1.04]">
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={safeProjects[currentIndex]._id}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-            >
-              <ProjectCard
-                project={safeProjects[currentIndex]}
-                isCenter={true}
-              />
-            </motion.div>
-          </AnimatePresence>
+        <div
+          ref={centerFloatRef as React.RefObject<HTMLDivElement>}
+          style={centerFloatStyle}
+          className="flex-1 min-w-0"
+        >
+          <CometCard rotateDepth={5} translateDepth={8}>
+            <AnimatePresence mode="wait" custom={direction}>
+              <motion.div
+                key={safeProjects[currentIndex]._id}
+                custom={direction}
+                variants={slideVariants}
+                initial="enter"
+                animate="center"
+                exit="exit"
+              >
+                <ProjectCard
+                  project={safeProjects[currentIndex]}
+                  isCenter={true}
+                />
+              </motion.div>
+            </AnimatePresence>
+          </CometCard>
         </div>
 
         <button
@@ -294,7 +353,11 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
         </button>
 
         {showSideCards && (
-          <div className="hidden md:block w-[260px] shrink-0 self-center opacity-35 scale-[0.88] blur-[1px] pointer-events-none transition-all duration-300">
+          <div
+            ref={rightFloatRef as React.RefObject<HTMLDivElement>}
+            style={rightFloatStyle}
+            className="hidden md:block w-[260px] shrink-0 self-center opacity-35 scale-[0.88] blur-[1px] pointer-events-none transition-all duration-300"
+          >
             <ProjectCard project={safeProjects[nextIndex]} isCenter={false} />
           </div>
         )}
@@ -309,15 +372,17 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
               setDirection(idx > currentIndex ? 1 : -1);
               setCurrentIndex(idx);
             }}
-            aria-label={`Go to project ${idx + 1}`}
+            aria-label={`Go to project ${idx + 1}${p.title ? `: ${p.title}` : ""}`}
+            aria-current={idx === currentIndex ? "true" : undefined}
             style={
               idx === currentIndex
                 ? {
-                    width: "24px",
+                    width: "28px",
                     height: "6px",
                     borderRadius: "3px",
                     background: "rgba(167, 139, 250, 0.8)",
-                    boxShadow: "0 0 8px rgba(167, 139, 250, 0.5)",
+                    boxShadow:
+                      "0 0 12px rgba(167, 139, 250, 0.65), 0 0 4px rgba(167, 139, 250, 0.35)",
                   }
                 : {
                     width: "6px",

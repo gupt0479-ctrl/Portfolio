@@ -29,7 +29,7 @@ export async function AboutSection() {
   }
 
   return (
-    <section id="about" className="section-backdrop py-16 px-6">
+    <section id="about" className="section-backdrop section-pad px-6">
       <div className="mx-auto max-w-4xl">
         {/* Heading */}
         <div className="text-center mb-10">

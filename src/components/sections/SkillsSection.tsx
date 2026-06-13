@@ -7,7 +7,7 @@ export async function SkillsSection() {
   return (
     <section
       id="skills"
-      className="section-backdrop mx-auto max-w-6xl px-6 py-24"
+      className="section-backdrop section-pad mx-auto max-w-6xl px-6"
     >
       <div className="mb-16 text-center">
         <p className="section-kicker">{"// capability matrix"}</p>

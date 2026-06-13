@@ -50,6 +50,7 @@
 
 :root {
   --radius: 0.625rem;
+  --section-pad-y: 5rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
   --card: oklch(1 0 0);
@@ -362,6 +363,31 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* Static variant for header controls — hover-lift only, no continuous drift */
+.header-btn {
+  position: relative;
+  transform: translateY(-1px);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(167, 139, 250, 0.12);
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+  will-change: transform;
+}
+.header-btn:hover {
+  transform: perspective(600px) rotateX(6deg) translateY(-4px) scale(1.03);
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(167, 139, 250, 0.35),
+    0 0 16px rgba(167, 139, 250, 0.1);
+}
+.header-btn:active {
+  transform: translateY(0px) scale(0.98);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
 @keyframes cosmic-drift {
   0% {
     translate: 0 0;
@@ -443,17 +469,11 @@
 .section-backdrop {
   position: relative;
 }
-.section-backdrop::before {
-  content: "";
-  position: absolute;
-  inset: -2rem -4rem;
-  background: radial-gradient(
-    ellipse 120% 100% at 50% 50%,
-    rgba(5, 4, 10, 0.6) 0%,
-    transparent 70%
-  );
-  z-index: -1;
-  pointer-events: none;
+
+/* --- Uniform section vertical rhythm --- */
+
+.section-pad {
+  padding-block: var(--section-pad-y);
 }
 
 /* ============================================================
@@ -635,6 +655,66 @@
   }
 }
 
+/* Projects slider — gravitational tether flash between exiting/entering card */
+@keyframes tether-flash {
+  0% {
+    opacity: 0;
+    transform: scaleX(0.08);
+  }
+  25% {
+    opacity: 1;
+    transform: scaleX(1.04);
+  }
+  65% {
+    opacity: 0.75;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(0.4);
+  }
+}
+
+/* Education flowchart — glowing dot travels up the connector rail */
+@keyframes edu-pulse-travel {
+  0% {
+    top: 100%;
+    opacity: 0;
+  }
+  12% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.85;
+  }
+  100% {
+    top: -8px;
+    opacity: 0;
+  }
+}
+
+@keyframes glitch-scan {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  33% {
+    transform: translateX(-2px);
+  }
+  66% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes orbit-pill {
+  from {
+    transform: rotate(0deg) translateX(18px) rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg) translateX(18px) rotate(-360deg);
+  }
+}
+
 /* ============================================================
    REDUCED MOTION
    ============================================================ */
@@ -658,5 +738,9 @@
   }
   .cosmic-drift {
     animation: none;
+  }
+  .edu-pulse-dot {
+    animation: none !important;
+    opacity: 0.3;
   }
 }

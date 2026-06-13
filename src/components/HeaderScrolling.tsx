@@ -172,7 +172,7 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
             /* light mode not yet designed — wire setTheme('light') here later */
           }}
           aria-label="Color theme — dark mode active (light mode coming soon)"
-          className="float-btn ml-auto hidden shrink-0 cursor-default items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 md:flex"
+          className="header-btn ml-auto hidden shrink-0 cursor-default items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white/50 md:flex"
         >
           <Moon className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Dark</span>
@@ -183,7 +183,7 @@ export function HeaderScrolling({ nav = [] }: HeaderScrollingProps) {
             <SheetTrigger asChild>
               <button
                 type="button"
-                className="float-btn rounded-lg border border-white/10 bg-white/5 p-2"
+                className="header-btn rounded-lg border border-white/10 bg-white/5 p-2"
                 aria-label="Open navigation"
               >
                 <Menu className="size-5 text-white/70" />

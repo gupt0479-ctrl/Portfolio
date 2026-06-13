@@ -87,7 +87,25 @@ export const skill = defineType({
         Rule.required().error("Choose a tone for consistent theming"),
       ],
     }),
-    // remove old "color" field from your type
+    defineField({
+      name: "color",
+      type: "string",
+      description:
+        "Dot color for skill chips outside the Skills section (falls back to category color when unset).",
+      options: {
+        list: [
+          { title: "Violet", value: "violet" },
+          { title: "Cyan", value: "cyan" },
+          { title: "Emerald", value: "emerald" },
+          { title: "Sky", value: "sky" },
+          { title: "Pink", value: "pink" },
+          { title: "Amber", value: "amber" },
+          { title: "Orange", value: "orange" },
+          { title: "Slate", value: "slate" },
+        ],
+        layout: "radio",
+      },
+    }),
   ],
   preview: {
     select: { title: "name", category: "category", proficiency: "proficiency" },

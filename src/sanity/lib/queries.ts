@@ -84,21 +84,13 @@ export const PROJECTS_QUERY = defineQuery(`
     proficiency,
     percentage,
     yearsOfExperience,
-    tone
+    tone,
+    color
   },
   category,
   liveUrl,
   githubUrl,
-  "featured": select(
-    featured == true => true,
-    visibility == "featured" => true,
-    false
-  ),
-  "visibility": select(
-    defined(visibility) => visibility,
-    featured == true => "featured",
-    "standard"
-  ),
+  "featured": coalesce(featured, false),
   order
 }
 `);
@@ -111,7 +103,8 @@ export const SKILLS_QUERY = defineQuery(`
   proficiency,
   percentage,
   yearsOfExperience,
-  "tone": coalesce(tone, "neutral")
+  "tone": coalesce(tone, "neutral"),
+  color
 }
 `);
 
@@ -144,7 +137,8 @@ export const EXPERIENCE_QUERY = defineQuery(`
     proficiency,
     percentage,
     yearsOfExperience,
-    tone
+    tone,
+    color
   },
   companyLogo,
   companyWebsite,

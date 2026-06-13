@@ -1716,6 +1716,47 @@
           ]
         },
         "optional": true
+      },
+      "color": {
+        "type": "objectAttribute",
+        "value": {
+          "type": "union",
+          "of": [
+            {
+              "type": "string",
+              "value": "violet"
+            },
+            {
+              "type": "string",
+              "value": "cyan"
+            },
+            {
+              "type": "string",
+              "value": "emerald"
+            },
+            {
+              "type": "string",
+              "value": "sky"
+            },
+            {
+              "type": "string",
+              "value": "pink"
+            },
+            {
+              "type": "string",
+              "value": "amber"
+            },
+            {
+              "type": "string",
+              "value": "orange"
+            },
+            {
+              "type": "string",
+              "value": "slate"
+            }
+          ]
+        },
+        "optional": true
       }
     }
   },
@@ -1970,20 +2011,10 @@
         },
         "optional": true
       },
-      "visibility": {
+      "featured": {
         "type": "objectAttribute",
         "value": {
-          "type": "union",
-          "of": [
-            {
-              "type": "string",
-              "value": "featured"
-            },
-            {
-              "type": "string",
-              "value": "standard"
-            }
-          ]
+          "type": "boolean"
         },
         "optional": true
       },

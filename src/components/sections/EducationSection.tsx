@@ -20,9 +20,9 @@ export async function EducationSection() {
   return (
     <section
       id="education"
-      className="section-backdrop mx-auto max-w-6xl px-6 py-24"
+      className="section-backdrop section-pad mx-auto max-w-6xl px-6"
     >
-      <div className="mb-16">
+      <div className="mb-16 text-center">
         <p className="section-kicker">{"// origins"}</p>
         <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
           Education

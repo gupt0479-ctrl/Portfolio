@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowUp } from "lucide-react";
+import { CometCard } from "@/components/ui/comet-card";
 
 export function Footer() {
   const scrollToTop = () => {
@@ -21,23 +22,25 @@ export function Footer() {
 
       <div className="mx-auto flex max-w-6xl items-center justify-between">
         {/* Left: developer glyph */}
-        <span className="font-mono text-white/20 text-sm select-none">
+        <span className="font-mono text-white/45 text-sm select-none">
           &lt;/&gt;
         </span>
 
         {/* Center: back to top button */}
-        <button
-          type="button"
-          onClick={scrollToTop}
-          aria-label="Back to top"
-          className="float-btn flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs text-white/40 hover:text-white/70 transition-colors"
-        >
-          <ArrowUp className="size-3.5" />
-          <span>Back to top</span>
-        </button>
+        <CometCard variant="ghost" rotateDepth={8}>
+          <button
+            type="button"
+            onClick={scrollToTop}
+            aria-label="Back to top"
+            className="float-btn flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-xs text-white/40 hover:text-white/70 transition-colors"
+          >
+            <ArrowUp className="size-3.5" />
+            <span>Back to top</span>
+          </button>
+        </CometCard>
 
         {/* Right: copyright */}
-        <span className="text-xs text-white/25 font-sans">
+        <span className="text-xs text-white/45 font-sans">
           © {new Date().getFullYear()} Anant Gupta · building in public
         </span>
       </div>

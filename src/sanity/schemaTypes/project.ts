@@ -47,9 +47,6 @@ export const project = defineType({
           description: "Describe the image for accessibility",
         },
       ],
-      validation: (Rule) => [
-        Rule.required().error("A cover image is required for project cards"),
-      ],
     }),
     defineField({
       name: "technologies",
@@ -95,19 +92,10 @@ export const project = defineType({
       description: "Link to the GitHub repository",
     }),
     defineField({
-      name: "visibility",
-      type: "string",
-      options: {
-        list: [
-          { title: "Featured", value: "featured" },
-          { title: "Standard", value: "standard" },
-        ],
-        layout: "radio",
-      },
-      initialValue: "standard",
-      validation: (Rule) => [
-        Rule.required().error("Select featured/standard visibility"),
-      ],
+      name: "featured",
+      type: "boolean",
+      description: "Pin to top of carousel.",
+      initialValue: false,
     }),
     defineField({
       name: "order",
@@ -125,11 +113,11 @@ export const project = defineType({
       title: "title",
       media: "coverImage",
       category: "category",
-      visibility: "visibility",
+      featured: "featured",
     },
-    prepare({ title, media, category, visibility }) {
+    prepare({ title, media, category, featured }) {
       return {
-        title: visibility === "featured" ? `⭐ ${title}` : title,
+        title: featured ? `⭐ ${title}` : title,
         subtitle: category || "Uncategorized",
         media,
       };
@@ -145,7 +133,7 @@ export const project = defineType({
       title: "Featured First",
       name: "featuredFirst",
       by: [
-        { field: "visibility", direction: "asc" },
+        { field: "featured", direction: "desc" },
         { field: "order", direction: "asc" },
       ],
     },

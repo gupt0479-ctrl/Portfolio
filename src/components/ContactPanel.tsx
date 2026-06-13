@@ -96,7 +96,7 @@ export function ContactPanel({ profile }: { profile: ContactProfile | null }) {
   return (
     <section
       id="contact"
-      className="section-backdrop mx-auto max-w-6xl px-6 py-24"
+      className="section-backdrop section-pad mx-auto max-w-6xl px-6"
     >
       <div className="mx-auto max-w-md text-center">
         <p className="section-kicker">{"// uplink"}</p>
@@ -110,71 +110,91 @@ export function ContactPanel({ profile }: { profile: ContactProfile | null }) {
 
       <div className="mx-auto mt-10 max-w-md">
         <CometCard variant="subtle" rotateDepth={8} translateDepth={10}>
-          <div className="relative overflow-hidden rounded-xl cosmic-card p-6 text-center">
-            {email ? (
-              <div>
-                <p className="text-xs text-white/35 font-mono uppercase tracking-widest mb-2">
-                  Email
-                </p>
-                <p className="text-lg text-white/85 font-medium font-sans">
-                  {email}
-                </p>
-                <div className="flex justify-center gap-2 mt-3">
-                  <button
-                    type="button"
-                    onClick={copyEmail}
-                    aria-label="Copy email"
-                    className="float-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs text-white/60 hover:text-white/90 transition-colors"
-                  >
-                    <Clipboard className="size-[13px]" strokeWidth={1.75} />
-                    {copied ? "Copied!" : "Copy"}
-                  </button>
-                  <a
-                    href={`mailto:${email}`}
-                    className="float-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs text-white/60 hover:text-white/90 transition-colors"
-                  >
-                    <Mail className="size-[13px]" strokeWidth={1.75} />
-                    Open Mail
-                  </a>
-                </div>
-              </div>
-            ) : null}
-
-            {profile?.location ? (
-              <p className="mt-4 flex items-center justify-center gap-2 text-sm text-white/40 font-sans">
-                <MapPin className="size-[13px] shrink-0 text-white/35" />
-                {profile.location}
-              </p>
-            ) : null}
-
-            <div className="my-5 border-t border-white/[0.06]" />
-
-            <div className="flex justify-center gap-3 flex-wrap">
-              {s?.github ? (
-                <IridSocialButton href={s.github} label="GitHub">
-                  <Github className="size-4" />
-                </IridSocialButton>
-              ) : null}
-              {s?.linkedin ? (
-                <IridSocialButton href={s.linkedin} label="LinkedIn">
-                  <Linkedin className="size-4" />
-                </IridSocialButton>
-              ) : null}
-              {s?.twitter ? (
-                <IridSocialButton href={s.twitter} label="Twitter / X">
-                  <Twitter className="size-4" />
-                </IridSocialButton>
-              ) : null}
-              {s?.website ? (
-                <IridSocialButton href={s.website} label="Website">
-                  <Globe className="size-4" />
-                </IridSocialButton>
-              ) : null}
+          <div
+            className="relative overflow-hidden rounded-xl p-6 text-center"
+            style={{
+              background: "transparent",
+              border: "1px solid rgba(167, 139, 250, 0.15)",
+              boxShadow:
+                "0 0 60px rgba(124,58,237,0.08), 0 0 0 1px rgba(167,139,250,0.10) inset",
+              backdropFilter: "blur(4px)",
+            }}
+          >
+            {/* Localized text scrim — sits behind the content */}
+            <div
+              className="pointer-events-none absolute inset-0 rounded-xl"
+              style={{
+                background:
+                  "radial-gradient(ellipse 80% 70% at 50% 50%, rgba(9,10,18,0.52) 30%, transparent 80%)",
+              }}
+              aria-hidden
+            />
+            <div className="relative z-10">
               {email ? (
-                <IridSocialButton href={`mailto:${email}`} label="Email">
-                  <Mail className="size-4" />
-                </IridSocialButton>
+                <div>
+                  <p className="text-xs text-white/35 font-mono uppercase tracking-widest mb-2">
+                    Email
+                  </p>
+                  <p className="text-lg text-white/85 font-medium font-sans">
+                    {email}
+                  </p>
+                  <div className="flex justify-center gap-2 mt-3">
+                    <button
+                      type="button"
+                      onClick={copyEmail}
+                      aria-label="Copy email"
+                      className="float-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs text-white/60 hover:text-white/90 transition-colors"
+                    >
+                      <Clipboard className="size-[13px]" strokeWidth={1.75} />
+                      {copied ? "Copied!" : "Copy"}
+                    </button>
+                    <a
+                      href={`mailto:${email}`}
+                      className="float-btn inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/15 bg-white/5 text-xs text-white/60 hover:text-white/90 transition-colors"
+                    >
+                      <Mail className="size-[13px]" strokeWidth={1.75} />
+                      Open Mail
+                    </a>
+                  </div>
+                </div>
               ) : null}
+
+              {profile?.location ? (
+                <p className="mt-4 flex items-center justify-center gap-2 text-sm text-white/40 font-sans">
+                  <MapPin className="size-[13px] shrink-0 text-white/35" />
+                  {profile.location}
+                </p>
+              ) : null}
+
+              <div className="my-5 border-t border-white/[0.06]" />
+
+              <div className="flex justify-center gap-3 flex-wrap">
+                {s?.github ? (
+                  <IridSocialButton href={s.github} label="GitHub">
+                    <Github className="size-4" />
+                  </IridSocialButton>
+                ) : null}
+                {s?.linkedin ? (
+                  <IridSocialButton href={s.linkedin} label="LinkedIn">
+                    <Linkedin className="size-4" />
+                  </IridSocialButton>
+                ) : null}
+                {s?.twitter ? (
+                  <IridSocialButton href={s.twitter} label="Twitter / X">
+                    <Twitter className="size-4" />
+                  </IridSocialButton>
+                ) : null}
+                {s?.website ? (
+                  <IridSocialButton href={s.website} label="Website">
+                    <Globe className="size-4" />
+                  </IridSocialButton>
+                ) : null}
+                {email ? (
+                  <IridSocialButton href={`mailto:${email}`} label="Email">
+                    <Mail className="size-4" />
+                  </IridSocialButton>
+                ) : null}
+              </div>
             </div>
           </div>
         </CometCard>

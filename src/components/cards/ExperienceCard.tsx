@@ -1,8 +1,12 @@
 "use client";
 
-import { ExternalLink, MapPin } from "lucide-react";
+import { ChevronDown, ExternalLink, MapPin } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
+import { PortableText } from "@portabletext/react";
 import { CometCard } from "@/components/ui/comet-card";
+import { useSpaceFloat } from "@/hooks/use-space-float";
+import { getSkillColor } from "@/lib/category-colors";
 import { urlFor } from "@/sanity/lib/image";
 import type { EXPERIENCE_QUERYResult } from "@/sanity/types";
 
@@ -16,27 +20,21 @@ const EMPLOYMENT_LABELS: Record<string, string> = {
   internship: "Internship",
 };
 
-const CATEGORY_COLORS: Record<string, string> = {
-  frontend: "rgba(143, 124, 247, 0.7)",
-  backend: "rgba(96, 165, 250, 0.7)",
-  "ai-ml": "rgba(52, 211, 153, 0.7)",
-  devops: "rgba(244, 114, 182, 0.7)",
-  database: "rgba(251, 146, 60, 0.7)",
-  cloud: "rgba(56, 189, 248, 0.7)",
-  tools: "rgba(250, 204, 21, 0.7)",
-  "soft-skills": "rgba(148, 163, 184, 0.7)",
-};
-
-function getCategoryColor(category?: string | null): string {
-  return CATEGORY_COLORS[category ?? ""] ?? "rgba(167, 139, 250, 0.7)";
-}
-
 interface ExperienceCardProps {
   experience: Experience;
   index: number;
+  isOpen: boolean;
+  onToggle: () => void;
 }
 
-export function ExperienceCard({ experience, index }: ExperienceCardProps) {
+export function ExperienceCard({
+  experience,
+  index,
+  isOpen,
+  onToggle,
+}: ExperienceCardProps) {
+  const { ref, style } = useSpaceFloat({ radius: 4, rotate: 0.3, speed: 0.7 });
+
   const responsibilities = (experience.responsibilities ?? [])
     .filter((r): r is string => typeof r === "string" && r.trim().length > 0)
     .slice(0, 3);
@@ -47,10 +45,12 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
 
   return (
     <div
-      className="group"
+      ref={ref as React.RefObject<HTMLDivElement>}
       style={{
+        ...style,
         animation: `slideUp 0.6s ease-out ${index * 0.1}s both`,
       }}
+      className="group"
     >
       <CometCard rotateDepth={3} translateDepth={5} variant="dark">
         <div className="relative overflow-hidden rounded-xl p-6 backdrop-blur-sm">
@@ -145,8 +145,8 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
             {achievements.length > 0 && (
               <ul className="mt-3 space-y-1.5 text-sm">
                 {achievements.map((a) => (
-                  <li key={a} className="flex gap-2 text-emerald-300/85">
-                    <span className="shrink-0 text-emerald-400/60">★</span>
+                  <li key={a} className="flex gap-2 text-amber-200/75">
+                    <span className="shrink-0 text-amber-300/50">★</span>
                     <span className="font-sans leading-relaxed">{a}</span>
                   </li>
                 ))}
@@ -161,13 +161,63 @@ export function ExperienceCard({ experience, index }: ExperienceCardProps) {
                     className="orbit-chip"
                     style={
                       {
-                        "--chip-color": getCategoryColor(tech.category),
+                        "--chip-color": getSkillColor(
+                          tech.color,
+                          tech.category,
+                        ),
                       } as React.CSSProperties
                     }
                   >
                     {tech.name}
                   </span>
                 ))}
+              </div>
+            )}
+
+            {/* Description expand toggle — only if description exists */}
+            {experience.description && experience.description.length > 0 && (
+              <div className="mt-3">
+                {/* Toggle button — bottom-right aligned, only visible on group-hover */}
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={onToggle}
+                    aria-label={
+                      isOpen ? "Hide description" : "Show description"
+                    }
+                    aria-expanded={isOpen}
+                    className="flex items-center gap-1 text-xs text-white/0 group-hover:text-white/50 hover:!text-white/80 focus-visible:text-white/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30 rounded transition-colors duration-200 font-sans"
+                  >
+                    <span>{isOpen ? "less" : "more"}</span>
+                    <motion.span
+                      animate={{ rotate: isOpen ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="inline-flex"
+                    >
+                      <ChevronDown className="size-3.5" />
+                    </motion.span>
+                  </button>
+                </div>
+
+                {/* Description content — animated height */}
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div
+                      key="description"
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-3 pt-3 border-t border-white/[0.06]">
+                        <div className="prose prose-invert prose-sm max-w-none text-white/55 font-sans [&>p]:leading-relaxed [&>p]:mb-2 [&>ul]:list-disc [&>ul]:ml-4 [&>li]:mb-1">
+                          <PortableText value={experience.description ?? []} />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             )}
           </div>

@@ -55,6 +55,17 @@ const SECTION_TRIGGERS: Record<string, string> = {
   contact: SECTION_COPY.contact,
 };
 
+// Per-section observer config. Projects uses a low threshold (0.25) because the
+// 3D slider makes it taller than the viewport — threshold:0.5 would never fire.
+const SECTION_OBSERVER_CONFIG: Record<
+  string,
+  { threshold: number; rootMargin: string }
+> = {
+  projects: { threshold: 0.25, rootMargin: "0px 0px -5% 0px" },
+  blog: { threshold: 0.4, rootMargin: "0px 0px -10% 0px" },
+  contact: { threshold: 0.45, rootMargin: "0px 0px -10% 0px" },
+};
+
 function pickRandom<T>(arr: readonly T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -226,25 +237,26 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
       const el = document.getElementById(sectionId);
       if (!el) continue;
 
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting && !firedSections.current.has(sectionId)) {
-            firedSections.current.add(sectionId);
-            observer.disconnect();
+      const observerConfig = SECTION_OBSERVER_CONFIG[sectionId] ?? {
+        threshold: 0.4,
+        rootMargin: "0px 0px -10% 0px",
+      };
+      const observer = new IntersectionObserver(([entry]) => {
+        if (entry.isIntersecting && !firedSections.current.has(sectionId)) {
+          firedSections.current.add(sectionId);
+          observer.disconnect();
 
-            setState("section-comment");
-            setSpeechText(copy);
+          setState("section-comment");
+          setSpeechText(copy);
 
-            const returnTimer = setTimeout(() => {
-              setState("roaming");
-              setSpeechText(null);
-            }, 6000);
+          const returnTimer = setTimeout(() => {
+            setState("roaming");
+            setSpeechText(null);
+          }, 6000);
 
-            timersRef.current.push(returnTimer);
-          }
-        },
-        { threshold: 0.5, rootMargin: "0px 0px -10% 0px" },
-      );
+          timersRef.current.push(returnTimer);
+        }
+      }, observerConfig);
       observer.observe(el);
       observersRef.current.push(observer);
     }

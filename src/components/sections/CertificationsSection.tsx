@@ -1,6 +1,8 @@
 import Image from "next/image";
+import type { CSSProperties } from "react";
 import { defineQuery } from "next-sanity";
 import { CometCard } from "@/components/ui/comet-card";
+import { getCategoryColor } from "@/lib/category-colors";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { Certification } from "@/sanity/types";
@@ -30,14 +32,14 @@ export async function CertificationsSection() {
   return (
     <section
       id="certifications"
-      className="section-backdrop mx-auto max-w-6xl px-6 py-24"
+      className="section-backdrop section-pad mx-auto max-w-6xl px-6"
     >
-      <div className="mb-16">
+      <div className="mb-16 text-center">
         <p className="section-kicker">{"// credentials"}</p>
-        <h2 className="text-4xl md:text-5xl font-bold text-white">
+        <h2 className="text-4xl md:text-5xl font-bold font-display text-white">
           Certifications
         </h2>
-        <p className="text-lg text-white/55 mt-3 font-sans">
+        <p className="text-lg text-white/55 mt-3 font-sans text-center">
           Professional credentials and achievements.
         </p>
       </div>
@@ -103,7 +105,15 @@ export async function CertificationsSection() {
               {cert.skills && cert.skills.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mt-3">
                   {cert.skills.slice(0, 4).map((skill) => (
-                    <span key={skill._id} className="orbit-chip">
+                    <span
+                      key={skill._id}
+                      className="orbit-chip"
+                      style={
+                        {
+                          "--chip-color": getCategoryColor(skill.category),
+                        } as CSSProperties
+                      }
+                    >
                       {skill.name}
                     </span>
                   ))}

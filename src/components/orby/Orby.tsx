@@ -29,7 +29,9 @@ function getPose(state: OrbyState): "idle" | "pointing" | "wave" {
 // Lab button: fixed bottom-6 right-6 (24px each), w-12 h-12 (48px).
 // Center at (vw - 48, vh - 48). 8px gap to button left edge (vw - 72).
 function computeHomeX(vw: number, size: number, sidebarOffset: number) {
-  return vw - 72 - 20 - size - sidebarOffset;
+  // Extra gap on very narrow phones (≤390px) to avoid crowding the Lab button
+  const narrowGap = vw <= 390 ? 12 : 0;
+  return vw - 72 - 20 - size - sidebarOffset - narrowGap;
 }
 function computeHomeY(vh: number, canvasH: number) {
   // Vertically center Orby with the lab button center
@@ -170,7 +172,18 @@ export default function Orby() {
         if (wrapperRef.current) {
           wrapperRef.current.style.transform = `translate(${rightX}px, ${rightY}px)`;
         }
-        if (cloudRef.current) cloudRef.current.style.transform = "";
+        if (cloudRef.current) {
+          const cloudW = 300; // max-w-[300px] from OrbySpeechCloud
+          const vw = window.innerWidth;
+          const naturalLeft = rightX + size / 2 - cloudW / 2;
+          const clampedLeft = Math.min(
+            Math.max(naturalLeft, 8),
+            vw - cloudW - 8,
+          );
+          const offsetX = clampedLeft - naturalLeft;
+          cloudRef.current.style.transform =
+            offsetX !== 0 ? `translateX(${offsetX}px)` : "";
+        }
         rafId = requestAnimationFrame(animate);
         return;
       }
@@ -328,7 +341,14 @@ export default function Orby() {
         wrapperRef.current.style.transform = `translate(${newX}px, ${newY}px) rotate(${rotation}deg)`;
       }
       if (cloudRef.current) {
-        cloudRef.current.style.transform = `rotate(${-rotation}deg)`;
+        // Clamp cloud X so it never clips the left/right viewport edge.
+        // Cloud is max-w-[300px], centered at newX + size/2 within cloudRef.
+        const cloudW = 300;
+        const vw = window.innerWidth;
+        const naturalLeft = newX + size / 2 - cloudW / 2;
+        const clampedLeft = Math.min(Math.max(naturalLeft, 8), vw - cloudW - 8);
+        const offsetX = clampedLeft - naturalLeft;
+        cloudRef.current.style.transform = `translateX(${offsetX}px) rotate(${-rotation}deg)`;
       }
 
       // Arrow pos: in pointing state, emit from the extended right hand position
