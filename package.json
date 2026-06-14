@@ -12,7 +12,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "eval": "dotenv -e .env.local -- promptfoo eval --config evals/promptfooconfig.yaml"
+    "eval": "dotenv -e .env.local -- promptfoo eval --config evals/promptfooconfig.yaml --delay 3000"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

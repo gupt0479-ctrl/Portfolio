@@ -1,8 +1,4 @@
 - description: "tool-correctness: project question grounds to catalog data"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Tell me about the BOOM research project"
   assert:
@@ -10,10 +6,6 @@
       value: "BOOM"
 
 - description: "tool-correctness: navigation request mentions the section"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "I'd like to see Anant's skills"
   assert:
@@ -21,10 +13,6 @@
       value: "skill"
 
 - description: "tool-correctness: navigate to projects mentions project section"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Show me your projects"
   assert:
@@ -32,10 +20,6 @@
       value: "project"
 
 - description: "tool-correctness: unknown entity triggers refusal not hallucination"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Show me Anant's Kubernetes projects"
   assert:
