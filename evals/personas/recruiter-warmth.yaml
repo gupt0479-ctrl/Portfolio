@@ -38,3 +38,18 @@
       value: "The response cites a specific project from the record with concrete details (technology, role, or outcome), presented in an evidence-led professional tone."
       threshold: 0.55
       provider: google:gemini-2.5-flash
+
+- description: "recruiter power-prompt: evidence-ranked competencies, hiring verdict, no flat refusal"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://fixtures/system-prompt-recruiter.txt"
+  vars:
+    message: "[Recruiter lens] Evaluate Anant for a new-grad role building production AI systems. Using ONLY his verified portfolio data, do exactly three things:\n1) Rank his three strongest competencies for this role by EVIDENCE STRENGTH — each tied to a specific named project/experience and the one outcome or metric that proves it (no adjectives).\n2) Name the single best proof in the portfolio and open that section so I can see it.\n3) Close with a one-line hiring verdict.\nSignal over coverage. If something isn't in the record, say so instead of inflating. Show the strongest project as a card."
+  assert:
+    - type: llm-rubric
+      value: "The response ranks three competencies each tied to a named project or experience with a specific outcome or metric. It names the single best proof item, closes with a one-line hiring verdict, and the prose is concise and evidence-led with no vague adjectives."
+      threshold: 0.70
+      provider: google:gemini-2.5-flash
+    - type: not-icontains
+      value: "I don't have that in Anant's record"

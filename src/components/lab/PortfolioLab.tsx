@@ -22,7 +22,7 @@ function generateId(): string {
 
 export function PortfolioLab() {
   const { toggleSidebar } = useSidebar();
-  const [persona, setPersona] = useState<Persona>("friend");
+  const [persona, setPersona] = useState<Persona>("recruiter");
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [panelOrbyState, setPanelOrbyState] = useState<PanelOrbyState>("idle");
   const [chatStarted, setChatStarted] = useState(false);

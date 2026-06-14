@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import type { Components } from "react-markdown";
 import { cn } from "@/lib/utils";
 import { ToolResultRenderer } from "./cards/ToolResultRenderer";
 
@@ -20,6 +23,113 @@ export interface ChatMessage {
 interface ChatThreadProps {
   messages: ChatMessage[];
 }
+
+const MARKDOWN_COMPONENTS: Components = {
+  // Paragraphs — don't double-wrap with extra margin
+  p: ({ children }) => (
+    <p className="text-sm text-white/85 leading-relaxed mb-1 last:mb-0">
+      {children}
+    </p>
+  ),
+  // Bold
+  strong: ({ children }) => (
+    <strong className="font-semibold text-white">{children}</strong>
+  ),
+  // Italic
+  em: ({ children }) => <em className="italic text-violet-200">{children}</em>,
+  // Headings
+  h1: ({ children }) => (
+    <h1 className="text-base font-semibold text-white mt-3 mb-1 first:mt-0">
+      {children}
+    </h1>
+  ),
+  h2: ({ children }) => (
+    <h2 className="text-sm font-semibold text-violet-200 mt-2.5 mb-1 first:mt-0">
+      {children}
+    </h2>
+  ),
+  h3: ({ children }) => (
+    <h3 className="text-sm font-medium text-violet-300/80 mt-2 mb-0.5 first:mt-0">
+      {children}
+    </h3>
+  ),
+  // Unordered list
+  ul: ({ children }) => (
+    <ul className="list-disc list-inside space-y-0.5 mt-1 mb-1 text-sm text-white/80">
+      {children}
+    </ul>
+  ),
+  // Ordered list
+  ol: ({ children }) => (
+    <ol className="list-decimal list-inside space-y-0.5 mt-1 mb-1 text-sm text-white/80">
+      {children}
+    </ol>
+  ),
+  // List item
+  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+  // Inline code and fenced code blocks
+  code: ({ children, className }) => {
+    const isBlock = className?.startsWith("language-");
+    if (isBlock) {
+      return (
+        <code className="block font-mono text-xs text-cyan-200 whitespace-pre-wrap break-words">
+          {children}
+        </code>
+      );
+    }
+    return (
+      <code className="font-mono text-xs text-cyan-300 bg-white/[0.08] px-1 py-0.5 rounded">
+        {children}
+      </code>
+    );
+  },
+  // Fenced code block wrapper
+  pre: ({ children }) => (
+    <pre className="mt-2 mb-1 rounded-lg bg-black/40 border border-white/10 p-3 overflow-x-auto text-xs">
+      {children}
+    </pre>
+  ),
+  // GFM table
+  table: ({ children }) => (
+    <div className="overflow-x-auto mt-2 mb-1 rounded-lg border border-violet-500/20">
+      <table className="w-full text-xs text-white/80 border-collapse">
+        {children}
+      </table>
+    </div>
+  ),
+  thead: ({ children }) => (
+    <thead className="bg-violet-950/50 text-violet-200 font-medium">
+      {children}
+    </thead>
+  ),
+  tbody: ({ children }) => (
+    <tbody className="divide-y divide-white/[0.06]">{children}</tbody>
+  ),
+  tr: ({ children }) => <tr>{children}</tr>,
+  th: ({ children }) => (
+    <th className="px-3 py-1.5 text-left font-medium">{children}</th>
+  ),
+  td: ({ children }) => <td className="px-3 py-1.5">{children}</td>,
+  // Horizontal rule
+  hr: () => <hr className="my-2 border-white/10" />,
+  // Blockquote
+  blockquote: ({ children }) => (
+    <blockquote className="border-l-2 border-violet-500/40 pl-3 my-1 text-white/60 italic text-sm">
+      {children}
+    </blockquote>
+  ),
+  // Links — open in new tab, styled violet
+  a: ({ children, href }) => (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-violet-300 hover:text-violet-200 underline underline-offset-2 decoration-violet-500/40 hover:decoration-violet-300"
+    >
+      {children}
+    </a>
+  ),
+};
 
 export function ChatThread({ messages }: ChatThreadProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -68,7 +178,12 @@ export function ChatThread({ messages }: ChatThreadProps) {
               {msg.text.length === 0 ? (
                 <span className="animate-pulse text-white/40">...</span>
               ) : (
-                msg.text
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm]}
+                  components={MARKDOWN_COMPONENTS}
+                >
+                  {msg.text}
+                </ReactMarkdown>
               )}
             </div>
             {msg.toolResults && msg.toolResults.length > 0 && (

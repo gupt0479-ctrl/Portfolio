@@ -25,6 +25,21 @@ export async function signToken(iat: number): Promise<string> {
   return `${payload}.${sig}`;
 }
 
+/**
+ * Decodes the payload of a token WITHOUT re-verifying the signature.
+ * The caller must have already called verifyToken successfully before
+ * using this. Returns null if the token is malformed.
+ */
+export function decodeToken(token: string): { iat: number } | null {
+  const dotIdx = token.lastIndexOf(".");
+  if (dotIdx === -1) return null;
+  try {
+    return JSON.parse(atob(token.slice(0, dotIdx))) as { iat: number };
+  } catch {
+    return null;
+  }
+}
+
 export async function verifyToken(token: string): Promise<boolean> {
   const secret = process.env.CHAT_TOKEN_SECRET;
   if (!secret) return false;
