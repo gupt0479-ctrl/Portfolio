@@ -10,8 +10,16 @@ interface PowerPromptBlockProps {
 }
 
 const POWER_PROMPTS: Record<"recruiter" | "ceo", string> = {
-  recruiter: `[PERSONA:recruiter] I'm evaluating Anant Gupta for a software engineering role. Give me a structured breakdown: top 3 projects with outcomes, strongest technical skills with evidence of depth, and his current trajectory. Be specific and cite the record.`,
-  ceo: `[PERSONA:ceo] Executive summary on Anant Gupta — where is he now, where is he heading, and what makes him a high-leverage bet? Outcomes and trajectory only, no skills list.`,
+  recruiter: `[Recruiter lens] Evaluate Anant for a new-grad role building production AI systems. Using ONLY his verified portfolio data, do exactly three things:
+1) Rank his three strongest competencies for this role by EVIDENCE STRENGTH — each tied to a specific named project/experience and the one outcome or metric that proves it (no adjectives).
+2) Name the single best proof in the portfolio and open that section so I can see it.
+3) Close with a one-line hiring verdict.
+Signal over coverage. If something isn't in the record, say so instead of inflating. Show the strongest project as a card.`,
+  ceo: `[CEO lens] Brief me like I'm a founder deciding whether to bet on Anant as an early engineer. From ONLY his verified data:
+- Trajectory: what is he compounding toward?
+- Pattern: what class of messy problem does he reliably turn into a system? Name the projects that prove it.
+- Leverage: where would he create the most value in a startup's first 90 days?
+Skip implementation detail — give me direction. Take me to the project that best signals this and show it as a card.`,
 };
 
 export function PowerPromptBlock({ persona, onCopied }: PowerPromptBlockProps) {

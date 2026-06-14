@@ -167,7 +167,7 @@ export function buildChatTools(catalog: Catalog) {
   // ── navigate ──────────────────────────────────────────────────────────────
   const navigate = tool({
     description:
-      "Smooth-scroll the page to a named portfolio section. Use when the user asks to see, visit, or navigate to a section. You MUST also provide orbyMessage: a short, in-persona, grounded 1–2 sentence line (under 120 chars) that Orby will say when the visitor arrives at the section. Make it specific to what the user asked and the active persona's voice. Do not state any fact not present in the grounded catalog.",
+      "Smooth-scroll the page to a portfolio section. Call this tool in EVERY turn where the user's question maps to a section — even if they don't explicitly ask to navigate. Examples: question about projects → navigate('projects'); about experience or work → navigate('experience'); about skills or tech → navigate('skills'); about education → navigate('education'); about certifications → navigate('certifications'); about blog posts → navigate('blog'); want to contact → navigate('contact'). Do NOT call it for generic greetings or questions that have no clear section. ALWAYS provide orbyMessage: a short, catchy, in-persona grounded line (under 120 chars) that Orby says on arrival. Make it unique to this specific question, in the active persona's voice. Never state a fact absent from the grounded catalog.",
     inputSchema: z.object({
       sectionId: z
         .enum(SECTION_IDS)

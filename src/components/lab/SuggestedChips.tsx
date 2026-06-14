@@ -12,7 +12,7 @@ const CHIPS: Record<Persona, string[]> = {
   friend: [
     "What's Anant actually excited about?",
     "Tell me the BOOM story",
-    "What was TechLit like to start?",
+    "Did Anant vibe code this portfolio?",
     "What tech does he geek out on?",
   ],
   recruiter: [

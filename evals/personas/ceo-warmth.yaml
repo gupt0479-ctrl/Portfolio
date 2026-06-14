@@ -36,3 +36,18 @@
       value: "The response emphasizes outcomes, direction, and impact of Anant's experience — not implementation details. Reads like an executive summary."
       threshold: 0.55
       provider: google:gemini-2.5-flash
+
+- description: "ceo power-prompt: trajectory/pattern/leverage answer, strategic, no flat refusal"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://fixtures/system-prompt-ceo.txt"
+  vars:
+    message: "[CEO lens] Brief me like I'm a founder deciding whether to bet on Anant as an early engineer. From ONLY his verified data:\n- Trajectory: what is he compounding toward?\n- Pattern: what class of messy problem does he reliably turn into a system? Name the projects that prove it.\n- Leverage: where would he create the most value in a startup's first 90 days?\nSkip implementation detail — give me direction. Take me to the project that best signals this and show it as a card."
+  assert:
+    - type: llm-rubric
+      value: "The response addresses trajectory (what Anant is compounding toward), pattern (the class of messy problems he systemizes, with named projects as proof), and leverage (highest-value contribution in first 90 days). It is strategic and outcome-focused with no implementation detail. Prose is tight with no filler."
+      threshold: 0.70
+      provider: google:gemini-2.5-flash
+    - type: not-icontains
+      value: "I don't have that in Anant's record"

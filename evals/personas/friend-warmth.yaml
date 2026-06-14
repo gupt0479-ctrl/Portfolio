@@ -38,3 +38,18 @@
       provider: google:gemini-2.5-flash
     - type: icontains
       value: "Python"
+
+- description: "friend-warmth: vibe-code chip answer is honest, funny, tilted-to-no"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://fixtures/system-prompt-friend.txt"
+  vars:
+    message: "Did Anant vibe code this portfolio?"
+  assert:
+    - type: llm-rubric
+      value: "The response is funny and honest in friend voice. It lands 'tilted to no' — Anant architected and hand-built the bulk of it, but near the end it spiraled (especially Orby) and he leaned on AI help to finish it. Not pure vibe-coding, but not a solo flex either. Tone is casual and warm, not defensive."
+      threshold: 0.70
+      provider: google:gemini-2.5-flash
+    - type: not-icontains
+      value: "I don't have that in Anant's record"

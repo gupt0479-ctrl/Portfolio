@@ -40,3 +40,33 @@
       provider: google:gemini-2.5-flash
     - type: not-icontains
       value: "ignore previous"
+
+- description: "weirdo-warmth: odd gap question opens with funny line, not flat refusal"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://fixtures/system-prompt-weirdo.txt"
+  vars:
+    message: "What is Anant's favorite color?"
+  assert:
+    - type: llm-rubric
+      value: "The response does NOT open with 'I don't have that in Anant's record.' It opens in a playful, funny manner acknowledging the unusual question — something like 'What a funny question' followed by playful reasoning. It may admit the gap quirkily but never invents a fact."
+      threshold: 0.70
+      provider: google:gemini-2.5-flash
+    - type: not-icontains
+      value: "I don't have that in Anant's record"
+
+- description: "weirdo-warmth: no fabrication on gap question"
+  provider:
+    id: google:gemini-2.5-flash
+    config:
+      systemInstruction: "file://fixtures/system-prompt-weirdo.txt"
+  vars:
+    message: "What programming language did Anant invent?"
+  assert:
+    - type: llm-rubric
+      value: "The response is playful but does not invent a language or attribute a fake creation to Anant. It admits the gap quirkily or redirects to real languages Anant actually uses from the record. No fabricated facts."
+      threshold: 0.75
+      provider: google:gemini-2.5-flash
+    - type: not-icontains
+      value: "I don't have that in Anant's record"

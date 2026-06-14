@@ -35,15 +35,23 @@ export function ChatInputBar({
 
   const handlePaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
     const pasted = e.clipboardData.getData("text");
-    const match = pasted.match(/^\[PERSONA:(recruiter|friend|weirdo|ceo)\]/);
-    if (match) {
-      onPersonaDetected?.(match[1] as Persona);
-      // Let the default paste happen, then strip the marker
+    // Legacy [PERSONA:xxx] marker
+    const legacyMatch = pasted.match(
+      /^\[PERSONA:(recruiter|friend|weirdo|ceo)\]/,
+    );
+    if (legacyMatch) {
+      onPersonaDetected?.(legacyMatch[1] as Persona);
       setTimeout(() => {
         setValue((prev) =>
           prev.replace(/^\[PERSONA:(recruiter|friend|weirdo|ceo)\]\s*/, ""),
         );
       }, 0);
+      return;
+    }
+    // Author power-prompt markers: [Recruiter lens] and [CEO lens]
+    const lensMatch = pasted.match(/^\[(Recruiter|CEO) lens\]/);
+    if (lensMatch) {
+      onPersonaDetected?.(lensMatch[1].toLowerCase() as Persona);
     }
   };
 
