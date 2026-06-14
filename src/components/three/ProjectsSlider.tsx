@@ -123,9 +123,6 @@ function ProjectCard({ project, isCenter }: ProjectCardProps) {
 
         {isCenter && project.summary && (
           <div className="mt-4 p-3 rounded-lg bg-white/[0.03] border border-white/[0.06]">
-            <p className="text-[11px] text-white/35 font-mono mb-1">
-              case note
-            </p>
             <p className="text-xs text-white/55 font-sans leading-relaxed line-clamp-3">
               {project.summary}
             </p>
@@ -133,24 +130,21 @@ function ProjectCard({ project, isCenter }: ProjectCardProps) {
         )}
       </div>
 
-      {isCenter && (
-        <motion.div
-          initial={false}
-          animate={{ height: hovered ? "auto" : 0, opacity: hovered ? 1 : 0 }}
-          transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="overflow-hidden"
+      {isCenter && (project.liveUrl || project.githubUrl) && (
+        <div
+          className="px-5 pb-5 border-t border-white/[0.06] pt-4 transition-opacity duration-300"
+          style={{
+            opacity: hovered ? 1 : 0,
+            pointerEvents: hovered ? "auto" : "none",
+          }}
         >
-          <div className="px-5 pb-5 border-t border-white/[0.06] pt-4">
-            <div className="flex flex-wrap items-center gap-2">
-              {project.liveUrl ? (
-                <ViewLiveButton href={project.liveUrl} />
-              ) : null}
-              {project.githubUrl ? (
-                <SourceButton href={project.githubUrl} />
-              ) : null}
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {project.liveUrl ? <ViewLiveButton href={project.liveUrl} /> : null}
+            {project.githubUrl ? (
+              <SourceButton href={project.githubUrl} />
+            ) : null}
           </div>
-        </motion.div>
+        </div>
       )}
     </article>
   );
@@ -184,8 +178,8 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
   const dragRef = useRef({ startX: 0, currentX: 0, isDragging: false });
 
   const { ref: centerFloatRef, style: centerFloatStyle } = useSpaceFloat({
-    radius: 5,
-    rotate: 0.4,
+    radius: 2,
+    rotate: 0.1,
   });
   const { ref: leftFloatRef, style: leftFloatStyle } = useSpaceFloat({
     radius: 4,
@@ -324,7 +318,7 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
           style={centerFloatStyle}
           className="flex-1 min-w-0"
         >
-          <CometCard rotateDepth={5} translateDepth={8}>
+          <CometCard rotateDepth={3} translateDepth={5}>
             <AnimatePresence mode="wait" custom={direction}>
               <motion.div
                 key={safeProjects[currentIndex]._id}
@@ -363,37 +357,39 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
         )}
       </div>
 
-      <div className="mt-6 flex items-center justify-center gap-2">
-        {safeProjects.map((p, idx) => (
-          <button
-            key={p._id}
-            type="button"
-            onClick={() => {
-              setDirection(idx > currentIndex ? 1 : -1);
-              setCurrentIndex(idx);
-            }}
-            aria-label={`Go to project ${idx + 1}${p.title ? `: ${p.title}` : ""}`}
-            aria-current={idx === currentIndex ? "true" : undefined}
-            style={
-              idx === currentIndex
-                ? {
-                    width: "28px",
-                    height: "6px",
-                    borderRadius: "3px",
-                    background: "rgba(167, 139, 250, 0.8)",
-                    boxShadow:
-                      "0 0 12px rgba(167, 139, 250, 0.65), 0 0 4px rgba(167, 139, 250, 0.35)",
-                  }
-                : {
-                    width: "6px",
-                    height: "6px",
-                    borderRadius: "50%",
-                    background: "rgba(255, 255, 255, 0.2)",
-                  }
-            }
-            className="transition-all duration-300 hover:opacity-80"
-          />
-        ))}
+      <div className="mt-6 flex items-center justify-center gap-0.5">
+        {safeProjects.map((p, idx) => {
+          const isActive = idx === currentIndex;
+          return (
+            <button
+              key={p._id}
+              type="button"
+              onClick={() => {
+                setDirection(idx > currentIndex ? 1 : -1);
+                setCurrentIndex(idx);
+              }}
+              aria-label={`Go to project ${idx + 1}${p.title ? `: ${p.title}` : ""}`}
+              aria-current={isActive ? "true" : undefined}
+              className="flex items-center justify-center min-w-[24px] min-h-[24px] transition-all duration-300 hover:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60 rounded-full"
+            >
+              <span
+                style={{
+                  display: "block",
+                  width: isActive ? "28px" : "6px",
+                  height: "6px",
+                  borderRadius: isActive ? "3px" : "50%",
+                  background: isActive
+                    ? "rgba(167, 139, 250, 0.8)"
+                    : "rgba(255, 255, 255, 0.2)",
+                  boxShadow: isActive
+                    ? "0 0 12px rgba(167, 139, 250, 0.65), 0 0 4px rgba(167, 139, 250, 0.35)"
+                    : undefined,
+                  transition: "all 300ms",
+                }}
+              />
+            </button>
+          );
+        })}
       </div>
 
       <p className="mt-3 text-center text-xs text-white/35 font-sans">

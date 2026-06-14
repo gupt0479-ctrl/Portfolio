@@ -532,7 +532,7 @@ export type BLOG_SECTION_QUERYResult = Array<{
 
 // Source: ./src/components/sections/CertificationsSection.tsx
 // Variable: CERTS_SECTION_QUERY
-// Query: *[_type == "certification"] | order(issueDate desc){    _id, name, issuer, issueDate, expiryDate, credentialId, credentialUrl, logo, description,    skills[]->{ _id, name, category }  }
+// Query: *[_type == "certification"] | order(issueDate desc){    _id, name, issuer, issueDate, expiryDate, credentialId, credentialUrl, logo, description,    skills[]->{ _id, name, category, color }  }
 export type CERTS_SECTION_QUERYResult = Array<{
   _id: string;
   name: string | null;
@@ -558,6 +558,7 @@ export type CERTS_SECTION_QUERYResult = Array<{
     _id: string;
     name: string | null;
     category: "ai-ml" | "backend" | "cloud" | "database" | "design" | "devops" | "frontend" | "mobile" | "other" | "soft-skills" | "testing" | "tools" | null;
+    color: "amber" | "cyan" | "emerald" | "orange" | "pink" | "sky" | "slate" | "violet" | null;
   }> | null;
 }>;
 
@@ -1104,7 +1105,7 @@ declare module "@sanity/client" {
     "\n  coalesce(\n    *[_type == \"profile\" && _id == \"singleton-profile\"][0],\n    *[_type == \"profile\"][0]\n  ){\n    firstName,\n    lastName,\n    fullBio,\n    yearsOfExperience,\n    stats,\n    email,\n    phone,\n    location\n  }\n": ABOUT_QUERYResult;
     "\n  *[_type == \"achievement\"] | order(featured desc, date desc){\n    _id, title, description, date, type, issuer, featured, url\n  }\n": ACHIEVEMENTS_SECTION_QUERYResult;
     "\n  *[_type == \"blog\"] | order(publishedAt desc)[0...6]{\n    _id, title, slug, excerpt, externalUrl, publishedAt, readTime, category\n  }\n": BLOG_SECTION_QUERYResult;
-    "\n  *[_type == \"certification\"] | order(issueDate desc){\n    _id, name, issuer, issueDate, expiryDate, credentialId, credentialUrl, logo, description,\n    skills[]->{ _id, name, category }\n  }\n": CERTS_SECTION_QUERYResult;
+    "\n  *[_type == \"certification\"] | order(issueDate desc){\n    _id, name, issuer, issueDate, expiryDate, credentialId, credentialUrl, logo, description,\n    skills[]->{ _id, name, category, color }\n  }\n": CERTS_SECTION_QUERYResult;
     "\n  coalesce(\n    *[_type == \"profile\" && _id == \"singleton-profile\"][0],\n    *[_type == \"profile\"][0]\n  ){\n    email,\n    location,\n    socialLinks{\n      github,\n      linkedin,\n      twitter,\n      website\n    }\n  }\n": CONTACT_QUERYResult;
     "\n  *[_type == \"education\"] | order(startDate desc){\n    _id, institution, degree, fieldOfStudy, startDate, endDate, current, description, gpa, logo\n  }\n": EDUCATION_SECTION_QUERYResult | EDUCATION_QUERYResult;
     "\ncoalesce(\n  *[_type == \"profile\" && _id == \"singleton-profile\"][0],\n  *[_type == \"profile\"][0]\n){\n  _id,\n  firstName,\n  lastName,\n  headline,\n  headlineStaticText,\n  headlineAnimatedWords,\n  headlineAnimationDuration,\n  shortBio,\n  fullBio,\n  profileImage,\n  email,\n  phone,\n  location,\n  availability,\n  socialLinks{\n    github,\n    linkedin,\n    twitter,\n    website,\n    medium,\n    devto,\n    youtube,\n    stackoverflow\n  },\n  yearsOfExperience,\n  stats[]{\n    label,\n    value\n  }\n}\n": PROFILE_QUERYResult;

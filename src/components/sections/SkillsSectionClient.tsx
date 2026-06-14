@@ -1,12 +1,5 @@
 "use client";
 
-// Skills are rendered as a category-grouped pill grid (SkillsCategoryGrid).
-// The earlier Three.js/R3F skills "sphere" visualization was intentionally
-// removed in favor of this readable 2D layout (Phase H, Option 2 — see
-// .kiro/specs/sanity-render-alignment). Sanity fields percentage /
-// yearsOfExperience / tone remain available in SKILLS_QUERY for a future
-// graph but are intentionally unused here.
-
 import { type CSSProperties, type RefObject, useMemo, useState } from "react";
 import { SkillsCapabilityGraph } from "@/components/sections/SkillsCapabilityGraph";
 import { CometCard } from "@/components/ui/comet-card";
@@ -23,7 +16,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   "ai-ml": "#34d399",
   devops: "#f472b6",
   database: "#fb923c",
-  // alias used by some Sanity setups
   "data-systems": "#fb923c",
   cloud: "#38bdf8",
   mobile: "#a78bfa",
@@ -43,7 +35,6 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   "ai-ml": "Models, embeddings, and intelligent system design.",
   devops: "Deployment pipelines, infrastructure, and reliability.",
   database: "Data modeling, query optimization, and persistence.",
-  // alias used by some Sanity setups
   "data-systems": "Data modeling, query optimization, and persistence.",
   cloud: "Scalable infrastructure across distributed systems.",
   mobile: "Cross-platform and native mobile experiences.",
@@ -54,56 +45,53 @@ const CATEGORY_DESCRIPTIONS: Record<string, string> = {
   other: "Everything else that doesn't fit a clean box.",
 };
 
-function SkillsSummary({ skills }: { skills: SKILLS_QUERYResult }) {
-  const categoryCounts = useMemo(() => {
-    const counts = new Map<string, number>();
-    for (const skill of skills) {
-      const category = skill.category ?? "other";
-      counts.set(category, (counts.get(category) ?? 0) + 1);
+function getHighestCategory(skills: SKILLS_QUERYResult): string | null {
+  const counts = new Map<string, number>();
+  for (const skill of skills) {
+    const cat = skill.category ?? "other";
+    counts.set(cat, (counts.get(cat) ?? 0) + 1);
+  }
+  let max = 0;
+  let maxCat: string | null = null;
+  for (const [cat, count] of counts) {
+    if (count > max) {
+      max = count;
+      maxCat = cat;
     }
-    return Array.from(counts.entries()).sort(([a], [b]) => a.localeCompare(b));
-  }, [skills]);
-
-  if (!skills.length) return null;
-
-  return (
-    <div className="mx-auto mb-8 max-w-3xl text-center">
-      <p className="font-sans text-sm text-white/55">
-        {skills.length} skills across {categoryCounts.length} categories
-      </p>
-      <div className="mt-3 flex flex-wrap justify-center gap-2">
-        {categoryCounts.map(([category, count]) => {
-          const key = normalizeCategoryKey(category);
-          const color = CATEGORY_COLORS[key] ?? FALLBACK_BAR;
-          return (
-            <span
-              key={category}
-              className="orbit-chip"
-              style={{ borderColor: `${color}66`, color }}
-            >
-              {formatCategory(category)} {count}
-            </span>
-          );
-        })}
-      </div>
-    </div>
-  );
+  }
+  return maxCat;
 }
+
+// ─── Category pill ────────────────────────────────────────────────────────────
 
 function CategoryPill({
   label,
+  count,
   active,
   categoryKey,
   onClick,
 }: {
   label: string;
+  count: number;
   active: boolean;
   categoryKey: string | null;
   onClick: () => void;
 }) {
   const { ref, style } = useSpaceFloat({ radius: 3, rotate: 0.2, speed: 0.6 });
   const [hovered, setHovered] = useState(false);
-  const normalizedKey = categoryKey ? normalizeCategoryKey(categoryKey) : null;
+  const k = categoryKey ? normalizeCategoryKey(categoryKey) : null;
+
+  // Build outer button style based on category
+  const btnStyle: CSSProperties = {};
+  if (k === "frontend" && hovered) {
+    btnStyle.boxShadow = "0 0 0 1px rgba(143,124,247,0.4)";
+  } else if (k === "design" && hovered) {
+    btnStyle.boxShadow =
+      "0 0 0 1px rgba(248,113,113,0.45), 0 0 12px rgba(248,113,113,0.15)";
+  } else if (k === "cloud" && hovered) {
+    btnStyle.boxShadow =
+      "0 0 0 1px rgba(56,189,248,0.35), 0 0 10px rgba(56,189,248,0.12)";
+  }
 
   return (
     <div ref={ref as RefObject<HTMLDivElement>} style={style}>
@@ -114,75 +102,148 @@ function CategoryPill({
           aria-pressed={active}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
+          style={btnStyle}
           className={[
             "group relative overflow-hidden rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60",
             active
               ? "border-violet-500/50 bg-violet-500/20 text-white"
               : "border-white/20 text-white/50 hover:border-white/30 hover:text-white/75",
-            normalizedKey === "ai-ml" && hovered
+            k === "ai-ml" && hovered
               ? "animate-[pulse-glow_1s_ease-in-out_infinite]"
               : "",
-            normalizedKey === "soft-skills" && hovered
-              ? "translate-y-[-2px]"
-              : "",
+            k === "soft-skills" && hovered ? "translate-y-[-2px]" : "",
           ]
             .filter(Boolean)
             .join(" ")}
-          style={
-            normalizedKey === "frontend" && hovered
-              ? { boxShadow: "0 0 0 1px rgba(143,124,247,0.4)" }
-              : undefined
-          }
         >
-          {normalizedKey === "frontend" && (
-            <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none" />
+          {/* frontend: shimmer sweep */}
+          {k === "frontend" && (
+            <span
+              className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"
+              aria-hidden
+            />
           )}
-          <span className="relative">
+
+          {/* mobile: expanding ring overlay */}
+          {k === "mobile" && hovered && (
+            <span
+              className="pointer-events-none absolute inset-0 rounded-full border border-violet-400/55"
+              aria-hidden
+              style={{ animation: "ring-expand 1s ease-out infinite" }}
+            />
+          )}
+
+          <span className="relative flex items-center gap-1">
             {label}
-            {normalizedKey === "backend" && hovered && (
-              <span className="ml-1 animate-[blink_1s_step-end_infinite] text-white/50">
+            <span className="opacity-60">{count}</span>
+
+            {/* backend: blinking cursor */}
+            {k === "backend" && hovered && (
+              <span className="animate-[blink_1s_step-end_infinite] text-blue-300/70">
                 _
               </span>
             )}
-          </span>
-          {(normalizedKey === "devops" || normalizedKey === "tools") &&
-            hovered && (
-              <span className="ml-1.5 inline-flex gap-0.5">
+
+            {/* tools: cyan terminal prompt (distinct from backend) */}
+            {k === "tools" && hovered && (
+              <span className="font-mono text-cyan-400/80">
+                {">"}
+                <span className="animate-[blink_0.8s_step-end_infinite] text-cyan-300/90">
+                  _
+                </span>
+              </span>
+            )}
+
+            {/* devops: pink deploy dots */}
+            {k === "devops" && hovered && (
+              <span className="inline-flex gap-0.5">
                 {[0, 1, 2].map((i) => (
                   <span
                     key={i}
-                    className="inline-block w-1 h-1 rounded-full bg-pink-400/60 animate-[deploy-dot_0.6s_ease-in-out_infinite]"
+                    className="inline-block w-1 h-1 rounded-full bg-pink-400/65 animate-[deploy-dot_0.6s_ease-in-out_infinite]"
                     style={{ animationDelay: `${i * 150}ms` }}
                   />
                 ))}
               </span>
             )}
-          {(normalizedKey === "database" || normalizedKey === "data-systems") &&
-            hovered && (
-              <span className="ml-1.5 inline-flex items-end gap-px">
+
+            {/* database / data-systems: sparkline bars */}
+            {(k === "database" || k === "data-systems") && hovered && (
+              <span className="inline-flex items-end gap-px">
                 {[
-                  { id: "low", height: 3 },
-                  { id: "high", height: 5 },
-                  { id: "mid", height: 4 },
-                  { id: "peak", height: 6 },
-                  { id: "tail", height: 3 },
+                  { id: "a", h: 3 },
+                  { id: "b", h: 5 },
+                  { id: "c", h: 4 },
+                  { id: "d", h: 6 },
+                  { id: "e", h: 3 },
                 ].map((bar, i) => (
                   <span
                     key={bar.id}
                     className="inline-block w-0.5 rounded-sm bg-orange-400/70 animate-[pulse-glow_0.8s_ease-in-out_infinite]"
                     style={{
-                      height: `${bar.height}px`,
+                      height: `${bar.h}px`,
                       animationDelay: `${i * 100}ms`,
                     }}
                   />
                 ))}
               </span>
             )}
+
+            {/* testing: sequential green check marks */}
+            {k === "testing" && hovered && (
+              <span className="inline-flex gap-0.5">
+                {["✓", "✓", "✓"].map((ch, i) => (
+                  <span
+                    // biome-ignore lint/suspicious/noArrayIndexKey: stable array
+                    key={i}
+                    className="text-xs text-green-400/85 animate-[blink_1.2s_ease-in-out_infinite]"
+                    style={{ animationDelay: `${i * 220}ms` }}
+                    aria-hidden
+                  >
+                    {ch}
+                  </span>
+                ))}
+              </span>
+            )}
+
+            {/* cloud: floating micro-dots */}
+            {k === "cloud" && hovered && (
+              <span className="inline-flex gap-0.5 items-center">
+                {[0, 1, 2].map((i) => (
+                  <span
+                    key={i}
+                    className="inline-block w-1 h-1 rounded-full bg-sky-400/65 animate-[float-micro_1s_ease-in-out_infinite]"
+                    style={{ animationDelay: `${i * 200}ms` }}
+                  />
+                ))}
+              </span>
+            )}
+
+            {/* design: warm halo handled by btnStyle above — no inline node needed */}
+
+            {/* academic: orbiting star dot */}
+            {k === "academic" && hovered && (
+              <span
+                className="pointer-events-none absolute top-1/2 left-1/2 w-1.5 h-1.5 rounded-full bg-purple-400/85"
+                aria-hidden
+                style={{
+                  marginTop: "-3px",
+                  marginLeft: "-3px",
+                  transformOrigin: "3px 3px",
+                  animation: "orbit-pill 2.5s linear infinite",
+                  boxShadow: "0 0 5px rgba(216,180,254,0.7)",
+                }}
+              />
+            )}
+          </span>
         </button>
       </CometCard>
     </div>
   );
 }
+
+// ─── Skills filter ────────────────────────────────────────────────────────────
 
 function SkillsFilter({
   skills,
@@ -191,35 +252,35 @@ function SkillsFilter({
 }: {
   skills: SKILLS_QUERYResult;
   selected: string | null;
-  onChange: (category: string | null) => void;
+  onChange: (category: string) => void;
 }) {
-  const categories = Array.from(
-    new Set(
-      skills
-        .map((s) => s.category)
-        .filter((c): c is NonNullable<typeof c> => c != null),
-    ),
-  ).sort((a, b) => a.localeCompare(b));
-
-  const pills: { key: string | null; label: string }[] = [
-    { key: null, label: "All" },
-    ...categories.map((c) => ({ key: c, label: formatCategory(c) })),
-  ];
+  const { categories, counts } = useMemo(() => {
+    const countMap = new Map<string, number>();
+    for (const s of skills) {
+      const cat = s.category ?? "other";
+      countMap.set(cat, (countMap.get(cat) ?? 0) + 1);
+    }
+    const cats = Array.from(countMap.keys()).sort((a, b) => a.localeCompare(b));
+    return { categories: cats, counts: countMap };
+  }, [skills]);
 
   return (
-    <div className="mb-6 flex flex-wrap justify-center gap-2">
-      {pills.map(({ key, label }) => (
+    <div className="mb-5 flex flex-wrap gap-2">
+      {categories.map((c) => (
         <CategoryPill
-          key={key ?? "all"}
-          label={label}
-          active={key === selected}
-          categoryKey={key}
-          onClick={() => onChange(key)}
+          key={c}
+          label={formatCategory(c)}
+          count={counts.get(c) ?? 0}
+          active={c === selected}
+          categoryKey={c}
+          onClick={() => onChange(c)}
         />
       ))}
     </div>
   );
 }
+
+// ─── Skill pill (fixed-size, 7 effects) ───────────────────────────────────────
 
 function SkillPill({
   skill,
@@ -238,12 +299,11 @@ function SkillPill({
   const effect = effectIndex % 7;
 
   const effectStyle: CSSProperties = {
+    // effect 6: 3D tilt — no translateY to avoid size change
     transform:
       hovered && effect === 6
-        ? "perspective(400px) rotateY(6deg) translateY(-2px)"
-        : hovered
-          ? "perspective(600px) translateY(-2px) scale(1.02)"
-          : "perspective(600px)",
+        ? "perspective(400px) rotateY(5deg)"
+        : "perspective(600px)",
     transition:
       "transform 180ms ease, border-color 200ms ease, box-shadow 200ms ease",
     ...(hovered && effect === 1
@@ -263,6 +323,24 @@ function SkillPill({
 
   return (
     <div ref={ref} className="relative w-full min-w-0">
+      {/* effect 3: constellation dots — outside overflow-hidden button */}
+      {hovered && effect === 3 && (
+        <>
+          <span
+            className="pointer-events-none absolute -top-1 -left-1 w-1 h-1 rounded-full bg-violet-400/65 z-20"
+            aria-hidden
+          />
+          <span
+            className="pointer-events-none absolute -top-1 -right-1 w-1 h-1 rounded-full bg-cyan-400/65 z-20"
+            aria-hidden
+          />
+          <span
+            className="pointer-events-none absolute -bottom-1 left-1/2 w-1 h-1 rounded-full bg-violet-300/55 z-20"
+            aria-hidden
+          />
+        </>
+      )}
+
       <button
         type="button"
         onMouseEnter={() => setHovered(true)}
@@ -270,7 +348,8 @@ function SkillPill({
         style={effectStyle}
         className={[
           "relative w-full select-none overflow-hidden rounded-full",
-          "border border-white/20 bg-black/25 px-3 py-1.5",
+          "border border-white/20 bg-black/25",
+          "h-9 px-3",
           "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]",
           hovered
             ? "border-white/40 shadow-[0_0_0_1px_rgba(167,139,250,0.35),0_0_14px_rgba(167,139,250,0.12)]"
@@ -290,25 +369,7 @@ function SkillPill({
           aria-hidden
         />
 
-        {/* Effect 3: constellation dots */}
-        {hovered && effect === 3 && (
-          <>
-            <span
-              className="pointer-events-none absolute -top-1 -left-1 w-1 h-1 rounded-full bg-violet-400/65 z-20"
-              aria-hidden
-            />
-            <span
-              className="pointer-events-none absolute -top-1 -right-1 w-1 h-1 rounded-full bg-cyan-400/65 z-20"
-              aria-hidden
-            />
-            <span
-              className="pointer-events-none absolute -bottom-1 left-1/2 w-1 h-1 rounded-full bg-violet-300/55 z-20"
-              aria-hidden
-            />
-          </>
-        )}
-
-        {/* Effect 5: orbit dot */}
+        {/* effect 5: orbit dot */}
         {effect === 5 && (
           <span
             className="pointer-events-none absolute top-0 left-1/2 z-20 w-1.5 h-1.5 rounded-full bg-violet-400/80"
@@ -323,11 +384,20 @@ function SkillPill({
           />
         )}
 
-        <div className="relative z-10 flex w-full min-w-0 items-center justify-between gap-2 text-left">
-          <span className="text-sm font-medium text-white/85">{label}</span>
-          {/* Proficiency on hover only */}
-          {hovered && proficiency && (
-            <span className="ml-auto shrink-0 font-sans text-xs capitalize text-white/40">
+        <div className="relative z-10 flex w-full h-full items-center justify-between gap-2">
+          <span className="text-sm font-medium text-white/85 truncate min-w-0">
+            {label}
+          </span>
+          {/* Proficiency: always in DOM (no layout shift), transparent when not hovered */}
+          {proficiency && (
+            <span
+              className="shrink-0 font-sans text-xs capitalize whitespace-nowrap transition-opacity duration-150"
+              style={{
+                opacity: hovered ? 1 : 0,
+                color: "rgba(255,255,255,0.4)",
+              }}
+              aria-hidden={!hovered}
+            >
               {proficiency}
             </span>
           )}
@@ -337,31 +407,17 @@ function SkillPill({
   );
 }
 
-function SkillsCategoryGrid({ skills }: { skills: SKILLS_QUERYResult }) {
-  const grouped = useMemo(() => {
-    const m = new Map<string, SKILLS_QUERYResult>();
-    for (const s of skills) {
-      const c = s.category ?? "other";
-      if (!m.has(c)) m.set(c, []);
-      m.get(c)?.push(s);
-    }
-    return Array.from(m.entries()).sort(([a], [b]) => a.localeCompare(b));
-  }, [skills]);
+// ─── Active category view ─────────────────────────────────────────────────────
 
-  // Build flat array of [category, items, baseIndex] to avoid mutable counter.
-  // Must stay above the early return so hooks are always called in the same order.
-  const groupedWithIndex = useMemo(() => {
-    let counter = 0;
-    return grouped.map(([category, items]) => {
-      const baseIndex = counter;
-      counter += items.length;
-      return { category, items, baseIndex } as {
-        category: string;
-        items: SKILLS_QUERYResult;
-        baseIndex: number;
-      };
-    });
-  }, [grouped]);
+function ActiveCategoryView({
+  skills,
+  categoryKey,
+}: {
+  skills: SKILLS_QUERYResult;
+  categoryKey: string | null;
+}) {
+  const key = categoryKey ?? "other";
+  const desc = CATEGORY_DESCRIPTIONS[key] ?? "";
 
   if (!skills.length) {
     return (
@@ -372,75 +428,75 @@ function SkillsCategoryGrid({ skills }: { skills: SKILLS_QUERYResult }) {
   }
 
   return (
-    <div className="mx-auto max-w-4xl space-y-10">
-      {groupedWithIndex.map(({ category, items, baseIndex }) => {
-        const desc =
-          CATEGORY_DESCRIPTIONS[category] ?? CATEGORY_DESCRIPTIONS.other ?? "";
-        return (
-          <section key={category} className="text-center">
-            <h3 className="font-display text-sm font-semibold tracking-wide text-white/75">
-              {formatCategory(category)}
-            </h3>
-            {desc ? (
-              <p className="mt-1 font-sans text-sm text-white/45">{desc}</p>
-            ) : null}
-            <div className="mx-auto mt-4 grid max-w-3xl grid-cols-2 gap-2 sm:max-w-none md:grid-cols-3 lg:grid-cols-4">
-              {items.map((s, localIdx) => (
-                <SkillPill
-                  key={s._id}
-                  skill={s}
-                  effectIndex={baseIndex + localIdx}
-                />
-              ))}
-            </div>
-          </section>
-        );
-      })}
+    <div>
+      {desc && (
+        <p className="mb-4 font-sans text-sm text-white/45 leading-relaxed text-center">
+          {desc}
+        </p>
+      )}
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-3">
+        {skills.map((s, i) => (
+          <SkillPill key={s._id} skill={s} effectIndex={i} />
+        ))}
+      </div>
     </div>
   );
 }
+
+// ─── Main export ──────────────────────────────────────────────────────────────
 
 export function SkillsSectionClient({
   skills,
 }: {
   skills: SKILLS_QUERYResult;
 }) {
-  const [selected, setSelected] = useState<string | null>(null);
-  const [graphCategory, setGraphCategory] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string | null>(() =>
+    getHighestCategory(skills),
+  );
+
+  const numCategories = useMemo(() => {
+    return new Set(skills.map((s) => s.category ?? "other")).size;
+  }, [skills]);
 
   const filtered = useMemo(() => {
     if (!selected) return skills;
     return skills.filter((s) => s.category === selected);
   }, [skills, selected]);
 
-  const handleCategoryChange = (category: string | null) => {
-    setSelected(category);
-    setGraphCategory(category);
-  };
+  const color = selected
+    ? (CATEGORY_COLORS[normalizeCategoryKey(selected)] ?? FALLBACK_BAR)
+    : FALLBACK_BAR;
 
   return (
     <div className="relative">
-      <SkillsSummary skills={skills} />
-      <div className="mt-8 flex flex-col md:flex-row gap-10 items-start">
+      {/* Two-column layout */}
+      <div className="flex flex-col md:flex-row gap-8 items-start">
         {/* Left: capability graph — sticky on desktop */}
         <div className="w-full md:w-[42%] md:sticky md:top-28">
           <SkillsCapabilityGraph
             skills={skills}
-            selectedCategory={graphCategory}
+            selectedCategory={selected}
             onCategorySelect={(cat) => {
-              setGraphCategory(cat);
-              setSelected(cat);
+              if (cat !== null) setSelected(cat);
             }}
           />
         </div>
-        {/* Right: filter pills + skill grid */}
+
+        {/* Right: filter buttons → caption → description → grid */}
         <div className="flex-1 min-w-0">
           <SkillsFilter
             skills={skills}
             selected={selected}
-            onChange={handleCategoryChange}
+            onChange={setSelected}
           />
-          <SkillsCategoryGrid skills={filtered} />
+          {/* Caption — below filter, above description */}
+          <p
+            className="mb-2 text-center font-mono text-xs"
+            style={{ color: `${color}90` }}
+          >
+            {skills.length} skills across {numCategories} categories
+          </p>
+          <ActiveCategoryView skills={filtered} categoryKey={selected} />
         </div>
       </div>
     </div>

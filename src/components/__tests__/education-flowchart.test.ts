@@ -9,19 +9,19 @@ describe("Education Flowchart — Property 6 & 7", () => {
   );
 
   describe("Property 6: Education flowchart blob variant ordering", () => {
-    it("BLOB_VARIANTS array starts with stable (most recent)", () => {
-      // The first element should be "stable" for the most recent education
-      expect(content).toContain('"stable"');
-      // stable should appear before forming and amoeba in the variants array
-      const stableIdx = content.indexOf('"stable"');
-      const formingIdx = content.indexOf('"forming"');
-      const amoebaIdx = content.indexOf('"amoeba"');
-      expect(stableIdx).toBeLessThan(formingIdx);
-      expect(formingIdx).toBeLessThan(amoebaIdx);
-    });
-
-    it("BLOB_VARIANTS array ends with amoeba (oldest)", () => {
-      expect(content).toContain('"amoeba"');
+    it("Distortion increases with index (most recent = least deformed)", () => {
+      // DISTORT array: [0, 0.42, 0.68] — college is stable, middle school most deformed
+      expect(content).toContain("DISTORT");
+      // College (idx 0) has zero distortion
+      const distortMatch = content.match(/const DISTORT\s*=\s*\[([^\]]+)\]/);
+      expect(distortMatch).not.toBeNull();
+      const values = distortMatch![1]
+        .split(",")
+        .map((v) => Number.parseFloat(v.trim()));
+      // Values should be ascending (more deformed for older schools)
+      for (let i = 1; i < values.length; i++) {
+        expect(values[i]).toBeGreaterThan(values[i - 1]);
+      }
     });
 
     it("Items are sorted most-recent-first by startDate", () => {
@@ -29,8 +29,8 @@ describe("Education Flowchart — Property 6 & 7", () => {
       expect(content).toContain("localeCompare");
     });
 
-    it("Blob variant is assigned by index (0=stable, 1=forming, 2+=amoeba)", () => {
-      expect(content).toContain("BLOB_VARIANTS[Math.min(i, 2)]");
+    it("Three blobs are rendered by index with different distortion", () => {
+      expect(content).toContain("DISTORT[idx]");
     });
   });
 

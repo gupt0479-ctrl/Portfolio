@@ -25,7 +25,7 @@ export async function BlogSection() {
       id="blog"
       className="section-backdrop section-pad mx-auto max-w-6xl px-6"
     >
-      <div className="mb-16">
+      <div className="mb-16 text-center">
         <p className="section-kicker">{"// uplink"}</p>
         <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
           What I Read or Do

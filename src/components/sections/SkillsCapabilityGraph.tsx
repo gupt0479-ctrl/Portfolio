@@ -38,56 +38,76 @@ const PLOT_H = VIEW_H - PAD_TOP - PAD_BOTTOM; // 260
 
 // ─── Math helpers ─────────────────────────────────────────────────────────────
 
-function easeInOutCubic(t: number): number {
-  return t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2;
+// ─── Pattern-based trajectory system ─────────────────────────────────────────
+//
+// Each category has a hand-crafted 6-point pattern (one value per year, 2021–2026).
+// pattern[5] = 1.0 so the 2026 endpoint always equals the category's real avg.
+// startFloor is the absolute Y the line starts from when pattern = 0.
+//
+// Narrative key:
+//   ai-ml       — hockey stick: near-zero start, explosive recent growth
+//   frontend    — early adopter: solid start, rapid rise, gentle plateau
+//   backend     — reliable: moderate start, consistent climb all years
+//   devops      — late starter: slow early, clear acceleration 2023→2026
+//   database    — foundational: decent start, methodical steady rise
+//   cloud       — recent pivot: very low start, fast ramp 2024→2026
+//   mobile      — explored: strong climb, secondary focus later (plateau)
+//   tools       — utility belt: high start, mastered early
+//   design      — gradual: low start, slow but consistent exploration
+//   testing     — late adopter: almost zero start, sharp recent acceleration
+//   soft-skills — always improving: near-linear upward slope, never flat
+//   academic    — school-driven: peaks near programme start, slight taper
+//
+interface CategoryShape {
+  pattern: [number, number, number, number, number, number];
+  startFloor: number;
 }
 
-function easeInCubic(t: number): number {
-  return t * t * t;
-}
+const CATEGORY_SHAPES: Record<string, CategoryShape> = {
+  frontend: { pattern: [0.32, 0.52, 0.68, 0.81, 0.92, 1.0], startFloor: 18 },
+  backend: { pattern: [0.2, 0.37, 0.54, 0.69, 0.84, 1.0], startFloor: 12 },
+  "ai-ml": { pattern: [0.04, 0.08, 0.16, 0.38, 0.72, 1.0], startFloor: 2 },
+  devops: { pattern: [0.08, 0.14, 0.24, 0.42, 0.68, 1.0], startFloor: 5 },
+  database: { pattern: [0.24, 0.42, 0.58, 0.72, 0.86, 1.0], startFloor: 10 },
+  "data-systems": {
+    pattern: [0.24, 0.42, 0.58, 0.72, 0.86, 1.0],
+    startFloor: 10,
+  },
+  cloud: { pattern: [0.05, 0.1, 0.22, 0.44, 0.7, 1.0], startFloor: 3 },
+  mobile: { pattern: [0.28, 0.5, 0.7, 0.85, 0.95, 1.0], startFloor: 8 },
+  tools: { pattern: [0.44, 0.6, 0.73, 0.84, 0.92, 1.0], startFloor: 20 },
+  design: { pattern: [0.14, 0.28, 0.44, 0.62, 0.8, 1.0], startFloor: 5 },
+  testing: { pattern: [0.03, 0.07, 0.14, 0.3, 0.6, 1.0], startFloor: 1 },
+  "soft-skills": {
+    pattern: [0.38, 0.48, 0.58, 0.7, 0.83, 1.0],
+    startFloor: 15,
+  },
+  other: { pattern: [0.18, 0.34, 0.5, 0.66, 0.82, 1.0], startFloor: 5 },
+  academic: { pattern: [0.42, 0.66, 0.82, 0.96, 1.0, 0.96], startFloor: 12 },
+};
 
 /**
- * Returns 6 Y-values (one per year) as a 0-100 percentage, shaped by trajectory.
- *
- * plateau  (avg ≥ 75): rapid mid-rise, flattens near avg in later years
- * steady   (40–74):    smooth cubic climb, still trending upward at 2026
- * early    (< 40):     slow cubic start, capped at roughly 60% of avg at the end
+ * Returns 6 Y-values (2021–2026) for a category.
+ * Each point = startFloor + pattern[i] × (avg − startFloor).
+ * The 2026 endpoint equals the category's real avg depth; all prior
+ * years follow the category's unique narrative shape.
  */
-function buildCurveValues(avg: number): number[] {
-  const n = YEARS.length; // 6 points
-
-  if (avg >= 75) {
-    // Plateau: starts at ~8% of avg, rises steeply, flattens in last 2 years
-    return YEARS.map((_, i) => {
-      const t = i / (n - 1);
-      if (t <= 0.6) {
-        // Rise phase: 0 → ~90% of avg via easeInOutCubic
-        const tScaled = t / 0.6;
-        return easeInOutCubic(tScaled) * avg * 0.9;
-      }
-      // Flatten phase: 90% → avg via a gentle linear approach
-      const flatT = (t - 0.6) / 0.4;
-      return avg * 0.9 + flatT * avg * 0.1;
-    });
-  }
-
-  if (avg >= 40) {
-    // Steady climb: starts at 5, climbs with blend of cubic + linear
-    return YEARS.map((_, i) => {
-      const t = i / (n - 1);
-      const cubic = easeInCubic(t);
-      // blend 60% cubic + 40% linear so it doesn't flatten at the top
-      const blended = cubic * 0.6 + t * 0.4;
-      // endpoint slightly above avg to convey "still climbing"
-      return 5 + blended * (avg * 1.08 - 5);
-    });
-  }
-
-  // Early climb: nearly zero start, slow cubic ascent, endpoint ~70% of avg
-  return YEARS.map((_, i) => {
-    const t = i / (n - 1);
-    return easeInCubic(t) * avg * 0.7;
-  });
+function buildCurveValues(avg: number, categoryKey: string): number[] {
+  const shape = CATEGORY_SHAPES[categoryKey] ??
+    CATEGORY_SHAPES.other ?? {
+      pattern: [0.1, 0.25, 0.45, 0.62, 0.82, 1.0] as [
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+      ],
+      startFloor: 5,
+    };
+  return shape.pattern.map((p) =>
+    Math.min(100, Math.max(0, shape.startFloor + p * (avg - shape.startFloor))),
+  );
 }
 
 /** Map a 0-100 Y value to an SVG Y coordinate (inverted — 0 is top in SVG). */
@@ -165,7 +185,7 @@ function buildCategoryData(skills: SKILLS_QUERYResult): CategoryData[] {
   return Array.from(grouped.entries())
     .map(([key, percentages]) => {
       const avg = percentages.reduce((s, p) => s + p, 0) / percentages.length;
-      const curveValues = buildCurveValues(avg);
+      const curveValues = buildCurveValues(avg, key);
       const points: [number, number][] = curveValues.map((v, i) => [
         xToSvg(i),
         yToSvg(v),
@@ -623,7 +643,7 @@ export function SkillsCapabilityGraph({
           <button
             key={d.key}
             type="button"
-            className="flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono transition-all duration-150"
+            className="flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-mono transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/40"
             style={{
               borderColor:
                 activeCategory === d.key

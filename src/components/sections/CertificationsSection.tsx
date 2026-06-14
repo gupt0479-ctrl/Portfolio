@@ -2,7 +2,7 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { defineQuery } from "next-sanity";
 import { CometCard } from "@/components/ui/comet-card";
-import { getCategoryColor } from "@/lib/category-colors";
+import { getSkillColor } from "@/lib/category-colors";
 import { urlFor } from "@/sanity/lib/image";
 import { sanityFetch } from "@/sanity/lib/live";
 import type { Certification } from "@/sanity/types";
@@ -11,7 +11,7 @@ import type { Certification } from "@/sanity/types";
 const CERTS_SECTION_QUERY = defineQuery(`
   *[_type == "certification"] | order(issueDate desc){
     _id, name, issuer, issueDate, expiryDate, credentialId, credentialUrl, logo, description,
-    skills[]->{ _id, name, category }
+    skills[]->{ _id, name, category, color }
   }
 `);
 
@@ -20,6 +20,7 @@ type CertWithSkills = Omit<Certification, "skills"> & {
     _id: string;
     name?: string | null;
     category?: string | null;
+    color?: string | null;
   }> | null;
 };
 
@@ -45,7 +46,7 @@ export async function CertificationsSection() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {list.map((cert) => (
-          <CometCard key={cert._id} variant="dark">
+          <CometCard key={cert._id} variant="dark" rotateDepth={8}>
             <div className="cert-card relative p-6">
               {/* Issuer badge / logo */}
               {cert.logo && (
@@ -110,7 +111,10 @@ export async function CertificationsSection() {
                       className="orbit-chip"
                       style={
                         {
-                          "--chip-color": getCategoryColor(skill.category),
+                          "--chip-color": getSkillColor(
+                            skill.color,
+                            skill.category,
+                          ),
                         } as CSSProperties
                       }
                     >

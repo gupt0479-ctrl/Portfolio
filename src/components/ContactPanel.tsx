@@ -108,8 +108,8 @@ export function ContactPanel({ profile }: { profile: ContactProfile | null }) {
         </p>
       </div>
 
-      <div className="mx-auto mt-10 max-w-md">
-        <CometCard variant="subtle" rotateDepth={8} translateDepth={10}>
+      <div className="mx-auto mt-10 max-w-sm">
+        <CometCard variant="subtle" rotateDepth={5} translateDepth={7}>
           <div
             className="relative overflow-hidden rounded-xl p-6 text-center"
             style={{
@@ -135,7 +135,7 @@ export function ContactPanel({ profile }: { profile: ContactProfile | null }) {
                   <p className="text-xs text-white/35 font-mono uppercase tracking-widest mb-2">
                     Email
                   </p>
-                  <p className="text-lg text-white/85 font-medium font-sans">
+                  <p className="text-lg text-white/85 font-medium font-sans break-all">
                     {email}
                   </p>
                   <div className="flex justify-center gap-2 mt-3">

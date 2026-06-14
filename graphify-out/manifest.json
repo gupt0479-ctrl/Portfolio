@@ -1,18 +1,18 @@
 {
   "/home/anant_gupta/projects/hub/portfolio/sanity.config.ts": {
-    "mtime": 1778361543.0008616,
+    "mtime": 1781272295.9270859,
     "hash": "cf3441340a3983e9ffe8cd6b6af28e25"
   },
   "/home/anant_gupta/projects/hub/portfolio/next.config.ts": {
-    "mtime": 1781207374.1524694,
-    "hash": "75b5ee0c6949590bc56d151c32d7157f"
+    "mtime": 1781285405.42229,
+    "hash": "c30e9e0ce3e5b86c2aa17ce2afd88c59"
   },
   "/home/anant_gupta/projects/hub/portfolio/vitest.config.ts": {
-    "mtime": 1781202779.9753313,
+    "mtime": 1781272295.9572277,
     "hash": "ff3b1a0dbe923b20858b46527ef5963d"
   },
   "/home/anant_gupta/projects/hub/portfolio/proxy.ts": {
-    "mtime": 1781181267.0965793,
+    "mtime": 1781272295.9270859,
     "hash": "f142fadb2a1eeec14c52ffcaed6cfabe"
   },
   "/home/anant_gupta/projects/hub/portfolio/postcss.config.mjs": {
@@ -20,31 +20,31 @@
     "hash": "239f3ebf717465dc636818a1a619398d"
   },
   "/home/anant_gupta/projects/hub/portfolio/orby-nav-e2e.spec.ts": {
-    "mtime": 1781204721.3190506,
+    "mtime": 1781272625.7125132,
     "hash": "4f6e445d46907a7342cd5c6659a351f1"
   },
   "/home/anant_gupta/projects/hub/portfolio/next-env.d.ts": {
-    "mtime": 1781249664.624327,
-    "hash": "2a74d3909800ca5467fa83b0ab4a4890"
+    "mtime": 1781286452.7761848,
+    "hash": "d0f8375ae1199dc7acd3977fc33b78b8"
   },
   "/home/anant_gupta/projects/hub/portfolio/playwright.config.ts": {
-    "mtime": 1781202669.939731,
+    "mtime": 1781272625.7125132,
     "hash": "3dbfb375ffe909c059ff25eddd819e8b"
   },
   "/home/anant_gupta/projects/hub/portfolio/sanity.cli.ts": {
-    "mtime": 1774231565.4348772,
+    "mtime": 1781272295.9270859,
     "hash": "bf1393b4b93f656f2485f2aa99c3d902"
   },
   "/home/anant_gupta/projects/hub/portfolio/scripts/patch-sanity-content.mjs": {
-    "mtime": 1781092494.7971418,
+    "mtime": 1781272295.9371333,
     "hash": "e818c0394cb0247c42e1ec177ab40a18"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/proxy.ts": {
-    "mtime": 1778345063.0076182,
+    "mtime": 1781272295.9572277,
     "hash": "d60cf8a83448384d17dd64acb1a87d63"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/structure.ts": {
-    "mtime": 1781181267.1070375,
+    "mtime": 1781272295.9572277,
     "hash": "c318851ba4e7a206c60fa9cfc754b66f"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/env.ts": {
@@ -52,11 +52,11 @@
     "hash": "1cd30ef9efe49200e9eeb1d6ec7be38e"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/schemaTypes/project.ts": {
-    "mtime": 1769061171.8359005,
-    "hash": "6b888c75b5c9b02b4eb0f4a25ad61b8b"
+    "mtime": 1781344956.1332417,
+    "hash": "4db2481cec44764e3ab2db4520b5ec9a"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/schemaTypes/blog.ts": {
-    "mtime": 1781181267.1070375,
+    "mtime": 1781272295.9572277,
     "hash": "3d46b59aa30def31f834d9859bd6e43d"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/schemaTypes/experience.ts": {
@@ -64,7 +64,7 @@
     "hash": "5db86a2e112f4b649eed40856d571b68"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/schemaTypes/index.ts": {
-    "mtime": 1781181267.1070375,
+    "mtime": 1781272295.9572277,
     "hash": "9f0b32182584eb01ddd48c14447f35e1"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/schemaTypes/navigation.ts": {
@@ -76,15 +76,15 @@
     "hash": "fa304c3903a547d27de5fc3884e30eea"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/schemaTypes/skill.ts": {
-    "mtime": 1769061226.3458817,
-    "hash": "cad8417e6f78fcafc53991eebd48cfe4"
+    "mtime": 1781344918.397099,
+    "hash": "6708195dcf2e41b6ac2d2c874c753377"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/schemaTypes/education.ts": {
     "mtime": 1769295003.5964882,
     "hash": "c2dbc58741bddee18fd6a79b3b2c294e"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/schemaTypes/siteSettings.ts": {
-    "mtime": 1781181267.1070375,
+    "mtime": 1781272295.9572277,
     "hash": "3be4dccba7833989787f66cc4ea294a6"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/schemaTypes/profile.ts": {
@@ -92,23 +92,23 @@
     "hash": "d87cf48b4be62cc555589289ad0afcbc"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/schemaTypes/achievement.ts": {
-    "mtime": 1781181267.1070375,
+    "mtime": 1781272295.9572277,
     "hash": "94b77d8ed41a407c80843a573b7c10b2"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/types/index.ts": {
-    "mtime": 1781249594.1191971,
-    "hash": "3e6acb319d020af0c1e3860da15648a9"
+    "mtime": 1781345029.9428682,
+    "hash": "53bf9555908092e3b1dd408c19efe600"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/lib/image.ts": {
     "mtime": 1769288240.919994,
     "hash": "0009bd4252c481177c430c516e917d50"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/lib/server-client.ts": {
-    "mtime": 1778348787.7685614,
+    "mtime": 1781272295.9572277,
     "hash": "fd391ad7607400ae2ae0d51d1a13d934"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/lib/live.ts": {
-    "mtime": 1781181267.0965793,
+    "mtime": 1781272295.9572277,
     "hash": "378b73a60c0032d4d8abba15167298ff"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/lib/client.ts": {
@@ -116,19 +116,23 @@
     "hash": "7ea1d14613caaa7223d15bc530e220f7"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/sanity/lib/queries.ts": {
-    "mtime": 1781181267.0965793,
-    "hash": "24cdc904c57b136eac42d4c9bcd21eb0"
+    "mtime": 1781345003.8818777,
+    "hash": "bc84e21e3145e5cae456da6d98e24432"
+  },
+  "/home/anant_gupta/projects/hub/portfolio/src/hooks/use-space-float.ts": {
+    "mtime": 1781272625.7224565,
+    "hash": "30b3e1898c293d39582a151243b0daab"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/hooks/use-mobile.ts": {
-    "mtime": 1772596568.4429512,
+    "mtime": 1781272295.9572277,
     "hash": "46b35a495cdfa7caa7cadfabbc3b8ec7"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/hooks/useIridescentEffect.ts": {
-    "mtime": 1778361846.8170207,
+    "mtime": 1781272295.9572277,
     "hash": "44f55d58d38bb6bc6dd4e379f36e28a6"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/hooks/useActiveSection.ts": {
-    "mtime": 1778276916.281213,
+    "mtime": 1781272295.9572277,
     "hash": "be1542513b8c1c0c098d260facbbee49"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/hooks/useShowOnScroll.ts": {
@@ -136,343 +140,355 @@
     "hash": "219ba77556b201b6a19bd96f4805d184"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/OrbyLoader.tsx": {
-    "mtime": 1780687691.579061,
+    "mtime": 1781272295.9471805,
     "hash": "03a31b73bf28d4b0a9af23ffd1e39aeb"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/HeroTerminal.tsx": {
-    "mtime": 1781249417.5085235,
+    "mtime": 1781272625.7125132,
     "hash": "bdde3a7849ff2acd0728cf4c02f2ba45"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/HeaderScrolling.tsx": {
-    "mtime": 1781181267.0965793,
-    "hash": "bdfcd4a4c9d34f5798aa97ab0a5d5554"
+    "mtime": 1781343364.9585636,
+    "hash": "3d1d7d16ce8cd0524cf42ed7abe1c794"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/app-sidebar.tsx": {
-    "mtime": 1778276916.0612018,
+    "mtime": 1781272295.9471805,
     "hash": "63b24acd8db9b8597bd480154a8e8a10"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/BlogFeed.tsx": {
-    "mtime": 1781181267.0965793,
-    "hash": "d4624993bc5a086e1b071acdb7b774c5"
+    "mtime": 1781273355.90036,
+    "hash": "1ac14b1b4020481dcfb18170851ec9d5"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/ThemeProvider.tsx": {
     "mtime": 1769300755.4416952,
     "hash": "46876e13f6cc37b11a66a13b66f9af92"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/AboutTelemetry.tsx": {
-    "mtime": 1781249484.9581668,
+    "mtime": 1781272625.7125132,
     "hash": "57439ef5a73af2b05187dfc63aa6e90c"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/ChatTokenInit.tsx": {
-    "mtime": 1781099510.6884673,
+    "mtime": 1781272295.9371333,
     "hash": "b876ea4e7888236768a5f200cdd0322d"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/PortfolioContent.tsx": {
-    "mtime": 1781250015.8552654,
-    "hash": "39a6a69e5d7c195912bafb00d3eff519"
+    "mtime": 1781343388.9043326,
+    "hash": "4c00e16efd5a0cfbfdc7f6105aabc8ad"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/Footer.tsx": {
-    "mtime": 1778335925.402094,
-    "hash": "5481eca59cc00e2bb4021ac6dfd2a31b"
+    "mtime": 1781273325.036764,
+    "hash": "fa98f3be569fca217ba2095bb6930bba"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/EducationFlowchart.tsx": {
-    "mtime": 1781181267.0965793,
-    "hash": "d1b6a6fc30e0db8fa47c6d742748bc72"
+    "mtime": 1781283484.0312326,
+    "hash": "d5b36bd1f849c5da4bfb3e3b729c0fa0"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/ContactPanel.tsx": {
-    "mtime": 1778361271.1992052,
-    "hash": "3792f525733efacb978dabc70ebfd6eb"
+    "mtime": 1781343440.1535711,
+    "hash": "f60d9a6a434f2db5a702afb928378c80"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/SidebarToggle.tsx": {
-    "mtime": 1778276915.9911983,
+    "mtime": 1781272295.9471805,
     "hash": "0f84f33fda5e5c01af7978e7303c8d47"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/Providers.tsx": {
-    "mtime": 1781181267.0965793,
+    "mtime": 1781272295.9471805,
     "hash": "36d70eba7ae0e3dd12bc1f2ed96c28c5"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/three/ObsidianBackgroundCanvas.tsx": {
-    "mtime": 1778361846.9484708,
-    "hash": "042d03974fd0382ff82df20978d04653"
+    "mtime": 1781272625.7125132,
+    "hash": "dc12607f94b7f1f8401f570c7d253e68"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/three/ObsidianBackground.tsx": {
     "mtime": 1771756094.4120069,
     "hash": "491dbe74e7976dd2f6858a806f578b76"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/three/ProjectsSlider.tsx": {
-    "mtime": 1781181267.0965793,
-    "hash": "234c76a27ebefb3e3fd7c0ed344c76c4"
+    "mtime": 1781345115.9755433,
+    "hash": "fa4ce9c22103d5fef4f33d2f0ba668bd"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/SkillsSection.tsx": {
-    "mtime": 1778276959.2853818,
-    "hash": "06e40cc81aaf210a5d09ef4af360d2b0"
+    "mtime": 1781343396.835246,
+    "hash": "73c8f00f2d46bf90f9fb565647979a6d"
+  },
+  "/home/anant_gupta/projects/hub/portfolio/src/components/sections/ExperienceSectionClient.tsx": {
+    "mtime": 1781273649.9121032,
+    "hash": "3d044fd9049348d1e635d5010ca5fe3d"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/HeroSection.tsx": {
-    "mtime": 1778276959.2653644,
+    "mtime": 1781272295.9572277,
     "hash": "121f9b43280714b327921cc01954adc6"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/AchievementsSection.tsx": {
-    "mtime": 1781181267.0965793,
-    "hash": "b015222c0c7b7fa8459f3a4fc12ca2c9"
+    "mtime": 1781273311.4618227,
+    "hash": "ba0dc062542a53e7acadcac23c8124be"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/HeroContent.tsx": {
-    "mtime": 1781206237.3455417,
+    "mtime": 1781272295.9572277,
     "hash": "487ebe49ecb4c11d3faced1977f9e3b4"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/AboutSection.tsx": {
-    "mtime": 1781250098.0316222,
-    "hash": "d20ddf004bfb1d7a6c8b1b8de81efb90"
+    "mtime": 1781343371.4505866,
+    "hash": "09292389411850ac0583f6a2e495d4f3"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/ProfileImage.tsx": {
-    "mtime": 1781206237.3455417,
+    "mtime": 1781272295.9572277,
     "hash": "29ac53eb8ef7641d1a82a103ca3c8e97"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/EducationSection.tsx": {
-    "mtime": 1781181267.0965793,
-    "hash": "a23d9a4dcb5a68553e3a50948d837e9a"
+    "mtime": 1781343402.478692,
+    "hash": "7e49e6e654ec386923b35de6e0804d17"
+  },
+  "/home/anant_gupta/projects/hub/portfolio/src/components/sections/SkillsCapabilityGraph.tsx": {
+    "mtime": 1781273537.6062248,
+    "hash": "a38751092347de609b6591f1cfa1ee50"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/ContactSection.tsx": {
-    "mtime": 1778276959.2553556,
+    "mtime": 1781272295.9572277,
     "hash": "42739c7318e9b432f2c9522b12dd9868"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/CertificationsSection.tsx": {
-    "mtime": 1781181267.0965793,
-    "hash": "e2e104cd6f52ca734b5c5b78f3471790"
+    "mtime": 1781343411.7242434,
+    "hash": "6d0817edf5b98fbce0d9461533d0321d"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/SkillsSectionClient.tsx": {
-    "mtime": 1781181267.0965793,
-    "hash": "db3e2f6edec3cab31278c4b8811ab1b2"
+    "mtime": 1781285418.8477252,
+    "hash": "3cf2cd4361bb63be3f65c2abcf7190a6"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/BlogSection.tsx": {
-    "mtime": 1781181267.0965793,
-    "hash": "7a970f4ad25e1f06fe3c82d3b94a615d"
+    "mtime": 1781343428.6200898,
+    "hash": "0514ceda80659fbd73a96777b8301b42"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/sections/ExperienceSection.tsx": {
-    "mtime": 1778276959.2553556,
-    "hash": "fdbfd7181f65ff749a769fcfe086cc48"
+    "mtime": 1781343381.547052,
+    "hash": "1d79a43f778daac194f5b2410b4b28e0"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/cards/ExperienceCard.tsx": {
-    "mtime": 1781181267.0965793,
-    "hash": "4b6c6bb9cd8dbd9967ad9571f52aa809"
+    "mtime": 1781345051.6157527,
+    "hash": "48562ca6640ea4d0069e096cbde1017f"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/orby-chat-nav.test.ts": {
-    "mtime": 1781204501.777247,
+    "mtime": 1781272625.7125132,
     "hash": "37009bb12a3561745f5a40fbccb1c744"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/project-card-content.test.ts": {
-    "mtime": 1778276959.1953034,
+    "mtime": 1781272295.9471805,
     "hash": "7166aac755b45f5039c79c25014de693"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/useTypedText.test.ts": {
-    "mtime": 1780654849.2500448,
+    "mtime": 1781272295.9471805,
     "hash": "11d125564b150aeecb85da1a50b734a5"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/portfolio-lab-chat.test.tsx": {
-    "mtime": 1781181521.9231699,
+    "mtime": 1781272295.9471805,
     "hash": "65186abde6ce92c7c58041bec258ba3b"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/icon-button-accessibility.test.ts": {
-    "mtime": 1778277078.7257826,
+    "mtime": 1781272295.9471805,
     "hash": "c0482e780f7d2b0c6c0ff6d87e63963f"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/banned-text.test.ts": {
-    "mtime": 1778341438.6789799,
+    "mtime": 1781272295.9471805,
     "hash": "45ff652699ca28bebf3e132818b0b91f"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/blog-card-styling.test.ts": {
-    "mtime": 1778276959.175286,
+    "mtime": 1781272295.9471805,
     "hash": "6e32d16486f37e6b0de95520085ca12e"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/portfolio-lab.test.ts": {
-    "mtime": 1778276959.1852949,
+    "mtime": 1781272295.9471805,
     "hash": "fe3b50303c293143bb97e39af334f8ef"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/hero-ui-polish-preservation.test.tsx": {
-    "mtime": 1781206237.3349538,
+    "mtime": 1781272625.7125132,
     "hash": "83d56282e129eb0617fe92dd7225fcfa"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/education-flowchart.test.ts": {
-    "mtime": 1778276959.1852949,
+    "mtime": 1781272295.9471805,
     "hash": "9a9ec05ebbcc9ee1f59b6cdf1dac43fa"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/hero-ui-polish-bug-condition.test.tsx": {
-    "mtime": 1781206629.2202954,
+    "mtime": 1781272625.7125132,
     "hash": "fd269a56d932fc0f5c91d0fcccc3ec28"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/codebase-cleanup-bug-condition.test.ts": {
-    "mtime": 1781181267.0965793,
+    "mtime": 1781272295.9471805,
     "hash": "166ec4a4d1a7735c27ed69a422667911"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/section-backdrop.test.ts": {
-    "mtime": 1778276959.1953034,
+    "mtime": 1781272295.9471805,
     "hash": "dd755c71afef53b350d4c5ec82d5acb5"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/orby-section-messages.test.ts": {
-    "mtime": 1781097251.570962,
+    "mtime": 1781272295.9471805,
     "hash": "0e069b8fc920a9c907b8b91009b25315"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/experience-tech-tags.test.ts": {
-    "mtime": 1778276959.1852949,
+    "mtime": 1781272295.9471805,
     "hash": "5bf9e1b5c33cce337823abf633cb1c85"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/hero-terminal-fallback.test.tsx": {
-    "mtime": 1781207048.1471744,
+    "mtime": 1781272295.9471805,
     "hash": "1b2a931ba4e5acbad353b92ebb3c6be0"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/achievement-orbit-chip.test.ts": {
-    "mtime": 1778276959.175286,
+    "mtime": 1781272295.9471805,
     "hash": "5d42fd9887f6c517a311ba5cce22edfc"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/skills-category-filter.test.ts": {
-    "mtime": 1778361416.341472,
+    "mtime": 1781272295.9471805,
     "hash": "4fdc9aceefc3e0c262b6d25c5ec09d4f"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/codebase-cleanup-preservation.test.ts": {
-    "mtime": 1781181267.0965793,
+    "mtime": 1781272295.9471805,
     "hash": "ce128906dcbdf914d275cdb4fc8d3283"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/__tests__/certification-card.test.ts": {
-    "mtime": 1778276959.1852949,
+    "mtime": 1781272295.9471805,
     "hash": "e1374ae996ce6f4772356c39698d9060"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/orby/OrbyModel.tsx": {
-    "mtime": 1780708023.7299752,
+    "mtime": 1781272295.9572277,
     "hash": "5fb80ce5ed8af025384c4c0aa6f05e5e"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/orby/useScrollProgress.ts": {
-    "mtime": 1780652920.7703176,
+    "mtime": 1781272295.9572277,
     "hash": "e1343a7ad5576dc88497c96ad280d177"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/orby/useOrbyState.ts": {
-    "mtime": 1781204743.8570528,
-    "hash": "15989cb9fb77aca1b64ff0218dad2dd7"
+    "mtime": 1781284999.5801759,
+    "hash": "d6412e2e02190319c7debf68d20b1b1e"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/orby/OrbySpeechCloud.tsx": {
-    "mtime": 1780999852.3092515,
+    "mtime": 1781272295.9572277,
     "hash": "5ec0a850a0f5ececc4536c715493b0a2"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/orby/Orby.tsx": {
-    "mtime": 1781208015.7965636,
-    "hash": "c5c963af866b4739d2dca797446add05"
+    "mtime": 1781284976.0523655,
+    "hash": "8c00b70f179628868b1141680a77dffa"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/orby/OrbyArrow.tsx": {
-    "mtime": 1781013385.0862048,
+    "mtime": 1781272295.9572277,
     "hash": "fa4115a8122dcec5c4f22cf218013c99"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/orby/OrbyCanvas.tsx": {
-    "mtime": 1781013282.8362226,
+    "mtime": 1781272295.9572277,
     "hash": "7accc37e42b7086c809174cbab1ed457"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/orby/useTypedText.ts": {
-    "mtime": 1780653021.8403008,
+    "mtime": 1781272295.9572277,
     "hash": "d4a3ee1b895e7f19d5417faf6e54677f"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/PowerPromptBlock.tsx": {
-    "mtime": 1781248981.3080034,
+    "mtime": 1781272295.9471805,
     "hash": "3263643291f28ea7d5a4fb19c246317b"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/PanelOrby.tsx": {
-    "mtime": 1781249010.1113563,
+    "mtime": 1781272295.9471805,
     "hash": "701b01ec290d6c3c630b1104070b1959"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/ChatInputBar.tsx": {
-    "mtime": 1781115163.8292134,
+    "mtime": 1781272295.9471805,
     "hash": "07479422986fc52bca9c2873042f38f3"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/ProofPack.tsx": {
-    "mtime": 1778276916.1112044,
+    "mtime": 1781272295.9471805,
     "hash": "30972b882028fb96810b99f5fddaec5a"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/PortfolioLab.tsx": {
-    "mtime": 1781249057.712097,
+    "mtime": 1781272295.9471805,
     "hash": "ec06e1d27ffcd0fed53854348ff9b8c8"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/SuggestedChips.tsx": {
-    "mtime": 1781248959.9888613,
+    "mtime": 1781272295.9471805,
     "hash": "d6a26ec2e32036b13fefd09380de2d87"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/ChatThread.tsx": {
-    "mtime": 1781122810.917127,
+    "mtime": 1781272295.9471805,
     "hash": "421e1e36c77a1d4a9c3981c4259d2ca4"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/PersonaSelector.tsx": {
-    "mtime": 1781115116.650149,
+    "mtime": 1781272295.9471805,
     "hash": "5ee418b7ed507359def91a38e715ce27"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/EvidenceCard.tsx": {
-    "mtime": 1778276916.0712023,
+    "mtime": 1781272295.9471805,
     "hash": "cd4c73397f007ee850becc98e1ff9a7e"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/cards/ExperienceEvidenceCard.tsx": {
-    "mtime": 1781122708.452325,
+    "mtime": 1781272295.9471805,
     "hash": "e0023eb54de201d1847c4437d3030113"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/cards/ToolResultRenderer.tsx": {
-    "mtime": 1781122822.5369365,
+    "mtime": 1781272295.9471805,
     "hash": "385057f801a890b682373afd3aa91f0f"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/lab/cards/ProjectEvidenceCard.tsx": {
-    "mtime": 1781122691.322882,
+    "mtime": 1781272295.9471805,
     "hash": "343fdbc177c8e6dd360bb91fb8ce6756"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/ui/comet-card.tsx": {
-    "mtime": 1781250071.5209343,
+    "mtime": 1781272625.7125132,
     "hash": "b8385d2fcddb24023dd6e9fd0f0906c0"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/ui/sidebar.tsx": {
-    "mtime": 1778361847.1001441,
+    "mtime": 1781272295.9572277,
     "hash": "76d5d66375535c5aeb20c005c75cc52f"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/ui/layout-text-flip.tsx": {
     "mtime": 1770261174.1182227,
     "hash": "640c0c0f10a80a7fe4188894a7a18702"
   },
+  "/home/anant_gupta/projects/hub/portfolio/src/components/ui/space-rail.tsx": {
+    "mtime": 1781272625.7224565,
+    "hash": "fb1c38b6961ac241fe4250c5e094cac5"
+  },
   "/home/anant_gupta/projects/hub/portfolio/src/components/ui/sheet.tsx": {
     "mtime": 1770261174.1182227,
     "hash": "8eb752af26d1d02c40a61f38dd507d08"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/components/ui/__tests__/comet-card.test.tsx": {
-    "mtime": 1778277177.0521228,
+    "mtime": 1781272295.9572277,
     "hash": "04d95e1238deb0e80990ab7aa6e5ed20"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/test/setup.ts": {
-    "mtime": 1781181267.1070375,
+    "mtime": 1781272295.9572277,
     "hash": "5a37ee75f01db6d87095f6cd1239856d"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/layout.tsx": {
-    "mtime": 1781181267.0965793,
+    "mtime": 1781272295.9371333,
     "hash": "4e49f4c26fd5e718115516cd3c1132a4"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/sign-up/[[...sign-up]]/page.tsx": {
-    "mtime": 1781092494.7971418,
+    "mtime": 1781272295.9371333,
     "hash": "96a301e0c40afe6eab8aed7be8140693"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/sign-in/[[...sign-in]]/page.tsx": {
-    "mtime": 1781092494.7867892,
+    "mtime": 1781272295.9371333,
     "hash": "ab97c3eb57d3a22a7e11a59ab339bca0"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/studio/layout.tsx": {
-    "mtime": 1780680123.4833412,
+    "mtime": 1781272295.9371333,
     "hash": "d6852fa11a091643e714496bd3f4bf7d"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/studio/[[...tool]]/page.tsx": {
-    "mtime": 1781181267.0965793,
+    "mtime": 1781272295.9371333,
     "hash": "24e3ff8523d3942029d5c287b15c7d64"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/studio/[[...tool]]/StudioClient.tsx": {
-    "mtime": 1778342382.1085887,
+    "mtime": 1781272295.9371333,
     "hash": "70ecc4b88d4f150ebb40ed4967b70c6a"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/(portfolio)/page.tsx": {
-    "mtime": 1780680123.4833412,
+    "mtime": 1781272295.9371333,
     "hash": "760b2c7ec4f8ab38ea8cba77ad225cf2"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/(portfolio)/layout.tsx": {
-    "mtime": 1781177037.046891,
+    "mtime": 1781272295.9371333,
     "hash": "ceadfe0d016f558585648dde18dfba69"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/api/chat-token/route.ts": {
-    "mtime": 1781099504.0803897,
+    "mtime": 1781272295.9371333,
     "hash": "42e8a38c209e51cb6c56b6619d05bef1"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/api/draft-mode/disable/route.ts": {
@@ -480,151 +496,151 @@
     "hash": "ee2b8985aeed6b8d16d08c51ba30280e"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/api/draft-mode/enable/route.ts": {
-    "mtime": 1772939234.82021,
+    "mtime": 1781272295.9371333,
     "hash": "ee34dfa364dd22472055daa213e11a95"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/api/chat/route.ts": {
-    "mtime": 1781208429.09245,
+    "mtime": 1781272295.9371333,
     "hash": "520af4fa3f6f0a2eedfea35a9335a6dc"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/app/api/chat/__tests__/route.test.ts": {
-    "mtime": 1781175192.8700042,
+    "mtime": 1781272295.9371333,
     "hash": "f7cb88e54d9f77d3170c334ac30ed450"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/lab-data.ts": {
-    "mtime": 1778276916.3712177,
+    "mtime": 1781272295.9572277,
     "hash": "94b53344a1ba3be8587d8c18be14eba6"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/chat-context.ts": {
-    "mtime": 1781122324.9805028,
+    "mtime": 1781272295.9572277,
     "hash": "3dc32fefdb880601790a89887b438494"
   },
+  "/home/anant_gupta/projects/hub/portfolio/src/lib/category-colors.ts": {
+    "mtime": 1781344913.1633654,
+    "hash": "eaa59ec67bee3aef77eace25adac5f56"
+  },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/clerk-appearance.ts": {
-    "mtime": 1781092494.7971418,
+    "mtime": 1781272295.9572277,
     "hash": "b524ce48f5c4e2e6764ce1f2c930afb6"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/degraded-responses.ts": {
-    "mtime": 1781197820.2204652,
+    "mtime": 1781272295.9572277,
     "hash": "d350277f1787ee31e6ccfd964acba5fd"
   },
+  "/home/anant_gupta/projects/hub/portfolio/src/lib/space-float-ticker.ts": {
+    "mtime": 1781272625.7224565,
+    "hash": "a849806f7d6cd3f273bc6c104c4d698f"
+  },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/model-router.ts": {
-    "mtime": 1781175253.72589,
+    "mtime": 1781272295.9572277,
     "hash": "38d11daf6a764d1383281612dc7b47cc"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/chat-tools.ts": {
-    "mtime": 1781197796.5071712,
+    "mtime": 1781272295.9572277,
     "hash": "030aeb3da0cc188fac925186cfda96c8"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/utils.ts": {
-    "mtime": 1778276916.341216,
+    "mtime": 1781272295.9572277,
     "hash": "414024b54852d0d97b933e6dc5bf6351"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/personas/index.ts": {
-    "mtime": 1781115295.2799778,
+    "mtime": 1781272295.9572277,
     "hash": "9731c24deab02551f14a97a2f6b0228f"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/personas/weirdo.ts": {
-    "mtime": 1781115067.965549,
+    "mtime": 1781272295.9572277,
     "hash": "0f99fb318ee6c24f51475cd1dc4984ea"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/personas/ceo.ts": {
-    "mtime": 1781115070.3861592,
+    "mtime": 1781272295.9572277,
     "hash": "2b571d261bea80380304d498bc6b7818"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/personas/recruiter.ts": {
-    "mtime": 1781115062.3942735,
+    "mtime": 1781272295.9572277,
     "hash": "f1dba8df7e403b852fcb8d59d7708e48"
   },
   "/home/anant_gupta/projects/hub/portfolio/src/lib/personas/friend.ts": {
-    "mtime": 1781115065.127592,
+    "mtime": 1781272295.9572277,
     "hash": "db49ea053138b5f6964e217194c7737c"
   },
   "/home/anant_gupta/projects/hub/portfolio/README.md": {
-    "mtime": 1778342003.8887928,
+    "mtime": 1781272295.8165655,
     "hash": "7a28c73cff9fa9a9fc22010f4eb7e824"
   },
   "/home/anant_gupta/projects/hub/portfolio/AGENTS.md": {
-    "mtime": 1781183219.1041403,
+    "mtime": 1781272295.8165655,
     "hash": "7f1419332ae4b88621683e4ce511e78b"
   },
   "/home/anant_gupta/projects/hub/portfolio/MEMORY.md": {
-    "mtime": 1780647624.1739006,
+    "mtime": 1781272295.8165655,
     "hash": "907abe503488abb25f1ddccddf639f4e"
   },
   "/home/anant_gupta/projects/hub/portfolio/CLAUDE.md": {
-    "mtime": 1781183337.1307344,
+    "mtime": 1781272295.8165655,
     "hash": "2ef9c2dbc9eadfe950378387ed75d8e0"
   },
-  "/home/anant_gupta/projects/hub/portfolio/docs/ORBY.md": {
-    "mtime": 1781181267.0652046,
-    "hash": "01b0b17e6cfe6400316e937cab2a73e8"
-  },
-  "/home/anant_gupta/projects/hub/portfolio/docs/ecc-setup-guide.md": {
-    "mtime": 1775106172.0029995,
-    "hash": "077e4aeaceb47704f86d8fc14d9c1fd6"
-  },
   "/home/anant_gupta/projects/hub/portfolio/evals/promptfooconfig.yaml": {
-    "mtime": 1781183230.3838189,
+    "mtime": 1781272295.8165655,
     "hash": "ffd7e2c7cbef7c03af4803216a9eeaf5"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/tool-correctness.yaml": {
-    "mtime": 1781198185.1839175,
+    "mtime": 1781272295.8165655,
     "hash": "15778f93745bc230e7fc530224a9ad8f"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/fail-safe.yaml": {
-    "mtime": 1781199967.7508688,
+    "mtime": 1781272295.8165655,
     "hash": "8db0df4db33904b3689299d699d02050"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/grounding.yaml": {
-    "mtime": 1781198172.1654024,
+    "mtime": 1781272295.8165655,
     "hash": "2200adb119c2b96298a234cbdea9f2f7"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/persona-warmth.yaml": {
-    "mtime": 1781198188.8659723,
+    "mtime": 1781272295.8165655,
     "hash": "95d0665990c8f182001da328edaad942"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/injection.yaml": {
-    "mtime": 1781198177.5532925,
+    "mtime": 1781272295.8165655,
     "hash": "f513abf130b19e2e1bd1dcebdf872763"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/refusal.yaml": {
-    "mtime": 1781198173.63356,
+    "mtime": 1781272295.8165655,
     "hash": "a012f98771536e37aa9b6b515064e139"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/fixtures/system-prompt-friend.txt": {
-    "mtime": 1781115165.1540296,
+    "mtime": 1781272295.8165655,
     "hash": "71bc74ac2f21e00b6c5b72c8e9e3ed74"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/fixtures/system-prompt-ceo.txt": {
-    "mtime": 1781115197.5368555,
+    "mtime": 1781272295.8165655,
     "hash": "5559501a315f761f51bdf0a7c112bda6"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/fixtures/system-prompt-recruiter.txt": {
-    "mtime": 1781115149.8315551,
+    "mtime": 1781272295.8165655,
     "hash": "881535f59053b8905ca6f1dd49553450"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/fixtures/system-prompt.txt": {
-    "mtime": 1781110977.0387812,
+    "mtime": 1781272295.8165655,
     "hash": "d528bb50552c29a239b3f0ba8267cbec"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/fixtures/system-prompt-weirdo.txt": {
-    "mtime": 1781115181.5784426,
+    "mtime": 1781272295.8165655,
     "hash": "95c24c618e6e45937a628634274144e7"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/personas/friend-warmth.yaml": {
-    "mtime": 1781198199.6266108,
+    "mtime": 1781272295.8165655,
     "hash": "2afe9baa91d4ffc75edaa20aee220e0c"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/personas/ceo-warmth.yaml": {
-    "mtime": 1781198205.648778,
+    "mtime": 1781272295.8165655,
     "hash": "f6cbdfd0938407f08e256ef8b494d443"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/personas/weirdo-warmth.yaml": {
-    "mtime": 1781198203.6631196,
+    "mtime": 1781272295.8165655,
     "hash": "68fe317d7dec4c4acebef82024d0b397"
   },
   "/home/anant_gupta/projects/hub/portfolio/evals/personas/recruiter-warmth.yaml": {
-    "mtime": 1781198196.1398995,
+    "mtime": 1781272295.8165655,
     "hash": "867f9875f257a01cb50cd231c412be96"
   },
   "/home/anant_gupta/projects/hub/portfolio/e2e-screenshots/05-scroll-popup.png": {
@@ -654,10 +670,6 @@
   "/home/anant_gupta/projects/hub/portfolio/public/file.svg": {
     "mtime": 1768273502.0,
     "hash": "d09f95206c3fa0bb9bd9fefabfd0ea71"
-  },
-  "/home/anant_gupta/projects/hub/portfolio/public/linkdeln profile.jpg": {
-    "mtime": 1749567944.867834,
-    "hash": "c3bdfb44429e7e8cafebc2878734d99a"
   },
   "/home/anant_gupta/projects/hub/portfolio/public/vercel.svg": {
     "mtime": 1768273502.0,

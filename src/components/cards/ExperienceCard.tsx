@@ -43,6 +43,10 @@ export function ExperienceCard({
     .filter((a): a is string => typeof a === "string" && a.trim().length > 0)
     .slice(0, 2);
 
+  const hasDescription = !!(
+    experience.description && experience.description.length > 0
+  );
+
   return (
     <div
       ref={ref as React.RefObject<HTMLDivElement>}
@@ -50,9 +54,23 @@ export function ExperienceCard({
         ...style,
         animation: `slideUp 0.6s ease-out ${index * 0.1}s both`,
       }}
-      className="group"
+      className={hasDescription ? "group cursor-pointer" : "group"}
+      onClick={hasDescription ? onToggle : undefined}
+      role={hasDescription ? "button" : undefined}
+      tabIndex={hasDescription ? 0 : undefined}
+      aria-expanded={hasDescription ? isOpen : undefined}
+      onKeyDown={
+        hasDescription
+          ? (e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                onToggle();
+              }
+            }
+          : undefined
+      }
     >
-      <CometCard rotateDepth={3} translateDepth={5} variant="dark">
+      <CometCard rotateDepth={2} translateDepth={3} variant="dark">
         <div className="relative overflow-hidden rounded-xl p-6 backdrop-blur-sm">
           {/* Sweeping light effect on hover */}
           <div className="pointer-events-none absolute inset-0 z-20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 overflow-hidden">
@@ -84,22 +102,15 @@ export function ExperienceCard({
                   />
                 )}
                 <div className="flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-lg font-display font-semibold text-white">
-                      {experience.position}
-                    </h3>
-                    {experience.employmentType && (
-                      <span className="orbit-chip">
-                        {EMPLOYMENT_LABELS[experience.employmentType] ??
-                          experience.employmentType}
-                      </span>
-                    )}
-                  </div>
+                  <h3 className="text-lg font-display font-semibold text-white">
+                    {experience.position}
+                  </h3>
                   {experience.companyWebsite ? (
                     <a
                       href={experience.companyWebsite}
                       target="_blank"
                       rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
                       className="text-white/70 mt-1 font-sans inline-flex items-center gap-1.5 hover:text-white transition-colors"
                     >
                       {experience.company}
@@ -113,10 +124,20 @@ export function ExperienceCard({
                       {experience.company}
                     </p>
                   )}
-                  {experience.location && (
-                    <p className="text-sm text-white/50 mt-1.5 font-sans flex items-center gap-1.5">
-                      <MapPin className="size-[13px] shrink-0 text-white/35" />
-                      {experience.location}
+                  {(experience.location || experience.employmentType) && (
+                    <p className="text-sm text-white/50 mt-1.5 font-sans flex flex-wrap items-center gap-2">
+                      {experience.location && (
+                        <>
+                          <MapPin className="size-[13px] shrink-0 text-white/35" />
+                          <span>{experience.location}</span>
+                        </>
+                      )}
+                      {experience.employmentType && (
+                        <span className="orbit-chip">
+                          {EMPLOYMENT_LABELS[experience.employmentType] ??
+                            experience.employmentType}
+                        </span>
+                      )}
                     </p>
                   )}
                 </div>
@@ -145,8 +166,8 @@ export function ExperienceCard({
             {achievements.length > 0 && (
               <ul className="mt-3 space-y-1.5 text-sm">
                 {achievements.map((a) => (
-                  <li key={a} className="flex gap-2 text-amber-200/75">
-                    <span className="shrink-0 text-amber-300/50">★</span>
+                  <li key={a} className="flex gap-2 text-violet-200/65">
+                    <span className="shrink-0 text-violet-400/50">★</span>
                     <span className="font-sans leading-relaxed">{a}</span>
                   </li>
                 ))}
@@ -181,12 +202,13 @@ export function ExperienceCard({
                 <div className="flex justify-end">
                   <button
                     type="button"
-                    onClick={onToggle}
-                    aria-label={
-                      isOpen ? "Hide description" : "Show description"
-                    }
-                    aria-expanded={isOpen}
-                    className="flex items-center gap-1 text-xs text-white/0 group-hover:text-white/50 hover:!text-white/80 focus-visible:text-white/80 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/30 rounded transition-colors duration-200 font-sans"
+                    tabIndex={-1}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggle();
+                    }}
+                    aria-hidden="true"
+                    className="flex items-center gap-1 text-xs text-white/20 group-hover:text-white/50 hover:!text-white/80 transition-colors duration-200 font-sans"
                   >
                     <span>{isOpen ? "less" : "more"}</span>
                     <motion.span
@@ -209,6 +231,7 @@ export function ExperienceCard({
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.3, ease: "easeInOut" }}
                       className="overflow-hidden"
+                      onClick={(e) => e.stopPropagation()}
                     >
                       <div className="mt-3 pt-3 border-t border-white/[0.06]">
                         <div className="prose prose-invert prose-sm max-w-none text-white/55 font-sans [&>p]:leading-relaxed [&>p]:mb-2 [&>ul]:list-disc [&>ul]:ml-4 [&>li]:mb-1">

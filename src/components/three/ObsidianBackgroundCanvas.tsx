@@ -962,6 +962,7 @@ export default function ObsidianBackground({
       <Suspense fallback={null}>
         <Canvas
           dpr={dpr}
+          performance={{ min: 0.5 }}
           camera={{ position: CAM_START, fov: 55 }}
           gl={{
             alpha: true,

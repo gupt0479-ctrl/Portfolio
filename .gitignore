@@ -5,12 +5,12 @@ sanity.types.ts
 # IDE / agent config (local state, secrets)
 .cursor/
 .claude/
-.kiro/settings/
-.agents
-.agents/
-.mcp.json
-.mcp.local.json
+.kiro/
 .vscode/
+.mcp.json
+.mcp.example.json
+codex/
+AGENTS.md
 
 # dependencies
 /node_modules

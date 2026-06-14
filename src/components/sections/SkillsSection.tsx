@@ -9,7 +9,7 @@ export async function SkillsSection() {
       id="skills"
       className="section-backdrop section-pad mx-auto max-w-6xl px-6"
     >
-      <div className="mb-16 text-center">
+      <div className="mb-4 text-center">
         <p className="section-kicker">{"// capability matrix"}</p>
         <h2 className="font-display text-4xl font-bold text-white md:text-5xl">
           Skills &amp; Expertise

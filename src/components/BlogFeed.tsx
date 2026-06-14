@@ -1,9 +1,9 @@
 "use client";
 
 import { Github } from "lucide-react";
+import { motion } from "motion/react";
 import { useRef, useState } from "react";
 import { CometCard } from "@/components/ui/comet-card";
-import { useSpaceFloat } from "@/hooks/use-space-float";
 import type { Blog } from "@/sanity/types";
 
 const PINNED_GITHUB = {
@@ -67,30 +67,34 @@ function formatPostDate(iso?: string) {
 }
 
 function GitHubCard() {
-  const { ref, style } = useSpaceFloat({ radius: 4, rotate: 0.3 });
-
   return (
-    <div ref={ref as React.RefObject<HTMLDivElement>} style={style}>
-      <CometCard variant="dark" rotateDepth={4} translateDepth={6}>
-        <article className="relative w-full rounded-xl border border-white/10 border-l-2 border-l-violet-500/60 p-5 transition-colors duration-200 hover:border-white/20">
-          <div className="flex items-start gap-3">
-            <Github className="mt-0.5 size-4 shrink-0 text-white/50" />
-            <div className="min-w-0 flex-1">
-              <h3 className="text-base font-medium text-white/85">
-                {PINNED_GITHUB.title}
-              </h3>
-              <p className="mt-1 text-sm text-white/45 font-sans leading-relaxed">
-                {PINNED_GITHUB.description}
-              </p>
-              <div className="mt-3 flex justify-end">
-                <MagneticButton href={PINNED_GITHUB.url}>
-                  Visit →
-                </MagneticButton>
-              </div>
+    <div style={{ perspective: "800px" }}>
+      <motion.div
+        style={{
+          transformOrigin: "top center",
+          background:
+            "linear-gradient(135deg, rgba(6,6,14,0.82) 0%, rgba(10,10,22,0.88) 100%)",
+          backdropFilter: "blur(16px)",
+        }}
+        whileHover={{ rotateX: 8 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+        className="relative w-full rounded-xl border border-white/[0.08] border-l-2 border-l-violet-500/60 p-5"
+      >
+        <div className="flex items-start gap-3">
+          <Github className="mt-0.5 size-4 shrink-0 text-white/50" />
+          <div className="min-w-0 flex-1">
+            <h3 className="text-base font-medium text-white/85">
+              {PINNED_GITHUB.title}
+            </h3>
+            <p className="mt-1 text-sm text-white/45 font-sans leading-relaxed">
+              {PINNED_GITHUB.description}
+            </p>
+            <div className="mt-3 flex justify-end">
+              <MagneticButton href={PINNED_GITHUB.url}>Visit →</MagneticButton>
             </div>
           </div>
-        </article>
-      </CometCard>
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -102,7 +106,7 @@ export function BlogFeed({ posts }: { posts: Blog[] }) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
-          <CometCard key={post._id} variant="subtle" rotateDepth={6}>
+          <CometCard key={post._id} variant="subtle" rotateDepth={1}>
             <article className="relative flex min-h-[180px] flex-col rounded-xl border border-white/[0.08] cosmic-card--subtle p-5">
               {post.category ? (
                 <span className="orbit-chip">{post.category}</span>
