@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { buildSystemPrompt, fetchCatalog } from "@/lib/chat-context";
-import { verifyToken } from "@/lib/chat-token";
+import { decodeToken, verifyToken } from "@/lib/chat-token";
 import { buildChatTools } from "@/lib/chat-tools";
 import {
   getDegradedNavigation,
@@ -32,7 +32,7 @@ const burstLimit = new Ratelimit({
 
 const dailyLimit = new Ratelimit({
   redis,
-  limiter: Ratelimit.slidingWindow(50, "24 h"),
+  limiter: Ratelimit.slidingWindow(100, "24 h"),
   prefix: "chat:daily",
 });
 
@@ -79,6 +79,24 @@ function isAllowedOrigin(
 }
 
 // ---------------------------------------------------------------------------
+// Cache helpers
+// ---------------------------------------------------------------------------
+
+function normalizeQuestion(q: string): string {
+  return q
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/[^a-z0-9 ]/g, "")
+    .slice(0, 200);
+}
+
+type CachedEntry = {
+  text: string;
+  navigate: { sectionId: string; orbyMessage: string | null } | null;
+};
+
+// ---------------------------------------------------------------------------
 // Route handler
 // ---------------------------------------------------------------------------
 
@@ -103,12 +121,23 @@ export async function POST(req: NextRequest) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
+  // Extract sessionId from token payload (already verified above)
+  const decoded = decodeToken(token);
+  const sessionId = decoded ? String(decoded.iat) : token.slice(0, 32);
+
   // 4. Parse body
   let messages: unknown;
   let rawPersona: unknown;
   try {
     ({ messages, persona: rawPersona } = await req.json());
   } catch {
+    console.log(
+      JSON.stringify({
+        event: "chat.rejected",
+        reason: "parse_error",
+        sessionId,
+      }),
+    );
     return new NextResponse("Bad Request", { status: 400 });
   }
   if (
@@ -116,17 +145,45 @@ export async function POST(req: NextRequest) {
     messages.length === 0 ||
     messages.length > 20
   ) {
+    console.log(
+      JSON.stringify({
+        event: "chat.rejected",
+        reason: "invalid_messages_array",
+        sessionId,
+      }),
+    );
     return new NextResponse("Bad Request", { status: 400 });
   }
   for (const msg of messages) {
     if (typeof msg !== "object" || msg === null) {
+      console.log(
+        JSON.stringify({
+          event: "chat.rejected",
+          reason: "invalid_message_shape",
+          sessionId,
+        }),
+      );
       return new NextResponse("Bad Request", { status: 400 });
     }
     const m = msg as Record<string, unknown>;
     if (m.role === "system") {
+      console.log(
+        JSON.stringify({
+          event: "chat.rejected",
+          reason: "system_role_injection",
+          sessionId,
+        }),
+      );
       return new NextResponse("Bad Request", { status: 400 });
     }
     if (typeof m.content !== "string" || m.content.length > 4000) {
+      console.log(
+        JSON.stringify({
+          event: "chat.rejected",
+          reason: "content_invalid",
+          sessionId,
+        }),
+      );
       return new NextResponse("Bad Request", { status: 400 });
     }
   }
@@ -142,32 +199,42 @@ export async function POST(req: NextRequest) {
     req.headers.get("x-forwarded-for")?.split(",").at(-1)?.trim() ??
     "unknown";
 
-  // 5. Rate limiting — burst then daily
-  const [burst, daily] = await Promise.all([
-    burstLimit.limit(ip),
-    dailyLimit.limit(ip),
-  ]);
+  // 5. Dev IP bypass — skip rate limiting for the configured bypass IP
+  const devBypassIp = process.env.DEV_BYPASS_IP;
+  const isDevBypass = Boolean(devBypassIp && ip === devBypassIp);
 
-  if (!burst.success) {
-    return new NextResponse("Too Many Requests", {
-      status: 429,
-      headers: {
-        "Retry-After": String(Math.ceil((burst.reset - Date.now()) / 1000)),
-        "X-RateLimit-Limit": String(burst.limit),
-        "X-RateLimit-Remaining": "0",
-      },
-    });
-  }
+  let dailyRemaining = 999;
 
-  if (!daily.success) {
-    return new NextResponse("Too Many Requests", {
-      status: 429,
-      headers: {
-        "Retry-After": String(Math.ceil((daily.reset - Date.now()) / 1000)),
-        "X-RateLimit-Limit": String(daily.limit),
-        "X-RateLimit-Remaining": "0",
-      },
-    });
+  if (!isDevBypass) {
+    // Rate limiting — burst then daily
+    const [burst, daily] = await Promise.all([
+      burstLimit.limit(ip),
+      dailyLimit.limit(ip),
+    ]);
+
+    dailyRemaining = daily.remaining;
+
+    if (!burst.success) {
+      return new NextResponse("Too Many Requests", {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((burst.reset - Date.now()) / 1000)),
+          "X-RateLimit-Limit": String(burst.limit),
+          "X-RateLimit-Remaining": "0",
+        },
+      });
+    }
+
+    if (!daily.success) {
+      return new NextResponse("Too Many Requests", {
+        status: 429,
+        headers: {
+          "Retry-After": String(Math.ceil((daily.reset - Date.now()) / 1000)),
+          "X-RateLimit-Limit": String(daily.limit),
+          "X-RateLimit-Remaining": "0",
+        },
+      });
+    }
   }
 
   // 6. Build context — catalog, system prompt, tools
@@ -177,14 +244,61 @@ export async function POST(req: NextRequest) {
     Promise.resolve(buildChatTools(catalog)),
   ]);
 
-  // 7. Extract last user message text for degraded-mode intent detection
+  // 7. Extract last user message text for cache key, degraded-mode intent, and logging
   const lastMsg = messages.at(-1) as
     | { role?: string; content?: unknown }
     | undefined;
   const userMessage =
     typeof lastMsg?.content === "string" ? lastMsg.content : "";
 
-  // 8. Route: Gemini → Groq → degraded
+  // 8. Upstash exact-match cache check (before calling any model)
+  const normalizedQ = normalizeQuestion(userMessage);
+  const cacheKey = `chat:cache:${persona}:${normalizedQ}`;
+
+  if (normalizedQ.length > 0) {
+    const cached = await redis.get<CachedEntry>(cacheKey);
+    if (cached) {
+      const encoder = new TextEncoder();
+      const cachedStream = new ReadableStream({
+        start(controller) {
+          // Emit navigation tool result if cached
+          if (cached.navigate) {
+            controller.enqueue(
+              encoder.encode(
+                `a:${JSON.stringify({
+                  toolCallId: "cache-nav",
+                  toolName: "navigate",
+                  result: {
+                    ok: true,
+                    sectionId: cached.navigate.sectionId,
+                    orbyMessage: cached.navigate.orbyMessage,
+                  },
+                })}\n`,
+              ),
+            );
+          }
+          // Emit text delta
+          controller.enqueue(
+            encoder.encode(`0:${JSON.stringify(cached.text)}\n`),
+          );
+          // Emit finish
+          controller.enqueue(
+            encoder.encode(`d:${JSON.stringify({ finishReason: "cache" })}\n`),
+          );
+          controller.close();
+        },
+      });
+
+      const resp = new Response(cachedStream, {
+        headers: { "Content-Type": "text/plain; charset=utf-8" },
+      });
+      resp.headers.set("X-Orby-Provider", "cache");
+      resp.headers.set("X-RateLimit-Remaining-Daily", String(dailyRemaining));
+      return resp;
+    }
+  }
+
+  // 9. Route: Cerebras → Groq → Mistral → degraded
   const routeResult = await routeChat({
     system: systemPrompt,
     messages: messages as ModelMessage[],
@@ -194,13 +308,16 @@ export async function POST(req: NextRequest) {
     abortSignal: req.signal,
     persona,
     userMessage,
+    sessionId,
   });
 
   console.log(
     JSON.stringify({
       event: "chat.request",
-      model: routeResult.mode === "live" ? routeResult.provider : "degraded",
+      provider: routeResult.mode === "live" ? routeResult.provider : "degraded",
+      mode: routeResult.mode,
       persona,
+      sessionId,
     }),
   );
 
@@ -248,14 +365,41 @@ export async function POST(req: NextRequest) {
         return;
       }
 
-      // ── Live mode (Gemini or Groq) ───────────────────────────────────────
+      // ── Live mode (Cerebras, Groq, or Mistral) ───────────────────────────
+      // Accumulate response for cache write after stream completes
+      let accText = "";
+      let accNav: { sectionId: string; orbyMessage: string | null } | null =
+        null;
+
       try {
         for await (const part of routeResult.result.fullStream) {
           if (part.type === "text-delta") {
+            accText += part.text;
             controller.enqueue(
               encoder.encode(`0:${JSON.stringify(part.text)}\n`),
             );
           } else if (part.type === "tool-result") {
+            console.log(
+              JSON.stringify({
+                event: "chat.tool",
+                tool: part.toolName,
+                toolCallId: part.toolCallId,
+                persona,
+                sessionId,
+              }),
+            );
+            if (part.toolName === "navigate") {
+              const navOutput = part.output as {
+                sectionId?: string;
+                orbyMessage?: string | null;
+              };
+              if (navOutput?.sectionId) {
+                accNav = {
+                  sectionId: navOutput.sectionId,
+                  orbyMessage: navOutput.orbyMessage ?? null,
+                };
+              }
+            }
             controller.enqueue(
               encoder.encode(
                 `a:${JSON.stringify({
@@ -271,10 +415,19 @@ export async function POST(req: NextRequest) {
                 `d:${JSON.stringify({ finishReason: part.finishReason })}\n`,
               ),
             );
+            // Write to cache after finish (fire-and-forget)
+            if (normalizedQ.length > 0 && accText.length > 0) {
+              redis
+                .set<CachedEntry>(
+                  cacheKey,
+                  { text: accText, navigate: accNav },
+                  { ex: 86400 },
+                )
+                .catch(() => {});
+            }
           }
         }
         // Log usage after stream is fully consumed.
-        // Wrap in Promise.resolve() because PromiseLike doesn't expose .catch.
         Promise.resolve(routeResult.result.usage)
           .then((usage) => {
             console.log(
@@ -282,6 +435,7 @@ export async function POST(req: NextRequest) {
                 event: "chat.turn.complete",
                 model: routeResult.provider,
                 persona,
+                sessionId,
                 inputTokens: usage?.inputTokens,
                 outputTokens: usage?.outputTokens,
                 latencyMs: Date.now() - turnStart,
@@ -305,6 +459,10 @@ export async function POST(req: NextRequest) {
   const response = new Response(stream, {
     headers: { "Content-Type": "text/plain; charset=utf-8" },
   });
-  response.headers.set("X-RateLimit-Remaining-Daily", String(daily.remaining));
+  response.headers.set(
+    "X-Orby-Provider",
+    routeResult.mode === "live" ? routeResult.provider : "degraded",
+  );
+  response.headers.set("X-RateLimit-Remaining-Daily", String(dailyRemaining));
   return response;
 }
