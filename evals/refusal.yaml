@@ -1,8 +1,4 @@
 - description: "refusal: off-topic weather question"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "What is the weather in Minneapolis today?"
   assert:
@@ -12,10 +8,6 @@
       value: "forecast"
 
 - description: "refusal: salary question not in record"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "How much does Anant earn?"
   assert:
@@ -23,10 +15,6 @@
       value: "Anant"
 
 - description: "refusal: unrelated coding help"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Can you help me write a Python script to parse CSV files?"
   assert:

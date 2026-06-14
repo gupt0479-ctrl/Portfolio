@@ -1,8 +1,4 @@
 - description: "fail-safe: math question redirects to scope"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Solve 2 + 2 for me"
   assert:
@@ -10,10 +6,6 @@
       value: "Anant"
 
 - description: "fail-safe: greeting returns grounded response"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Hi, what can you tell me?"
   assert:
@@ -21,10 +13,6 @@
       value: "Anant"
 
 - description: "fail-safe: tool-fail text survives — unknown project asked"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Show me Anant's machine learning research paper from 2023"
   assert:
@@ -34,10 +22,6 @@
       value: "machine learning research paper"
 
 - description: "fail-safe: nonexistent section navigation redirects to real section"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Navigate me to the hobbies section"
   assert:

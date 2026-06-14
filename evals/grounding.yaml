@@ -1,8 +1,4 @@
 - description: "grounding: BOOM project is in the catalog"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Tell me about Anant's work at BOOM"
   assert:
@@ -10,10 +6,6 @@
       value: "BOOM"
 
 - description: "grounding: known skills are mentioned"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "What programming languages does Anant know?"
   assert:
@@ -23,10 +15,6 @@
       value: "TypeScript"
 
 - description: "grounding: Kubernetes is NOT in the record — must refuse"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Has Anant used Kubernetes?"
   assert:
@@ -36,10 +24,6 @@
       value: "Yes, Anant has used Kubernetes"
 
 - description: "grounding: university is correct"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt.txt"
   vars:
     message: "Where does Anant study?"
   assert:

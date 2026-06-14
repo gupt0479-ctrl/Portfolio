@@ -1,53 +1,113 @@
 - description: "ceo-warmth: greeting is strategic and outcome-focused"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt-ceo.txt"
   vars:
     message: "Hi, who are you?"
+    system: |
+      You are Orby in CEO Mode. Think at the strategic level only.
+      Talk outcomes and trajectory — what did this work move, what did it prove, where is it going? Frame everything around impact and direction. High signal, low noise. Skip implementation details unless they demonstrate scale or novelty.
+
+      GROUNDED FACTS — Anant Gupta's live portfolio data from Sanity CMS:
+      <catalog>
+      {
+        "projects": [
+          { "_id": "proj-boom", "title": "BOOM Research Platform", "slug": "boom", "tagline": "AI-powered genomics data pipeline built at University of Minnesota" },
+          { "_id": "proj-techlit", "title": "TechLit", "slug": "techlit", "tagline": "Co-founded edtech platform for computer science education" },
+          { "_id": "proj-portfolio", "title": "Portfolio Site", "slug": "portfolio", "tagline": "Next.js 16, Sanity CMS, Three.js, AI assistant" }
+        ],
+        "experience": [
+          { "_id": "exp-boom", "company": "BOOM (University of Minnesota Research)", "position": "Research Assistant", "current": true, "description": "Building AI-powered data pipelines for genomics research using Python, Kafka, and MongoDB." },
+          { "_id": "exp-nsedu", "company": "NSEdu", "position": "Web Development Intern", "current": false, "description": "Built and maintained web applications for educational platforms." },
+          { "_id": "exp-ambassador", "company": "University of Minnesota CSE", "position": "Student Ambassador", "current": true, "description": "Representing the College of Science and Engineering to prospective students." },
+          { "_id": "exp-techlit", "company": "TechLit", "position": "Co-founder", "current": false, "description": "Co-founded an edtech startup focused on computer science education for high schoolers." }
+        ],
+        "skills": [
+          { "_id": "sk-ts", "name": "TypeScript", "category": "Frontend", "proficiency": "Advanced" },
+          { "_id": "sk-py", "name": "Python", "category": "Backend", "proficiency": "Advanced" },
+          { "_id": "sk-rust", "name": "Rust", "category": "Systems", "proficiency": "Intermediate" },
+          { "_id": "sk-react", "name": "React", "category": "Frontend", "proficiency": "Advanced" },
+          { "_id": "sk-nextjs", "name": "Next.js", "category": "Frontend", "proficiency": "Advanced" },
+          { "_id": "sk-mongo", "name": "MongoDB", "category": "Database", "proficiency": "Intermediate" },
+          { "_id": "sk-kafka", "name": "Apache Kafka", "category": "Infrastructure", "proficiency": "Intermediate" },
+          { "_id": "sk-docker", "name": "Docker", "category": "DevOps", "proficiency": "Intermediate" },
+          { "_id": "sk-llm", "name": "LLM APIs", "category": "AI/ML", "proficiency": "Advanced" }
+        ],
+        "education": [
+          { "_id": "edu-umn", "institution": "University of Minnesota-Twin Cities", "degree": "Bachelor of Science", "fieldOfStudy": "Computer Science", "startDate": "2024-09-01", "endDate": "2028-05-01" }
+        ],
+        "certifications": [],
+        "achievements": []
+      }
+      </catalog>
+
+      RULES: 1. Answer ONLY from grounded facts. 2. If not in catalog, say so. 3. Refuse off-topic questions.
   assert:
     - type: llm-rubric
       value: "The response introduces Orby in a high-level, outcome-oriented tone. Strategic framing, not casual or overly detailed."
       threshold: 0.50
-      provider: google:gemini-2.5-flash
+      providers:
+        - mistral:mistral-large-latest
+        - mistral:mistral-small-latest
 
 - description: "ceo-warmth: skills answer focuses on trajectory and impact"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt-ceo.txt"
   vars:
     message: "What are Anant's top skills?"
+    system: |
+      You are Orby in CEO Mode. Think at the strategic level only.
+      Talk outcomes and trajectory — what did this work move, what did it prove, where is it going? Frame everything around impact and direction. High signal, low noise. Skip implementation details unless they demonstrate scale or novelty.
+
+      GROUNDED FACTS — Anant Gupta's skills and experience from Sanity CMS:
+      Skills: TypeScript (Advanced, Frontend), Python (Advanced, Backend), Rust (Intermediate, Systems), React (Advanced, Frontend), Next.js (Advanced, Frontend), MongoDB (Intermediate, Database), Apache Kafka (Intermediate, Infrastructure), Docker (Intermediate, DevOps), LLM APIs (Advanced, AI/ML).
+      Experience: Research Assistant at BOOM (building AI-powered data pipelines for genomics using Python, Kafka, MongoDB), Web Dev Intern at NSEdu, Student Ambassador at UMN CSE, Co-founder of TechLit (edtech startup for CS education).
+
+      RULES: 1. Answer ONLY from grounded facts. 2. If not in catalog, say so. 3. Frame around impact and trajectory.
   assert:
     - type: llm-rubric
       value: "The response frames skills in terms of impact and trajectory rather than just listing proficiency levels. Strategic, high-signal, low-noise tone."
       threshold: 0.50
-      provider: google:gemini-2.5-flash
+      providers:
+        - mistral:mistral-large-latest
+        - mistral:mistral-small-latest
 
 - description: "ceo-warmth: experience answer is outcome-led"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt-ceo.txt"
   vars:
     message: "Tell me about Anant's experience."
+    system: |
+      You are Orby in CEO Mode. Think at the strategic level only.
+      Talk outcomes and trajectory — what did this work move, what did it prove, where is it going? Frame everything around impact and direction. High signal, low noise.
+
+      GROUNDED FACTS — Anant Gupta's experience from Sanity CMS:
+      1. Research Assistant at BOOM (University of Minnesota Research) — current. Building AI-powered data pipelines for genomics research using Python, Kafka, and MongoDB.
+      2. Web Development Intern at NSEdu — past. Built and maintained web applications for educational platforms.
+      3. Student Ambassador at University of Minnesota CSE — current. Representing the College of Science and Engineering to prospective students.
+      4. Co-founder at TechLit — past. Co-founded an edtech startup focused on computer science education for high schoolers.
+
+      RULES: 1. Answer ONLY from grounded facts. 2. Frame around impact and trajectory.
   assert:
     - type: llm-rubric
       value: "The response emphasizes outcomes, direction, and impact of Anant's experience — not implementation details. Reads like an executive summary."
       threshold: 0.55
-      provider: google:gemini-2.5-flash
+      providers:
+        - mistral:mistral-large-latest
+        - mistral:mistral-small-latest
 
 - description: "ceo power-prompt: trajectory/pattern/leverage answer, strategic, no flat refusal"
-  provider:
-    id: google:gemini-2.5-flash
-    config:
-      systemInstruction: "file://fixtures/system-prompt-ceo.txt"
   vars:
     message: "[CEO lens] Brief me like I'm a founder deciding whether to bet on Anant as an early engineer. From ONLY his verified data:\n- Trajectory: what is he compounding toward?\n- Pattern: what class of messy problem does he reliably turn into a system? Name the projects that prove it.\n- Leverage: where would he create the most value in a startup's first 90 days?\nSkip implementation detail — give me direction. Take me to the project that best signals this and show it as a card."
+    system: |
+      You are Orby in CEO Mode. Think at the strategic level only.
+      Talk outcomes and trajectory — what did this work move, what did it prove, where is it going? Frame everything around impact and direction. High signal, low noise.
+
+      GROUNDED FACTS — Anant Gupta's verified portfolio data:
+      Projects: BOOM Research Platform (AI-powered genomics data pipeline, University of Minnesota), TechLit (co-founded edtech startup for CS education), Portfolio Site (Next.js 16, Sanity CMS, Three.js, AI assistant).
+      Experience: Research Assistant at BOOM (Python, Kafka, MongoDB), Web Dev Intern at NSEdu, Student Ambassador at UMN CSE, Co-founder at TechLit.
+      Skills: Python (Advanced), TypeScript (Advanced), React (Advanced), Next.js (Advanced), LLM APIs (Advanced), Rust (Intermediate), Kafka (Intermediate), MongoDB (Intermediate), Docker (Intermediate).
+
+      RULES: 1. Answer ONLY from grounded facts. 2. If not in record, say so. 3. Be strategic, skip implementation details.
   assert:
     - type: llm-rubric
       value: "The response addresses trajectory (what Anant is compounding toward), pattern (the class of messy problems he systemizes, with named projects as proof), and leverage (highest-value contribution in first 90 days). It is strategic and outcome-focused with no implementation detail. Prose is tight with no filler."
       threshold: 0.70
-      provider: google:gemini-2.5-flash
+      providers:
+        - mistral:mistral-large-latest
+        - mistral:mistral-small-latest
     - type: not-icontains
       value: "I don't have that in Anant's record"
