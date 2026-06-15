@@ -5,6 +5,7 @@ import { cookies } from "next/headers";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { buildSystemPrompt, fetchCatalog } from "@/lib/chat-context";
+import { sanitizeChatText } from "@/lib/chat-sanitizer";
 import { decodeToken, verifyToken } from "@/lib/chat-token";
 import { buildChatTools } from "@/lib/chat-tools";
 import {
@@ -12,6 +13,7 @@ import {
   getDegradedOrbyMessage,
   getDegradedText,
 } from "@/lib/degraded-responses";
+import { findFixedPrompt } from "@/lib/fixed-prompts";
 import { routeChat } from "@/lib/model-router";
 import { PERSONAS, type Persona } from "@/lib/personas";
 
@@ -93,7 +95,12 @@ function normalizeQuestion(q: string): string {
 
 type CachedEntry = {
   text: string;
-  navigate: { sectionId: string; orbyMessage: string | null } | null;
+  navigate: {
+    sectionId: string;
+    orbyMessage: string | null;
+    itemSlug?: string | null;
+    itemIndex?: number | null;
+  } | null;
 };
 
 // ---------------------------------------------------------------------------
@@ -237,23 +244,41 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // 6. Build context — catalog, system prompt, tools
-  const catalog = await fetchCatalog();
-  const [systemPrompt, tools] = await Promise.all([
-    buildSystemPrompt(persona, catalog),
-    Promise.resolve(buildChatTools(catalog)),
-  ]);
-
-  // 7. Extract last user message text for cache key, degraded-mode intent, and logging
+  // 6. Extract last user message text for cache key, degraded-mode intent, and logging
   const lastMsg = messages.at(-1) as
     | { role?: string; content?: unknown }
     | undefined;
   const userMessage =
     typeof lastMsg?.content === "string" ? lastMsg.content : "";
 
+  // 6a. Fixed-prompt detection (before catalog fetch to short-circuit early on cache hit)
+  const fixedPrompt = findFixedPrompt(persona, userMessage);
+
+  // 7. Build context — catalog, system prompt, tools
+  const catalog = await fetchCatalog();
+  const [baseSystemPrompt, tools] = await Promise.all([
+    buildSystemPrompt(persona, catalog),
+    Promise.resolve(buildChatTools(catalog)),
+  ]);
+
+  // Augment system prompt for fixed prompts: inject deterministic navTarget
+  // and answerBrief so the model writes on-brief without guessing the section.
+  let systemPrompt = baseSystemPrompt;
+  if (fixedPrompt) {
+    const { navTarget, answerBrief } = fixedPrompt;
+    const navDirective = [
+      `FIXED PROMPT — NAVIGATION IS DETERMINISTIC: For this specific question, you MUST call navigate(${JSON.stringify(navTarget)}) exactly as specified. Do NOT choose a different section or item.`,
+      `ANSWER BRIEF (guides your prose — do NOT copy verbatim): ${answerBrief}`,
+    ].join("\n");
+    systemPrompt = `${baseSystemPrompt}\n\n${navDirective}`;
+  }
+
   // 8. Upstash exact-match cache check (before calling any model)
+  // Fixed prompts use their promptId as the cache key for higher precision.
   const normalizedQ = normalizeQuestion(userMessage);
-  const cacheKey = `chat:cache:${persona}:${normalizedQ}`;
+  const cacheKey = fixedPrompt
+    ? `chat:fixed:${fixedPrompt.persona}:${fixedPrompt.promptId}`
+    : `chat:cache:${persona}:${normalizedQ}`;
 
   if (normalizedQ.length > 0) {
     const cached = await redis.get<CachedEntry>(cacheKey);
@@ -272,6 +297,8 @@ export async function POST(req: NextRequest) {
                     ok: true,
                     sectionId: cached.navigate.sectionId,
                     orbyMessage: cached.navigate.orbyMessage,
+                    itemSlug: cached.navigate.itemSlug ?? null,
+                    itemIndex: cached.navigate.itemIndex ?? null,
                   },
                 })}\n`,
               ),
@@ -368,8 +395,8 @@ export async function POST(req: NextRequest) {
       // ── Live mode (Cerebras, Groq, or Mistral) ───────────────────────────
       // Accumulate response for cache write after stream completes
       let accText = "";
-      let accNav: { sectionId: string; orbyMessage: string | null } | null =
-        null;
+      let accNav: CachedEntry["navigate"] = null;
+      let hasOrbyMessage = false;
 
       try {
         for await (const part of routeResult.result.fullStream) {
@@ -392,12 +419,17 @@ export async function POST(req: NextRequest) {
               const navOutput = part.output as {
                 sectionId?: string;
                 orbyMessage?: string | null;
+                itemSlug?: string | null;
+                itemIndex?: number | null;
               };
               if (navOutput?.sectionId) {
                 accNav = {
                   sectionId: navOutput.sectionId,
                   orbyMessage: navOutput.orbyMessage ?? null,
+                  itemSlug: navOutput.itemSlug ?? null,
+                  itemIndex: navOutput.itemIndex ?? null,
                 };
+                if (navOutput.orbyMessage) hasOrbyMessage = true;
               }
             }
             controller.enqueue(
@@ -410,17 +442,38 @@ export async function POST(req: NextRequest) {
               ),
             );
           } else if (part.type === "finish") {
+            // Sanitize accumulated text to strip any pseudo-tool-call markup
+            const sanitized = sanitizeChatText(accText);
+
+            // Emit text replacement with clean text if sanitizer changed anything
+            if (sanitized.cleanText !== accText) {
+              controller.enqueue(
+                encoder.encode(`t:${JSON.stringify(sanitized.cleanText)}\n`),
+              );
+            }
+
+            // If orbyMessage was emitted as text (model ignored tool call API),
+            // forward it as a separate event so the frontend can wire it to
+            // Orby's speech bubble. Only emit if no tool call already carried it.
+            if (sanitized.orbyMessage && !hasOrbyMessage) {
+              controller.enqueue(
+                encoder.encode(`m:${JSON.stringify(sanitized.orbyMessage)}\n`),
+              );
+            }
+
             controller.enqueue(
               encoder.encode(
                 `d:${JSON.stringify({ finishReason: part.finishReason })}\n`,
               ),
             );
-            // Write to cache after finish (fire-and-forget)
-            if (normalizedQ.length > 0 && accText.length > 0) {
+
+            // Write clean text to cache after finish (fire-and-forget)
+            const textForCache = sanitized.cleanText || accText;
+            if (normalizedQ.length > 0 && textForCache.length > 0) {
               redis
                 .set<CachedEntry>(
                   cacheKey,
-                  { text: accText, navigate: accNav },
+                  { text: textForCache, navigate: accNav },
                   { ex: 86400 },
                 )
                 .catch(() => {});

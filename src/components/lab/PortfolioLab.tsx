@@ -199,6 +199,14 @@ export function PortfolioLab() {
                             typeof parsed.result.orbyMessage === "string"
                               ? parsed.result.orbyMessage
                               : null,
+                          itemSlug:
+                            typeof parsed.result.itemSlug === "string"
+                              ? parsed.result.itemSlug
+                              : null,
+                          itemIndex:
+                            typeof parsed.result.itemIndex === "number"
+                              ? parsed.result.itemIndex
+                              : null,
                         },
                       }),
                     );
@@ -206,6 +214,23 @@ export function PortfolioLab() {
                 }
               } catch {
                 // ignore malformed tool result
+              }
+            } else if (line.startsWith("t:")) {
+              // Final clean text replacement — replace everything accumulated so far
+              try {
+                assistantText = JSON.parse(line.slice(2)) as string;
+              } catch {
+                // ignore malformed
+              }
+            } else if (line.startsWith("m:")) {
+              // orbyMessage extracted from leaked <orbyMessage> tags
+              try {
+                const msg = JSON.parse(line.slice(2)) as string;
+                window.dispatchEvent(
+                  new CustomEvent("orby:speech", { detail: { text: msg } }),
+                );
+              } catch {
+                // ignore malformed
               }
             }
             // d: (finish) and e: (error) handled implicitly — stream ends naturally

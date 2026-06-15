@@ -15,26 +15,38 @@ function AstronautBody({ pose, speaking, reducedMotion }: AstronautProps) {
   const rightArmRef = useRef<THREE.Group>(null);
   const leftLegRef = useRef<THREE.Group>(null);
   const rightLegRef = useRef<THREE.Group>(null);
+  const waveStartRef = useRef<number>(0);
+  const prevPoseRef = useRef<string>("");
 
   useFrame((state) => {
     if (reducedMotion) return;
     const t = state.clock.elapsedTime;
 
+    // Reset wave start time when transitioning into wave pose
+    if (pose === "wave" && prevPoseRef.current !== "wave") {
+      waveStartRef.current = t;
+    }
+    prevPoseRef.current = pose;
+
     // ── Arm animations ──────────────────────────────────────────────────────
     if (pose === "wave") {
+      const localT = t - waveStartRef.current;
+      const decay = Math.exp(-localT * 0.3);
+
       if (rightArmRef.current) {
         // Raise arm well above the shoulder (-2.1 rad ≈ 120° CW from rest/down position)
-        // and oscillate ±0.3 rad for the waving motion
-        const waveTargetZ = -2.1 + Math.sin(t * 5.5) * 0.3;
+        // Damped oscillation: energetic start that settles naturally
+        const waveTargetZ = -2.1 + Math.sin(localT * 2.5) * decay * 0.4;
         rightArmRef.current.rotation.z = THREE.MathUtils.lerp(
           rightArmRef.current.rotation.z,
           waveTargetZ,
           0.1,
         );
-        rightArmRef.current.rotation.x = Math.cos(t * 4.5) * 0.15;
+        rightArmRef.current.rotation.x = Math.cos(localT * 2.0) * decay * 0.2;
       }
       if (leftArmRef.current) {
-        leftArmRef.current.rotation.z = Math.sin(t * 1.1 + 0.8) * 0.18;
+        leftArmRef.current.rotation.z =
+          Math.sin(localT * 1.1 + 0.8) * decay * 0.18;
         leftArmRef.current.rotation.x = 0;
       }
     } else if (pose === "pointing") {

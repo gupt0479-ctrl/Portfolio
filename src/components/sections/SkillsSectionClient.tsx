@@ -104,11 +104,11 @@ function CategoryPill({
           onMouseLeave={() => setHovered(false)}
           style={btnStyle}
           className={[
-            "group relative overflow-hidden rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200",
+            "group relative overflow-hidden rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/60",
             active
-              ? "border-violet-500/50 bg-violet-500/20 text-white"
-              : "border-white/20 text-white/50 hover:border-white/30 hover:text-white/75",
+              ? "border-violet-400/50 bg-violet-500/30 backdrop-blur-md text-white shadow-[0_0_8px_rgba(139,92,246,0.2)]"
+              : "border-white/25 bg-neutral-900/70 backdrop-blur-md text-white/60 hover:border-white/35 hover:text-white/80 hover:bg-neutral-900/80",
             k === "ai-ml" && hovered
               ? "animate-[pulse-glow_1s_ease-in-out_infinite]"
               : "",

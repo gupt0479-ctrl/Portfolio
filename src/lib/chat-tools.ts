@@ -75,6 +75,8 @@ export type NavigateResult = {
   ok: true;
   sectionId: string;
   orbyMessage: string | null;
+  itemSlug?: string | null;
+  itemIndex?: number | null;
 };
 
 export type ShowProjectResult =
@@ -167,7 +169,7 @@ export function buildChatTools(catalog: Catalog) {
   // ── navigate ──────────────────────────────────────────────────────────────
   const navigate = tool({
     description:
-      "Smooth-scroll the page to a portfolio section. Call this tool in EVERY turn where the user's question maps to a section — even if they don't explicitly ask to navigate. Examples: question about projects → navigate('projects'); about experience or work → navigate('experience'); about skills or tech → navigate('skills'); about education → navigate('education'); about certifications → navigate('certifications'); about blog posts → navigate('blog'); want to contact → navigate('contact'). Do NOT call it for generic greetings or questions that have no clear section. ALWAYS provide orbyMessage: a short, catchy, in-persona grounded line (under 120 chars) that Orby says on arrival. Make it unique to this specific question, in the active persona's voice. Never state a fact absent from the grounded catalog.",
+      "Smooth-scroll the page to a portfolio section. Call this tool in EVERY turn where the user's question maps to a section — even if they don't explicitly ask to navigate. Examples: question about projects → navigate('projects'); about experience or work → navigate('experience'); about skills or tech → navigate('skills'); about education → navigate('education'); about certifications → navigate('certifications'); about blog posts → navigate('blog'); want to contact → navigate('contact'). Do NOT call it for generic greetings or questions that have no clear section. ALWAYS provide orbyMessage: a short, catchy, in-persona grounded line (under 120 chars) that Orby says on arrival. Make it unique to this specific question, in the active persona's voice. Never state a fact absent from the grounded catalog. Use itemSlug when navigating to a specific project (must be a known project slug). Use itemIndex (0-based) when navigating to a specific experience card.",
     inputSchema: z.object({
       sectionId: z
         .enum(SECTION_IDS)
@@ -179,16 +181,43 @@ export function buildChatTools(catalog: Catalog) {
         .describe(
           "Short persona-voiced arrival line Orby says when the section scrolls into view. Under 120 chars. One or two sentences max.",
         ),
+      itemSlug: z
+        .string()
+        .optional()
+        .describe(
+          "For projects: the project slug to center in the carousel. Must match one of the known project slugs.",
+        ),
+      itemIndex: z
+        .number()
+        .int()
+        .min(0)
+        .optional()
+        .describe(
+          "For experience: the 0-based index of the experience card to open and scroll to.",
+        ),
     }),
-    execute: async ({ sectionId, orbyMessage }): Promise<NavigateResult> => {
+    execute: async ({
+      sectionId,
+      orbyMessage,
+      itemSlug,
+      itemIndex,
+    }): Promise<NavigateResult> => {
       try {
-        return { ok: true, sectionId, orbyMessage: orbyMessage ?? null };
+        return {
+          ok: true,
+          sectionId,
+          orbyMessage: orbyMessage ?? null,
+          itemSlug: itemSlug ?? null,
+          itemIndex: itemIndex ?? null,
+        };
       } catch (err) {
         // navigate has no async work but the catch satisfies the fail-safe rule
         return {
           ok: true,
           sectionId: String(err),
           orbyMessage: null,
+          itemSlug: null,
+          itemIndex: null,
         } as NavigateResult;
       }
     },

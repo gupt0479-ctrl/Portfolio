@@ -1,6 +1,7 @@
 import { Footer } from "@/components/Footer";
 import { HeaderScrolling } from "@/components/HeaderScrolling";
 import { HeroTerminal } from "@/components/HeroTerminal";
+import { SidebarAwareContent } from "@/components/SidebarAwareContent";
 import { AboutSection } from "@/components/sections/AboutSection";
 import { AchievementsSection } from "@/components/sections/AchievementsSection";
 import { BlogSection } from "@/components/sections/BlogSection";
@@ -37,39 +38,40 @@ export default async function PortfolioContent() {
   return (
     <>
       <HeaderScrolling nav={navItems} />
-      <div className="fixed inset-0 z-0 pointer-events-none">
-        <ObsidianBackground />
-      </div>
-      <main className="relative z-10 min-h-screen text-white">
-        <HeroSection />
-        <div className="relative z-10 flex justify-center">
-          <HeroTerminal />
-        </div>
-        <AboutSection />
-        <ExperienceSection />
-        <section
-          id="projects"
-          className="section-backdrop section-pad mx-auto max-w-6xl px-6"
-        >
-          <div className="mb-16 text-center">
-            <p className="section-kicker">{"// build log"}</p>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
-              Projects
-            </h2>
-            <p className="text-lg text-white/60 mt-3 font-sans">
-              Featured work spanning web, AI, and infrastructure.
-            </p>
+      <SidebarAwareContent backgroundCanvas={<ObsidianBackground />}>
+        <main className="relative z-10 min-h-screen text-white">
+          <HeroSection />
+          <div className="relative z-10 flex justify-center">
+            <HeroTerminal />
           </div>
-          <ProjectsSlider projects={(projects ?? []) as PROJECTS_QUERYResult} />
-        </section>
-        <SkillsSection />
-        <EducationSection />
-        <CertificationsSection />
-        <AchievementsSection />
-        <BlogSection />
-        <ContactSection />
-      </main>
-      <Footer />
+          <AboutSection />
+          <ExperienceSection />
+          <section
+            id="projects"
+            className="section-backdrop section-pad mx-auto max-w-6xl px-6"
+          >
+            <div className="mb-16 text-center">
+              <p className="section-kicker">{"// build log"}</p>
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-white">
+                Projects
+              </h2>
+              <p className="text-lg text-white/60 mt-3 font-sans">
+                Featured work spanning web, AI, and infrastructure.
+              </p>
+            </div>
+            <ProjectsSlider
+              projects={(projects ?? []) as PROJECTS_QUERYResult}
+            />
+          </section>
+          <SkillsSection />
+          <EducationSection />
+          <CertificationsSection />
+          <AchievementsSection />
+          <BlogSection />
+          <ContactSection />
+        </main>
+        <Footer />
+      </SidebarAwareContent>
     </>
   );
 }

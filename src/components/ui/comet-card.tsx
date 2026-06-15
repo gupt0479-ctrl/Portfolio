@@ -16,12 +16,15 @@ export const CometCard = ({
   rotateDepth = 17.5,
   translateDepth = 20,
   variant = "default",
+  glareIntensity,
   className,
   children,
 }: {
   rotateDepth?: number;
   translateDepth?: number;
   variant?: CometCardVariant;
+  /** Override variant-based glare opacity (0–1). When omitted, uses variant default. */
+  glareIntensity?: number;
   className?: string;
   children: React.ReactNode;
 }) => {
@@ -105,11 +108,13 @@ export const CometCard = ({
           ? ""
           : "cosmic-card";
   const glareOpacity =
-    variant === "dark"
-      ? 0.35
-      : variant === "subtle" || variant === "ghost"
-        ? 0.25
-        : 0.5;
+    glareIntensity != null
+      ? glareIntensity
+      : variant === "dark"
+        ? 0.35
+        : variant === "subtle" || variant === "ghost"
+          ? 0.25
+          : 0.5;
   const hoverScale = variant === "default" ? 1.05 : 1.02;
   const cardShadow =
     variant === "ghost"
