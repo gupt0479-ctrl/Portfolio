@@ -25,6 +25,7 @@
     "@ai-sdk/azure": "^3.0.74",
     "@ai-sdk/google": "^3.0.80",
     "@ai-sdk/groq": "^3.0.39",
+    "@ai-sdk/mistral": "^3.0.39",
     "@ai-sdk/openai": "^3.0.71",
     "@clerk/nextjs": "^6.36.7",
     "@portabletext/react": "^6.0.3",

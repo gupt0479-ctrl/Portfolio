@@ -260,7 +260,12 @@ function SkillsFilter({
       const cat = s.category ?? "other";
       countMap.set(cat, (countMap.get(cat) ?? 0) + 1);
     }
-    const cats = Array.from(countMap.keys()).sort((a, b) => a.localeCompare(b));
+    const cats = Array.from(countMap.keys()).sort((a, b) => {
+      // Swap devops/mobile so devops renders on the second row where its
+      // deploy-dot hover animation has room without causing line wrap.
+      const remap = (k: string) => (k === "devops" ? "mobile" : k === "mobile" ? "devops" : k);
+      return remap(a).localeCompare(remap(b));
+    });
     return { categories: cats, counts: countMap };
   }, [skills]);
 

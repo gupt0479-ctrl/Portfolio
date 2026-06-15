@@ -15,6 +15,7 @@
  * lets us switch providers BEFORE any byte is sent to the client.
  */
 
+import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
 import { Redis } from "@upstash/redis";
 import { type ModelMessage, type StopCondition, streamText } from "ai";
@@ -39,6 +40,8 @@ type ProviderConfig = {
   baseURL: string;
   apiKeyEnv: string;
   model: string;
+  /** Use a dedicated SDK provider instead of the generic OpenAI-compatible client */
+  dedicated?: boolean;
 };
 
 const PROVIDER_CHAIN: ProviderConfig[] = [
@@ -58,7 +61,8 @@ const PROVIDER_CHAIN: ProviderConfig[] = [
     name: "mistral",
     baseURL: "https://api.mistral.ai/v1",
     apiKeyEnv: "MISTRAL_API_KEY",
-    model: "mistral-small",
+    model: "mistral-small-latest",
+    dedicated: true,
   },
 ];
 
@@ -153,16 +157,19 @@ export async function routeChat(opts: RouterOpts): Promise<RouterResult> {
     }
 
     try {
-      // .chat() forces /v1/chat/completions — Cerebras, Groq, and Mistral only
-      // support the Chat Completions API, not the newer Responses API (/v1/responses)
-      // that the default client() call targets.
-      const client = createOpenAI({
-        baseURL: provider.baseURL,
-        apiKey: process.env[provider.apiKeyEnv]!,
-      });
+      // Use the dedicated @ai-sdk/mistral provider for Mistral (proper tool-calling
+      // format), or the generic OpenAI-compatible client for Cerebras/Groq.
+      const model = provider.dedicated
+        ? createMistral({ apiKey: process.env[provider.apiKeyEnv]! })(
+            provider.model,
+          )
+        : createOpenAI({
+            baseURL: provider.baseURL,
+            apiKey: process.env[provider.apiKeyEnv]!,
+          }).chat(provider.model);
 
       const result = streamText({
-        model: client.chat(provider.model),
+        model,
         // Disable SDK retries — our own failover loop handles provider errors.
         maxRetries: 0,
         ...streamOpts,

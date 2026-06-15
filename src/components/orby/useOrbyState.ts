@@ -118,14 +118,7 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
   stateRef.current = state;
 
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const firedSections = useRef<Set<string>>(
-    new Set(
-      typeof window !== "undefined" &&
-        localStorage.getItem("orby-about-shown") === "1"
-        ? ["about"]
-        : [],
-    ),
-  );
+  const firedSections = useRef<Set<string>>(new Set());
   const observersRef = useRef<IntersectionObserver[]>([]);
   const chatNavPendingRef = useRef<{
     observer: IntersectionObserver | null;
@@ -256,15 +249,6 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
         if (entry.isIntersecting && !firedSections.current.has(sectionId)) {
           firedSections.current.add(sectionId);
           observer.disconnect();
-
-          // Persist "about" message as shown so it never repeats across visits
-          if (sectionId === "about") {
-            try {
-              localStorage.setItem("orby-about-shown", "1");
-            } catch {
-              // localStorage unavailable (private mode, quota) — graceful no-op
-            }
-          }
 
           setState("section-comment");
           setSpeechText(copy);

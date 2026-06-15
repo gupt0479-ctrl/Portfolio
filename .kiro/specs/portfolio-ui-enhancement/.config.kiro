@@ -1,6 +1,0 @@
-{
-  "specType": "feature",
-  "workflowType": "design-first",
-  "featureName": "portfolio-ui-enhancement",
-  "designArtifacts": ["high-level", "low-level"]
-}
