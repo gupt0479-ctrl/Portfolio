@@ -1,1 +1,1 @@
--bash: type: %USERPROFILE%\.kiro\settings\mcp.json: not found
+-bash: type: node_modules.pnpm@ai-sdk+mistral@3.0.39node_modules@ai-sdkmistraldistindex.d.ts: not found
