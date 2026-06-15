@@ -9,12 +9,12 @@ function SidebarToggle() {
 
   return (
     <div
-      className="fixed bottom-6 right-6 z-50"
+      className="fixed bottom-8 right-8 z-50"
       style={{
         right:
           !isMobile && isOpen
-            ? "calc(var(--sidebar-width, 25rem) + 1.5rem)"
-            : "1.5rem",
+            ? "calc(var(--sidebar-width, 25rem) + 2rem)"
+            : "2rem",
         transition: "right 220ms cubic-bezier(0.4,0,0.2,1)",
       }}
     >
@@ -24,14 +24,14 @@ function SidebarToggle() {
         aria-label="Open Portfolio Lab"
         title="Ask the lab, not my sleep schedule."
         className={[
-          "float-btn flex h-12 w-12 items-center justify-center rounded-full",
+          "float-btn flex h-14 w-14 items-center justify-center rounded-full",
           "border border-violet-500/30 bg-[#0d0d1a] text-violet-300/80",
           "hover:text-violet-200 hover:border-violet-400/50 hover:bg-[#12122a]",
           "transition-colors duration-200",
           "animate-[pulse-glow_3s_ease-in-out_infinite]",
         ].join(" ")}
       >
-        <FlaskConical className="size-5" />
+        <FlaskConical className="size-6" />
       </button>
     </div>
   );

@@ -106,7 +106,13 @@ export function BlogFeed({ posts }: { posts: Blog[] }) {
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {posts.map((post) => (
-          <CometCard key={post._id} variant="subtle" rotateDepth={1}>
+          <CometCard
+            key={post._id}
+            variant="subtle"
+            rotateDepth={1}
+            translateDepth={10}
+            glareIntensity={0.15}
+          >
             <article className="relative flex min-h-[180px] flex-col rounded-xl border border-white/[0.08] cosmic-card--subtle p-5">
               {post.category ? (
                 <span className="orbit-chip">{post.category}</span>

@@ -50,6 +50,7 @@
 
 :root {
   --radius: 0.625rem;
+  /* consumed by: .section-pad */
   --section-pad-y: 5rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -116,14 +117,6 @@
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
-  /* Cosmic accent colors */
-  --cosmic-violet: rgba(167, 139, 250, 1);
-  --cosmic-cyan: rgba(139, 200, 250, 1);
-  --cosmic-green: rgba(52, 211, 153, 1);
-  --cosmic-surface: rgba(9, 10, 18, 0.72);
-  --cosmic-surface-dark: rgba(6, 6, 14, 0.82);
-  --cosmic-border: rgba(167, 139, 250, 0.22);
-  --cosmic-glow: rgba(167, 139, 250, 0.12);
 }
 
 @layer base {
@@ -175,6 +168,7 @@
   }
 }
 
+/* used by: ExperienceCard (inline style animation) */
 @keyframes slideUp {
   from {
     opacity: 0;
@@ -184,43 +178,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-@keyframes fade-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fade-in-up 0.8s ease-out;
-}
-
-.portfolio-main {
-  transform-origin: center left;
-  transition:
-    transform 280ms cubic-bezier(0.22, 1, 0.36, 1),
-    filter 280ms cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 240ms ease,
-    width 220ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-[data-slot="sidebar-wrapper"][data-sidebar-open="true"] .portfolio-main {
-  opacity: 0.7;
-  filter: saturate(0.9);
-  pointer-events: none;
-  transform: translateX(-1.5rem) scale(0.965);
-}
-
-[data-slot="sidebar-wrapper"][data-sidebar-mobile-open="true"] .portfolio-main {
-  opacity: 0.8;
-  filter: saturate(0.95);
-  transform: scale(0.98);
 }
 
 [data-sidebar="sidebar"] {
@@ -388,6 +345,7 @@
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
 }
 
+/* used by: HeroTerminal */
 @keyframes cosmic-drift {
   0% {
     translate: 0 0;
@@ -415,6 +373,7 @@
   }
 }
 
+/* used by: HeroTerminal */
 .cosmic-drift {
   animation: cosmic-drift 18s ease-in-out infinite;
 }
@@ -471,56 +430,13 @@
 }
 
 /* --- Uniform section vertical rhythm --- */
+/* Standard inter-section vertical padding: 5rem (80px) each side via .section-pad.
+   Certifications uses reduced top padding (pt-12 = 3rem) for tighter visual
+   coupling with the Education section above it.
+   Achievements follows Certifications as a subsection with minimal spacing (pt-3). */
 
 .section-pad {
   padding-block: var(--section-pad-y);
-}
-
-/* ============================================================
-   EDUCATION FLOWCHART — Blob shapes and connectors
-   ============================================================ */
-
-.edu-blob--amoeba {
-  border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
-  animation: blob-morph-chaotic 8s ease-in-out infinite;
-}
-
-.edu-blob--forming {
-  border-radius: 45% 55% 55% 45% / 48% 52% 48% 52%;
-  animation: blob-morph-forming 6s ease-in-out infinite;
-}
-
-.edu-blob--stable {
-  border-radius: 48% 52% 50% 50% / 49% 51% 49% 51%;
-  animation: blob-morph-stable 10s ease-in-out infinite;
-  box-shadow:
-    0 0 30px rgba(167, 139, 250, 0.15),
-    0 0 60px rgba(167, 139, 250, 0.05);
-}
-
-.edu-connector {
-  width: 2px;
-  height: 60px;
-  background: repeating-linear-gradient(
-    to bottom,
-    rgba(167, 139, 250, 0.4) 0px,
-    rgba(167, 139, 250, 0.4) 4px,
-    transparent 4px,
-    transparent 8px
-  );
-  position: relative;
-}
-
-.edu-connector::after {
-  content: "";
-  position: absolute;
-  width: 4px;
-  height: 12px;
-  border-radius: 2px;
-  background: rgba(167, 139, 250, 0.8);
-  box-shadow: 0 0 8px rgba(167, 139, 250, 0.6);
-  animation: pulse-travel 3s ease-in-out infinite;
-  left: -1px;
 }
 
 /* ============================================================
@@ -551,62 +467,6 @@
 /* ============================================================
    KEYFRAMES
    ============================================================ */
-
-@keyframes blob-morph-chaotic {
-  0%,
-  100% {
-    border-radius: 42% 58% 70% 30% / 45% 45% 55% 55%;
-  }
-  25% {
-    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
-  }
-  50% {
-    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
-  }
-  75% {
-    border-radius: 55% 45% 40% 60% / 35% 65% 45% 55%;
-  }
-}
-
-@keyframes blob-morph-forming {
-  0%,
-  100% {
-    border-radius: 45% 55% 55% 45% / 48% 52% 48% 52%;
-  }
-  33% {
-    border-radius: 52% 48% 45% 55% / 50% 48% 52% 50%;
-  }
-  66% {
-    border-radius: 48% 52% 52% 48% / 52% 50% 48% 52%;
-  }
-}
-
-@keyframes blob-morph-stable {
-  0%,
-  100% {
-    border-radius: 48% 52% 50% 50% / 49% 51% 49% 51%;
-  }
-  50% {
-    border-radius: 50% 50% 52% 48% / 51% 49% 51% 49%;
-  }
-}
-
-@keyframes pulse-travel {
-  0% {
-    top: 0;
-    opacity: 0;
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-  }
-  100% {
-    top: 100%;
-    opacity: 0;
-  }
-}
 
 @keyframes pulse-glow {
   0%,
@@ -675,24 +535,6 @@
   }
 }
 
-/* Education flowchart — glowing dot travels up the connector rail */
-@keyframes edu-pulse-travel {
-  0% {
-    top: 100%;
-    opacity: 0;
-  }
-  12% {
-    opacity: 1;
-  }
-  85% {
-    opacity: 0.85;
-  }
-  100% {
-    top: -8px;
-    opacity: 0;
-  }
-}
-
 @keyframes glitch-scan {
   0%,
   100% {
@@ -743,14 +585,6 @@
    ============================================================ */
 
 @media (prefers-reduced-motion: reduce) {
-  .edu-blob--amoeba,
-  .edu-blob--forming,
-  .edu-blob--stable {
-    animation: none;
-  }
-  .edu-connector::after {
-    animation: none;
-  }
   [class*="animate-pulse"],
   [class*="animate-blink"],
   [class*="animate-deploy"] {
@@ -761,9 +595,5 @@
   }
   .cosmic-drift {
     animation: none;
-  }
-  .edu-pulse-dot {
-    animation: none !important;
-    opacity: 0.3;
   }
 }

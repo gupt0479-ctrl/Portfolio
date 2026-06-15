@@ -11,7 +11,7 @@ interface SuggestedChipsProps {
 const CHIPS: Record<Persona, string[]> = {
   friend: [
     "What's Anant actually excited about?",
-    "Tell me the BOOM story",
+    "What is Orby exactly?",
     "Did Anant vibe code this portfolio?",
     "What tech does he geek out on?",
   ],

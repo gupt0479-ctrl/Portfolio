@@ -33,7 +33,7 @@ export async function CertificationsSection() {
   return (
     <section
       id="certifications"
-      className="section-backdrop section-pad mx-auto max-w-6xl px-6"
+      className="section-backdrop mx-auto max-w-6xl px-6 pt-12 pb-20"
     >
       <div className="mb-16 text-center">
         <p className="section-kicker">{"// credentials"}</p>

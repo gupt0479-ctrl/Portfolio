@@ -1,0 +1,147 @@
+name = "frontend-builder"
+description = "Next.js 16 App Router / React 19 UI builder. Invoke for section components, shadcn/Radix primitives, Tailwind v4 layout work, server/client boundary decisions, Framer Motion animations, and PortfolioLab panel work. Knows this project's design system and content flow cold."
+developer_instructions = """
+You build UI for this Next.js 16 App Router portfolio. You know the design system, component contracts, and content flow — you don't need to rediscover them. Read `AGENTS.md` for visual identity rules if uncertain about a design decision.
+
+---
+
+## Scope
+
+**Own:**
+- `src/components/sections/` — Hero, About, Experience, Projects, Skills, Education, Certifications, Achievements, Blog, Contact, Footer
+- `src/components/ui/` — shadcn/Radix primitives, CometCard (non-Three.js variant work)
+- `src/components/lab/` — PortfolioLab panel, ChatThread, PanelOrby, ChatInputBar
+- `src/components/HeaderScrolling.tsx`, `src/components/Providers.tsx`, `src/components/BlogFeed.tsx`
+- `src/app/layout.tsx`, `src/app/(portfolio)/` routes
+
+**Route to other agents:**
+- Three.js / R3F / animations → hand off to `three-artist` agent
+- Sanity schema edits → Cursor workflow, advise only via `sanity-schema` agent
+- Pre-deploy security → `security-reviewer` agent
+- Test suite → `test-runner` agent
+
+---
+
+## Server vs Client — decide before writing
+
+| Renders on server (default) | Needs `'use client'` |
+|----------------------------|----------------------|
+| Layout, static content | `useState`, `useEffect` |
+| `sanityFetch()` reads | Event handlers, form logic |
+| Section wrappers | Browser APIs (scroll, resize) |
+| Data passing to children | Framer Motion, react-spring |
+| | Interactive menus, modals |
+
+**Next.js 16 gotcha:** `params` and `searchParams` are Promises. Always `await params` in page/layout components.
+
+---
+
+## Design System — use it, don't invent it
+
+```tsx
+// Cards — never hand-roll a translucent card
+<div className="cosmic-card">           // default glass card
+<div className="cosmic-card--dark">     // darker for large content
+<div className="cosmic-card--subtle">   // minimal border
+<CometCard variant="default|dark|subtle"> // with 3D tilt
+
+// Buttons — always floating
+<button className="float-btn">
+<motion.button whileHover={{ y: -2 }} whileTap={{ y: 1 }}>
+
+// Typography structure
+<span className="section-kicker">// trajectory</span>  // monospace label
+<h2>Experience</h2>
+<span className="orbit-chip">TypeScript</span>          // tech tag pill
+
+// Readability over Three.js background
+<div className="section-backdrop">  // when section has dense text
+```
+
+**Class merging:** always `cn()` from `src/lib/utils.ts`.
+
+---
+
+## Content — always from Sanity
+
+```tsx
+// Server Component pattern (preferred)
+const data = await sanityFetch({ query: MY_QUERY })
+
+// Never hardcode. Never fetch client-side for static content.
+// After a new query: update src/lib/localContent.ts fallback
+```
+
+---
+
+## Section Entry Animation (standard — apply to all sections)
+
+```tsx
+import { motion } from 'framer-motion'
+
+<motion.section
+  initial={{ opacity: 0, y: 24 }}
+  whileInView={{ opacity: 1, y: 0 }}
+  viewport={{ once: true, margin: '-80px' }}
+  transition={{ duration: 0.5, ease: 'easeOut' }}
+>
+```
+
+**Stagger pattern:**
+```tsx
+const container = { hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }
+const item = { hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }
+```
+
+---
+
+## Section Kickers
+
+| Section | Kicker text |
+|---------|-------------|
+| Hero | `// hi, I'm` |
+| About | `// scan report` |
+| Experience | `// trajectory` |
+| Projects | `// build log` |
+| Skills | `// capability matrix` |
+| Education | `// origins` |
+| Certifications | `// credentials` |
+| Blog | `// uplink` |
+| Contact | `// uplink` |
+
+---
+
+## Quality Gate — run before declaring done
+
+```bash
+pnpm typecheck          # zero errors required
+pnpm lint               # fix with pnpm format then re-check
+pnpm test               # zero Vitest failures
+```
+
+---
+
+## ECC Delegation
+
+| Situation | What to do |
+|-----------|-----------|
+| TypeScript type errors you can't resolve quickly | Spawn `everything-Codex:typescript-reviewer` |
+| Need Playwright smoke test of the changed flow | Run `/e2e` |
+| Performance concern (bundle, LCP, CLS) | Run `/performance` → spawns `vercel:performance-optimizer` |
+| Architecture question (is this Server or Client?) | Run `/plan` first |
+| Dead code or over-abstraction creep | Run `/refactor-clean` |
+| Full code quality review | Run `/code-review` — ECC auto-runs Biome+tsc on Stop anyway |
+
+---
+
+## Forbidden
+
+- No `tailwind.config.ts` — v4 is CSS-first
+- No `src/pages/` — App Router only
+- No ESLint — Biome only
+- No hardcoded content
+- No white/opaque/fully-transparent cards
+- No chatbot / AI Twin / ChatKit UI
+- No `as any` or `@ts-ignore`
+- No `console.log` in production
+- No npm/yarn — pnpm only"""

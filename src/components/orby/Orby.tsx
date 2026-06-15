@@ -22,20 +22,21 @@ function getScrollProgress(): number {
 
 function getPose(state: OrbyState): "idle" | "pointing" | "wave" {
   if (state === "pointing") return "pointing";
-  if (state === "goodbye" || state === "departingLeft") return "wave";
+  if (state === "intro" || state === "goodbye" || state === "departingLeft")
+    return "wave";
   return "idle";
 }
 
-// Lab button: fixed bottom-6 right-6 (24px each), w-12 h-12 (48px).
-// Center at (vw - 48, vh - 48). 8px gap to button left edge (vw - 72).
+// Lab button: fixed bottom-8 right-8 (32px each), w-14 h-14 (56px).
+// Center at (vw - 60, vh - 60). 8px gap to button left edge (vw - 88).
 function computeHomeX(vw: number, size: number, sidebarOffset: number) {
   // Extra gap on very narrow phones (≤390px) to avoid crowding the Lab button
   const narrowGap = vw <= 390 ? 12 : 0;
-  return vw - 72 - 20 - size - sidebarOffset - narrowGap;
+  return vw - 88 - 20 - size - sidebarOffset - narrowGap;
 }
 function computeHomeY(vh: number, canvasH: number) {
   // Vertically center Orby with the lab button center
-  return vh - canvasH / 2 - 48;
+  return vh - canvasH / 2 - 60;
 }
 function computeBottomY(vh: number, canvasH: number) {
   // 24px clearance keeps Orby from visually clipping the viewport edge
@@ -373,11 +374,13 @@ export default function Orby() {
 
   if (tooSmall) return null;
 
-  const cloudVisible = speechText !== null && !sidebarOpen;
+  const cloudVisible =
+    speechText !== null &&
+    (!sidebarOpen || state === "chat-nav-arrival" || state === "chat-nav-home");
   const pose = getPose(state);
 
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-40">
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-50">
       {/* biome-ignore lint/a11y/noStaticElementInteractions: aria-hidden decorative companion — AT never reaches this element */}
       {/* biome-ignore lint/a11y/useKeyWithClickEvents: aria-hidden decorative companion — AT never reaches this element */}
       <div
@@ -404,7 +407,7 @@ export default function Orby() {
         className="absolute"
         style={{ transform: `translate(${arrowPos.x}px, ${arrowPos.y}px)` }}
       >
-        <OrbyArrow orbyPosition={arrowPos} visible={showArrow} />
+        <OrbyArrow orbyPosition={arrowPos} visible={showArrow} sidebarOpen={sidebarOpen} isMobile={isMobile} />
       </div>
     </div>
   );

@@ -40,6 +40,8 @@ const LAB_HINT_COPY = [
 ] as const;
 
 const SECTION_COPY = {
+  about:
+    "Click and hover everything you see — it all does something.",
   projects:
     "Fair warning — some of these deploy links are on sabbatical. The real, live collection is at github.com/gupta-builds.",
   blog: "He's been converting browser tabs into an actual blog. The link appears here once it's live — I'm watching.",
@@ -50,6 +52,7 @@ const SECTION_COPY = {
 const GOODBYE_COPY = "See you around, spacefarer. ✌️";
 
 const SECTION_TRIGGERS: Record<string, string> = {
+  about: SECTION_COPY.about,
   projects: SECTION_COPY.projects,
   blog: SECTION_COPY.blog,
   contact: SECTION_COPY.contact,
@@ -61,6 +64,7 @@ const SECTION_OBSERVER_CONFIG: Record<
   string,
   { threshold: number; rootMargin: string }
 > = {
+  about: { threshold: 0.5, rootMargin: "0px 0px -15% 0px" },
   projects: { threshold: 0.25, rootMargin: "0px 0px -5% 0px" },
   blog: { threshold: 0.4, rootMargin: "0px 0px -10% 0px" },
   contact: { threshold: 0.45, rootMargin: "0px 0px -10% 0px" },
@@ -114,7 +118,14 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
   stateRef.current = state;
 
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
-  const firedSections = useRef<Set<string>>(new Set());
+  const firedSections = useRef<Set<string>>(
+    new Set(
+      typeof window !== "undefined" &&
+        localStorage.getItem("orby-about-shown") === "1"
+        ? ["about"]
+        : [],
+    ),
+  );
   const observersRef = useRef<IntersectionObserver[]>([]);
   const chatNavPendingRef = useRef<{
     observer: IntersectionObserver | null;
@@ -246,13 +257,22 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
           firedSections.current.add(sectionId);
           observer.disconnect();
 
+          // Persist "about" message as shown so it never repeats across visits
+          if (sectionId === "about") {
+            try {
+              localStorage.setItem("orby-about-shown", "1");
+            } catch {
+              // localStorage unavailable (private mode, quota) — graceful no-op
+            }
+          }
+
           setState("section-comment");
           setSpeechText(copy);
 
           const returnTimer = setTimeout(() => {
             setState("roaming");
             setSpeechText(null);
-          }, 6000);
+          }, 7000);
 
           timersRef.current.push(returnTimer);
         }
@@ -276,7 +296,12 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
   useEffect(() => {
     const handleChatNav = (e: Event) => {
       const { sectionId, orbyMessage } = (
-        e as CustomEvent<{ sectionId: string; orbyMessage: string | null }>
+        e as CustomEvent<{
+          sectionId: string;
+          orbyMessage: string | null;
+          itemSlug?: string | null;
+          itemIndex?: number | null;
+        }>
       ).detail;
 
       // Reduced-motion path: skip state changes, show text after jump settles
@@ -375,6 +400,30 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
         pending.cancelListeners?.();
       }
     };
+  }, []);
+
+  // orby:speech — update speechText if a chat-nav sequence is already running
+  // biome-ignore lint/correctness/useExhaustiveDependencies: stable refs
+  useEffect(() => {
+    const handleOrbySpeech = (e: Event) => {
+      const { text } = (e as CustomEvent<{ text: string }>).detail;
+      const current = stateRef.current;
+      // Only update speech if Orby is in a chat-nav state (it already knows to speak)
+      if (current === "chat-nav-home" || current === "chat-nav-arrival") {
+        setSpeechText(text);
+      } else {
+        // Model leaked orbyMessage but navigate tool didn't fire — show it anyway
+        setState("chat-nav-arrival");
+        setSpeechText(text);
+        const clearT = setTimeout(() => {
+          setState("roaming");
+          setSpeechText(null);
+        }, 7000);
+        timersRef.current.push(clearT);
+      }
+    };
+    window.addEventListener("orby:speech", handleOrbySpeech);
+    return () => window.removeEventListener("orby:speech", handleOrbySpeech);
   }, []);
 
   return { state, speechText, showArrow };

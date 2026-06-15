@@ -7,20 +7,32 @@ import { cn } from "@/lib/utils";
 interface OrbyArrowProps {
   orbyPosition: { x: number; y: number };
   visible: boolean;
+  sidebarOpen?: boolean;
+  isMobile?: boolean;
 }
 
-export function OrbyArrow({ orbyPosition, visible }: OrbyArrowProps) {
+export function OrbyArrow({
+  orbyPosition,
+  visible,
+  sidebarOpen = false,
+  isMobile = false,
+}: OrbyArrowProps) {
   const [angle, setAngle] = useState(0);
 
   useEffect(() => {
     const updateAngle = () => {
-      const labButtonCenter = {
-        x: window.innerWidth - 48,
-        y: window.innerHeight - 48,
+      // Target the button's left edge (nearest perimeter to Orby) instead of center.
+      // Button is 56×56 at bottom-8 right-8: left edge = vw - 32 (right) - 56 (width) = vw - 88.
+      // When sidebar is open on desktop, button shifts left by sidebar-width (25rem = 400px).
+      const sidebarOffset = sidebarOpen && !isMobile ? 400 : 0;
+
+      const labButtonEdge = {
+        x: window.innerWidth - 88 - sidebarOffset, // left edge of button
+        y: window.innerHeight - 60, // vertical center of button
       };
 
-      const dx = labButtonCenter.x - orbyPosition.x;
-      const dy = labButtonCenter.y - orbyPosition.y;
+      const dx = labButtonEdge.x - orbyPosition.x;
+      const dy = labButtonEdge.y - orbyPosition.y;
       setAngle(Math.atan2(dy, dx) * (180 / Math.PI));
     };
 
@@ -28,7 +40,7 @@ export function OrbyArrow({ orbyPosition, visible }: OrbyArrowProps) {
 
     window.addEventListener("resize", updateAngle);
     return () => window.removeEventListener("resize", updateAngle);
-  }, [orbyPosition.x, orbyPosition.y]);
+  }, [orbyPosition.x, orbyPosition.y, sidebarOpen, isMobile]);
 
   return (
     <AnimatePresence>

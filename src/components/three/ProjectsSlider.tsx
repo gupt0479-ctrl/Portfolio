@@ -219,6 +219,28 @@ export function ProjectsSlider({ projects }: ProjectsSliderProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [goNext, goPrev]);
 
+  useEffect(() => {
+    const handleOrbNav = (e: Event) => {
+      const detail = (
+        e as CustomEvent<{ sectionId: string; itemSlug?: string | null }>
+      ).detail;
+      if (detail.sectionId !== "projects" || !detail.itemSlug) return;
+      const idx = safeProjects.findIndex((p) => {
+        // Sanity slugs can be either a string or {current: string}
+        const slug =
+          typeof p.slug === "string"
+            ? p.slug
+            : (p.slug as { current?: string } | null)?.current;
+        return slug === detail.itemSlug;
+      });
+      if (idx < 0) return;
+      setDirection(idx > currentIndex ? 1 : -1);
+      setCurrentIndex(idx);
+    };
+    window.addEventListener("orby:navigate", handleOrbNav);
+    return () => window.removeEventListener("orby:navigate", handleOrbNav);
+  }, [safeProjects, currentIndex]);
+
   const handleMouseDown = (e: React.MouseEvent) => {
     dragRef.current.startX = e.clientX;
     dragRef.current.currentX = e.clientX;

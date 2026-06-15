@@ -109,7 +109,12 @@ export function ContactPanel({ profile }: { profile: ContactProfile | null }) {
       </div>
 
       <div className="mx-auto mt-10 max-w-sm">
-        <CometCard variant="subtle" rotateDepth={5} translateDepth={7}>
+        <CometCard
+          variant="subtle"
+          rotateDepth={3}
+          translateDepth={5}
+          glareIntensity={0.1}
+        >
           <div
             className="relative overflow-hidden rounded-xl p-6 text-center"
             style={{

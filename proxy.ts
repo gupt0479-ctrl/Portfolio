@@ -2,17 +2,10 @@ import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const isPublicRoute = createRouteMatcher([
-  "/",
-  "/sign-in(.*)",
-  "/sign-up(.*)",
-  "/api/sanity(.*)",
-  "/api/draft-mode(.*)",
-  "/api/chat(.*)",
-]);
+const isStudioRoute = createRouteMatcher(["/studio(.*)"]);
 
 const clerk = clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
+  if (isStudioRoute(req)) {
     await auth.protect();
   }
 });
@@ -29,7 +22,7 @@ const event = {
 };
 
 export async function proxy(req: NextRequest): Promise<NextResponse> {
-  if (isPublicRoute(req)) {
+  if (!isStudioRoute(req)) {
     return NextResponse.next();
   }
 
