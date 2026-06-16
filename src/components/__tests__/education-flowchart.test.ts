@@ -15,12 +15,13 @@ describe("Education Flowchart — Property 6 & 7", () => {
       // College (idx 0) has zero distortion
       const distortMatch = content.match(/const DISTORT\s*=\s*\[([^\]]+)\]/);
       expect(distortMatch).not.toBeNull();
-      const values = distortMatch![1]
+      const values = distortMatch?.[1]
         .split(",")
         .map((v) => Number.parseFloat(v.trim()));
+      expect(values).toBeDefined();
       // Values should be ascending (more deformed for older schools)
-      for (let i = 1; i < values.length; i++) {
-        expect(values[i]).toBeGreaterThan(values[i - 1]);
+      for (let i = 1; i < values!.length; i++) {
+        expect(values![i]).toBeGreaterThan(values![i - 1]);
       }
     });
 

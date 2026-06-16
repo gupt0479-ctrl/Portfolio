@@ -1,4 +1,5 @@
 "use client";
+
 /**
  * use-space-float.ts
  *
@@ -28,8 +29,8 @@
  *   - No new objects created per frame
  */
 
-import { useEffect, useRef } from "react";
 import type React from "react";
+import { useEffect, useRef } from "react";
 import { addFloater, removeFloater } from "@/lib/space-float-ticker";
 
 export interface UseSpaceFloatOptions {

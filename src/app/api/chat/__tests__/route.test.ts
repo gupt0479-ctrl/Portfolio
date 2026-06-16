@@ -17,7 +17,7 @@ const TEST_SECRET = "test-secret-that-is-long-enough-32c";
 // ── next/headers mock (cookies()) ─────────────────────────────────────────
 
 // We start with no cookie; tests that need one override this directly.
-let mockCookieValue: string | undefined = undefined;
+let mockCookieValue: string | undefined;
 
 vi.mock("next/headers", () => ({
   cookies: () =>
@@ -35,14 +35,11 @@ let burstSuccess = true;
 let dailySuccess = true;
 
 vi.mock("@upstash/redis", () => ({
-  Redis: class {
-    constructor() {}
-  },
+  Redis: class {},
 }));
 
 vi.mock("@upstash/ratelimit", () => ({
   Ratelimit: class {
-    constructor() {}
     static slidingWindow() {
       return {};
     }

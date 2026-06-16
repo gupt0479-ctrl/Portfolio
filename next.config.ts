@@ -9,7 +9,8 @@ const CLERK_FAPI = "decent-tick-22.clerk.accounts.dev";
 const csp = [
   "default-src 'self'",
   // Next.js App Router inlines bootstrap scripts; unsafe-eval kept to dev only (webpack HMR).
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  // Clerk loads clerk-js from its FAPI domain at runtime.
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://${CLERK_FAPI}`,
   // Tailwind v4 and Framer Motion apply inline styles at runtime.
   "style-src 'self' 'unsafe-inline'",
   // next/font/google self-hosts fonts at build time — no external font origin required.
@@ -46,10 +47,9 @@ const securityHeaders = [
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=()",
   },
-  // REPORT-ONLY: logs violations to console without blocking any resource.
-  // Switch key to "Content-Security-Policy" after confirming zero violations
-  // across all sections (Three.js, Sanity images, Orby /api/chat, Clerk auth).
-  { key: "Content-Security-Policy-Report-Only", value: csp },
+  // ENFORCED: violations will block resources. Clerk FAPI added to script-src;
+  // Vercel Analytics uses /_vercel/insights/script.js in prod (same-origin).
+  { key: "Content-Security-Policy", value: csp },
 ];
 
 const nextConfig: NextConfig = {

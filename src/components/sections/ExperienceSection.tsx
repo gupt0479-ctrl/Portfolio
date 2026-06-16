@@ -1,7 +1,7 @@
+import { ExperienceSectionClient } from "@/components/sections/ExperienceSectionClient";
 import { sanityFetch } from "@/sanity/lib/live";
 import { EXPERIENCE_QUERY } from "@/sanity/lib/queries";
 import type { EXPERIENCE_QUERYResult } from "@/sanity/types";
-import { ExperienceSectionClient } from "@/components/sections/ExperienceSectionClient";
 
 export async function ExperienceSection() {
   const { data: experience } = await sanityFetch({ query: EXPERIENCE_QUERY });

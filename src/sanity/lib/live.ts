@@ -5,14 +5,12 @@ import type { ClientReturn } from "@sanity/client";
 import { defineLive } from "next-sanity/live";
 import { client } from "./client";
 
-const hasLiveTokens =
-  Boolean(process.env.SANITY_SERVER_API_TOKEN) &&
-  Boolean(process.env.SANITY_API_TOKEN);
+const hasLiveToken = Boolean(process.env.SANITY_API_TOKEN);
 
-const live = hasLiveTokens
+const live = hasLiveToken
   ? defineLive({
       client,
-      serverToken: process.env.SANITY_SERVER_API_TOKEN,
+      serverToken: process.env.SANITY_API_TOKEN,
       browserToken: process.env.SANITY_API_TOKEN,
       fetchOptions: { revalidate: 0 },
     })
@@ -39,11 +37,11 @@ function createFetchFallback() {
   };
 }
 
-export const sanityFetch = hasLiveTokens
+export const sanityFetch = hasLiveToken
   ? live!.sanityFetch
   : createFetchFallback();
 
-export const SanityLive = hasLiveTokens
+export const SanityLive = hasLiveToken
   ? live!.SanityLive
   : function SanityLiveFallback() {
       return null;

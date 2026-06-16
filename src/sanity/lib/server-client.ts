@@ -9,14 +9,16 @@ function assertValue<T>(v: T | undefined, errorMessage: string): T {
 }
 
 let cachedServerClient: ServerClient | null = null;
+let cachedToken: string | null = null;
 
 export function getServerClient(): ServerClient {
-  if (cachedServerClient) return cachedServerClient;
-
   const token = assertValue(
-    process.env.SANITY_SERVER_API_TOKEN,
-    "Missing environment variable: SANITY_SERVER_API_TOKEN",
+    process.env.SANITY_API_TOKEN,
+    "Missing environment variable: SANITY_API_TOKEN",
   );
+
+  // Invalidate cache if the token changed (e.g. rotated in .env.local)
+  if (cachedServerClient && cachedToken === token) return cachedServerClient;
 
   cachedServerClient = createClient({
     projectId,
@@ -30,6 +32,7 @@ export function getServerClient(): ServerClient {
       studioUrl: "/studio",
     },
   });
+  cachedToken = token;
 
   return cachedServerClient;
 }

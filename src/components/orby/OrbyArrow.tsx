@@ -60,7 +60,7 @@ export function OrbyArrow({
         >
           <div
             style={{
-              width: 56,
+              width: 36,
               height: 2,
               background:
                 "linear-gradient(90deg, transparent 0%, rgba(139, 92, 246, 0.35) 30%, rgba(167, 139, 250, 0.85) 100%)",

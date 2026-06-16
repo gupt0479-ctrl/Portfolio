@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/nextjs";
+import { Analytics } from "@vercel/analytics/next";
 import { Lora, Ubuntu } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
@@ -31,6 +32,7 @@ export default function RootLayout({
           className={`${ubuntu.variable} ${lora.variable} min-h-screen overflow-x-hidden bg-[#07070d] antialiased`}
         >
           <Providers>{children}</Providers>
+          <Analytics />
         </body>
       </html>
     </ClerkProvider>

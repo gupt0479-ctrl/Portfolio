@@ -178,7 +178,7 @@ describe("Bug Condition Exploration — Hero UI Polish Deficiencies", () => {
       // Extract the .float-btn rule block
       const floatBtnMatch = css.match(/\.float-btn\s*\{[^}]*\}/s);
       expect(floatBtnMatch).not.toBeNull();
-      const floatBtnRule = floatBtnMatch![0];
+      const floatBtnRule = floatBtnMatch?.[0];
       // Expected: the .float-btn rule should contain an animation referencing cosmic-float
       expect(floatBtnRule).toMatch(/animation[^;]*cosmic-float/);
     });
@@ -376,7 +376,7 @@ describe("Bug Condition Exploration — Hero UI Polish Deficiencies", () => {
       const css = fs.readFileSync(globalsPath, "utf-8");
       const floatBtnMatch = css.match(/\.float-btn\s*\{[^}]*\}/s);
       expect(floatBtnMatch).not.toBeNull();
-      const floatBtnRule = floatBtnMatch![0];
+      const floatBtnRule = floatBtnMatch?.[0];
       // Expected behavior: should have `animation` property with cosmic-float
       expect(floatBtnRule).toMatch(/animation\s*:/);
     });

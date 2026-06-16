@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo, useRef, useState, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
 import { Html, Line, MeshDistortMaterial } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { urlFor } from "@/sanity/lib/image";
 import { CometCard } from "@/components/ui/comet-card";
+import { urlFor } from "@/sanity/lib/image";
 import type { Education } from "@/sanity/types";
 
 // ── Layout ────────────────────────────────────────────────────────────────────

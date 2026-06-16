@@ -1,9 +1,9 @@
 "use client";
 
+import { PortableText } from "@portabletext/react";
 import { ChevronDown, ExternalLink, MapPin } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
-import { PortableText } from "@portabletext/react";
 import { CometCard } from "@/components/ui/comet-card";
 import { useSpaceFloat } from "@/hooks/use-space-float";
 import { getSkillColor } from "@/lib/category-colors";
@@ -48,6 +48,8 @@ export function ExperienceCard({
   );
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: conditionally interactive via role="button"
+    // biome-ignore lint/a11y/useAriaPropsSupportedByRole: aria-expanded valid on role="button"
     <div
       ref={ref as React.RefObject<HTMLDivElement>}
       style={{

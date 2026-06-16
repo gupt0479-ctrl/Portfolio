@@ -1,6 +1,6 @@
 import Image from "next/image";
-import type { CSSProperties } from "react";
 import { defineQuery } from "next-sanity";
+import type { CSSProperties } from "react";
 import { CometCard } from "@/components/ui/comet-card";
 import { getSkillColor } from "@/lib/category-colors";
 import { urlFor } from "@/sanity/lib/image";

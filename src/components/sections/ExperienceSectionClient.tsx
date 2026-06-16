@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SpaceRail } from "@/components/ui/space-rail";
 import { ExperienceCard } from "@/components/cards/ExperienceCard";
+import { SpaceRail } from "@/components/ui/space-rail";
 import type { EXPERIENCE_QUERYResult } from "@/sanity/types";
 
 interface ExperienceSectionClientProps {

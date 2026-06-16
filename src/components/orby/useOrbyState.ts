@@ -40,8 +40,7 @@ const LAB_HINT_COPY = [
 ] as const;
 
 const SECTION_COPY = {
-  about:
-    "Click and hover everything you see — it all does something.",
+  about: "Click and hover everything you see — it all does something.",
   projects:
     "Fair warning — some of these deploy links are on sabbatical. The real, live collection is at github.com/gupta-builds.",
   blog: "He's been converting browser tabs into an actual blog. The link appears here once it's live — I'm watching.",
@@ -64,7 +63,7 @@ const SECTION_OBSERVER_CONFIG: Record<
   string,
   { threshold: number; rootMargin: string }
 > = {
-  about: { threshold: 0.5, rootMargin: "0px 0px -15% 0px" },
+  about: { threshold: 0.15, rootMargin: "0px" },
   projects: { threshold: 0.25, rootMargin: "0px 0px -5% 0px" },
   blog: { threshold: 0.4, rootMargin: "0px 0px -10% 0px" },
   contact: { threshold: 0.45, rootMargin: "0px 0px -10% 0px" },
@@ -246,20 +245,24 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
         rootMargin: "0px 0px -10% 0px",
       };
       const observer = new IntersectionObserver(([entry]) => {
-        if (entry.isIntersecting && !firedSections.current.has(sectionId)) {
-          firedSections.current.add(sectionId);
+        if (!entry.isIntersecting) return;
+        if (firedSections.current.has(sectionId)) {
           observer.disconnect();
-
-          setState("section-comment");
-          setSpeechText(copy);
-
-          const returnTimer = setTimeout(() => {
-            setState("roaming");
-            setSpeechText(null);
-          }, 7000);
-
-          timersRef.current.push(returnTimer);
+          return;
         }
+
+        firedSections.current.add(sectionId);
+        observer.disconnect();
+
+        setState("section-comment");
+        setSpeechText(copy);
+
+        const returnTimer = setTimeout(() => {
+          setState("roaming");
+          setSpeechText(null);
+        }, 7000);
+
+        timersRef.current.push(returnTimer);
       }, observerConfig);
       observer.observe(el);
       observersRef.current.push(observer);
@@ -387,7 +390,6 @@ export function useOrbyState(_modifiers?: PositionModifiers): OrbyStateResult {
   }, []);
 
   // orby:speech — update speechText if a chat-nav sequence is already running
-  // biome-ignore lint/correctness/useExhaustiveDependencies: stable refs
   useEffect(() => {
     const handleOrbySpeech = (e: Event) => {
       const { text } = (e as CustomEvent<{ text: string }>).detail;
