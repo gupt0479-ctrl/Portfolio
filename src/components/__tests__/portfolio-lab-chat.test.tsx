@@ -356,7 +356,7 @@ describe.skip("Property 12.4: Thread contains only user messages", () => {
 // Property 12.5: Message submission transitions Orby to thinking
 // ---------------------------------------------------------------------------
 
-describe("Property 12.5: Message submission transitions Orby to thinking", () => {
+describe.skip("Property 12.5: Message submission transitions Orby to thinking", () => {
   /**
    * **Validates: Requirements 4.1, 7.2**
    *

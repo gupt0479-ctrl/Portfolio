@@ -20,14 +20,14 @@ describe("Property 4: Center project card always shows required content", () => 
     expect(content).toContain("orbit-chip");
   });
 
-  it("ProjectCard renders case-note panel", () => {
-    expect(content).toContain("case note");
+  it("ProjectCard renders summary panel for center card only", () => {
+    expect(content).toContain("project.summary");
+    expect(content).toContain("isCenter");
   });
 
-  it("ProjectCard case-note panel is conditionally shown for center card only", () => {
-    // The case note should be inside an isCenter conditional
-    expect(content).toContain("isCenter");
-    expect(content).toContain("case note");
+  it("ProjectCard case summary panel is conditionally shown for center card only", () => {
+    // The summary should be inside an isCenter conditional
+    expect(content).toContain("isCenter && project.summary");
   });
 
   it("ProjectCard uses cosmic-card for center card background", () => {

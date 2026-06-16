@@ -267,9 +267,9 @@ describe("3.6 No awkward gaps — proper spacing", () => {
 // ---------------------------------------------------------------------------
 
 describe("3.7 Three.js background in fixed position", () => {
-  it("PortfolioContent wraps ObsidianBackground with fixed inset-0 z-0", () => {
+  it("PortfolioContent passes ObsidianBackground as backgroundCanvas", () => {
     const source = readSourceFile(PORTFOLIO_CONTENT_PATH);
-    expect(source).toContain("fixed inset-0 z-0");
+    expect(source).toContain("backgroundCanvas={<ObsidianBackground />");
   });
 
   it("PortfolioContent renders ObsidianBackground component", () => {

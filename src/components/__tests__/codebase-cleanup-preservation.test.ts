@@ -90,8 +90,7 @@ describe("Preservation: Existing Portfolio Behavior Unchanged", () => {
       // No STATIC_FALLBACKS, no padding loop — renders sorted items directly
       expect(content).not.toContain("STATIC_FALLBACKS");
       expect(content).not.toContain("while (");
-      expect(content).toContain("sorted.map");
-      expect(content).toContain("Math.min(i, 2)");
+      expect(content).toContain("items.slice(0, 3).map");
     });
 
     it("sorts items most-recent-first by startDate", () => {
@@ -100,11 +99,10 @@ describe("Preservation: Existing Portfolio Behavior Unchanged", () => {
       );
     });
 
-    it("uses safe indexing with Math.min for blob styling arrays", () => {
-      expect(content).toContain("BLOB_VARIANTS[Math.min(i, 2)]");
-      expect(content).toContain("BLOB_SIZES[Math.min(i, 2)]");
-      expect(content).toContain("BLOB_COLORS[Math.min(i, 2)]");
-      expect(content).toContain("BLOB_ICONS[Math.min(i, 2)]");
+    it("uses safe indexing for 3D blob positioning", () => {
+      // Uses BASE_POS array indexed by position; slices to max 3 items
+      expect(content).toContain("BASE_POS");
+      expect(content).toContain("items.slice(0, 3)");
     });
 
     it("renders degree, institution, and date range for each item", () => {
@@ -114,9 +112,9 @@ describe("Preservation: Existing Portfolio Behavior Unchanged", () => {
       expect(content).toContain("edu.endDate");
     });
 
-    it("uses motion for animations", () => {
-      expect(content).toContain("motion.div");
-      expect(content).toContain("whileInView");
+    it("uses Three.js Canvas for 3D rendering", () => {
+      expect(content).toContain("Canvas");
+      expect(content).toContain("useFrame");
     });
   });
 

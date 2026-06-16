@@ -218,9 +218,9 @@ describe("Property 12.8: Section messages fire at most once", () => {
     expect(result.current.state).toBe("section-comment");
     expect(result.current.speechText).toBe(SECTION_TEXTS.projects);
 
-    // Wait for section-comment to return to roaming (6s per hook implementation)
+    // Wait for section-comment to return to roaming (7s per hook implementation)
     act(() => {
-      vi.advanceTimersByTime(6000);
+      vi.advanceTimersByTime(7000);
     });
 
     expect(result.current.state).toBe("roaming");
@@ -304,9 +304,9 @@ describe("Property 12.8: Section messages fire at most once", () => {
     });
     expect(result.current.state).toBe("section-comment");
 
-    // Wait for return to roaming (6s per hook implementation)
+    // Wait for return to roaming (7s per hook implementation)
     act(() => {
-      vi.advanceTimersByTime(6000);
+      vi.advanceTimersByTime(7000);
     });
     expect(result.current.state).toBe("roaming");
 

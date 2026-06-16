@@ -13,19 +13,18 @@ describe("Property 5: Skills category filter correctness", () => {
     expect(content).toContain("s.category === selected");
   });
 
-  it("SkillsSectionClient passes filtered skills to SkillsCategoryGrid", () => {
-    expect(content).toContain("SkillsCategoryGrid");
+  it("SkillsSectionClient passes filtered skills to ActiveCategoryView", () => {
+    expect(content).toContain("ActiveCategoryView");
     expect(content).toContain("skills={filtered}");
   });
 
-  it("SkillsFilter renders an All button to clear the filter", () => {
-    expect(content).toContain('"All"');
+  it("SkillsFilter renders category buttons with active state", () => {
+    expect(content).toContain("active={c === selected}");
   });
 
-  it("SkillsSectionClient renders a real-data skills summary", () => {
-    expect(content).toContain("SkillsSummary");
+  it("SkillsSectionClient renders skills count summary", () => {
     expect(content).toContain("skills.length");
-    expect(content).toContain("categoryCounts");
+    expect(content).toContain("categories");
   });
 
   it("SkillsSectionClient does not render fabricated trajectory UI", () => {

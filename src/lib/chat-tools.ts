@@ -172,7 +172,7 @@ export function buildChatTools(catalog: Catalog) {
   // ── navigate ──────────────────────────────────────────────────────────────
   const navigate = tool({
     description:
-      "Smooth-scroll the page to a portfolio section. Call this tool in EVERY turn where the user's question maps to a section — even if they don't explicitly ask to navigate. Examples: question about projects → navigate('projects'); about experience or work → navigate('experience'); about skills or tech → navigate('skills'); about education → navigate('education'); about certifications → navigate('certifications'); about blog posts → navigate('blog'); want to contact → navigate('contact'). Do NOT call it for generic greetings or questions that have no clear section. ALWAYS provide orbyMessage: a short, catchy, in-persona grounded line (under 120 chars) that Orby says on arrival. Make it unique to this specific question, in the active persona's voice. Never state a fact absent from the grounded catalog. Use itemSlug when navigating to a specific project (must be a known project slug). Use itemIndex (0-based) when navigating to a specific experience card.",
+      "Smooth-scroll the page to a portfolio section. Call this whenever the user's question maps to a section. Examples: question about projects → navigate('projects'); about experience → navigate('experience'); about skills → navigate('skills'). Do NOT call for generic greetings. ALWAYS provide orbyMessage.",
     inputSchema: z.object({
       sectionId: z
         .enum(SECTION_IDS)
@@ -180,15 +180,14 @@ export function buildChatTools(catalog: Catalog) {
       orbyMessage: z
         .string()
         .max(160)
-        .optional()
         .describe(
-          "Short persona-voiced arrival line Orby says when the section scrolls into view. Under 120 chars. One or two sentences max.",
+          "Required. Short persona-voiced arrival line Orby says. Under 120 chars. One or two sentences max.",
         ),
       itemSlug: z
         .string()
         .optional()
         .describe(
-          "For projects: the project slug to center in the carousel. Must match one of the known project slugs.",
+          "Only for projects section: the project slug to highlight.",
         ),
       itemIndex: z
         .number()
@@ -196,7 +195,7 @@ export function buildChatTools(catalog: Catalog) {
         .min(0)
         .optional()
         .describe(
-          "For experience: the 0-based index of the experience card to open and scroll to.",
+          "Only for experience section: the 0-based index of the card to open.",
         ),
     }),
     execute: async ({
@@ -209,7 +208,7 @@ export function buildChatTools(catalog: Catalog) {
         return {
           ok: true,
           sectionId,
-          orbyMessage: orbyMessage ?? null,
+          orbyMessage: orbyMessage || null,
           itemSlug: itemSlug ?? null,
           itemIndex: itemIndex ?? null,
         };
@@ -229,13 +228,11 @@ export function buildChatTools(catalog: Catalog) {
   // ── showProject ───────────────────────────────────────────────────────────
   const showProject = tool({
     description:
-      "Fetch full details for a specific project and surface them as a card in the UI. You MUST call this whenever your prose answer mentions or recommends a specific project by name — the card is the primary way users see project details. If you say 'look at BOOM' or 'Jarvis-OS proves this', call showProject with its slug.",
+      "Fetch full details for a specific project and render a card in the UI. Call this whenever you mention a specific project by name.",
     inputSchema: z.object({
       slug: z
         .enum(slugValues)
-        .describe(
-          "The URL slug of the project. Must be one of the known project slugs.",
-        ),
+        .describe("The project's URL slug."),
     }),
     execute: async ({ slug }): Promise<ShowProjectResult> => {
       try {
@@ -284,9 +281,9 @@ export function buildChatTools(catalog: Catalog) {
   // ── lookupFact ────────────────────────────────────────────────────────────
   const lookupFact = tool({
     description:
-      "Fuzzy-search the catalog for any fact about Anant (skills, projects, experience, certifications, achievements, education). Returns up to 5 matching records.",
+      "Search the catalog for facts about Anant (skills, projects, experience, certifications, achievements, education). Returns up to 5 matches.",
     inputSchema: z.object({
-      query: z.string().min(1).max(200).describe("The search query string."),
+      query: z.string().min(1).max(200).describe("Search query string."),
     }),
     execute: async ({ query }): Promise<LookupFactResult> => {
       try {

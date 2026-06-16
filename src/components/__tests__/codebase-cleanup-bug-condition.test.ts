@@ -28,11 +28,11 @@ function readFileContent(relativePath: string): string {
 }
 
 describe("Bug Condition: Dead Code, Duplicates, and Defects Exist", () => {
-  it("src/proxy.ts only bridges to the root proxy implementation", () => {
-    // Requirement 1.2: Two conflicting middleware files exist
-    // Expected: src/proxy.ts exists only as the active Next.js/Clerk bridge
+  it("src/proxy.ts is the active Clerk middleware proxy", () => {
+    // Requirement 1.2: proxy.ts must exist as the active Next.js/Clerk bridge
+    // Expected: src/proxy.ts exports a proxy function and config matcher
     const content = readFileContent("src/proxy.ts").trim();
-    expect(content).toContain('export { proxy } from "../proxy";');
+    expect(content).toContain("export async function proxy");
     expect(content).toContain("export const config");
   });
 

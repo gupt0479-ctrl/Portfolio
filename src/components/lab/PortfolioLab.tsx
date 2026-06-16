@@ -129,12 +129,16 @@ export function PortfolioLab() {
 
         if (!res.ok) {
           setPanelOrbyState("idle");
+          const errorText =
+            res.status === 429
+              ? "Hit rate limits, on a cooldown. Try again in sometime."
+              : "Couldn't reach Orby — try again?";
           setMessages((prev) => {
             const updated = [...prev];
             const lastIdx = updated.length - 1;
             updated[lastIdx] = {
               ...updated[lastIdx],
-              text: "Couldn't reach Orby — try again?",
+              text: errorText,
             };
             return updated;
           });

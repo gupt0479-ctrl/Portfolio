@@ -15,6 +15,7 @@
  * lets us switch providers BEFORE any byte is sent to the client.
  */
 
+import { createGroq } from "@ai-sdk/groq";
 import { createMistral } from "@ai-sdk/mistral";
 import { createOpenAI } from "@ai-sdk/openai";
 import { Redis } from "@upstash/redis";
@@ -41,7 +42,7 @@ type ProviderConfig = {
   apiKeyEnv: string;
   model: string;
   /** Use a dedicated SDK provider instead of the generic OpenAI-compatible client */
-  dedicated?: boolean;
+  dedicated?: "groq" | "mistral";
 };
 
 const PROVIDER_CHAIN: ProviderConfig[] = [
@@ -56,13 +57,14 @@ const PROVIDER_CHAIN: ProviderConfig[] = [
     baseURL: "https://api.groq.com/openai/v1",
     apiKeyEnv: "GROQ_API_KEY",
     model: "llama-3.3-70b-versatile",
+    dedicated: "groq",
   },
   {
     name: "mistral",
     baseURL: "https://api.mistral.ai/v1",
     apiKeyEnv: "MISTRAL_API_KEY",
     model: "mistral-small-latest",
-    dedicated: true,
+    dedicated: "mistral",
   },
 ];
 
@@ -102,7 +104,8 @@ export type RouterResult =
       result: LiveResult;
       provider: "cerebras" | "groq" | "mistral";
     }
-  | { mode: "degraded"; persona: Persona; userMessage: string };
+  | { mode: "degraded"; persona: Persona; userMessage: string }
+  | { mode: "cooldown"; persona: Persona; userMessage: string };
 
 // ---------------------------------------------------------------------------
 // Router
@@ -157,16 +160,23 @@ export async function routeChat(opts: RouterOpts): Promise<RouterResult> {
     }
 
     try {
-      // Use the dedicated @ai-sdk/mistral provider for Mistral (proper tool-calling
-      // format), or the generic OpenAI-compatible client for Cerebras/Groq.
-      const model = provider.dedicated
-        ? createMistral({ apiKey: process.env[provider.apiKeyEnv]! })(
-            provider.model,
-          )
-        : createOpenAI({
-            baseURL: provider.baseURL,
-            apiKey: process.env[provider.apiKeyEnv]!,
-          }).chat(provider.model);
+      // Use dedicated SDK providers for Groq and Mistral (proper tool-calling
+      // format), or the generic OpenAI-compatible client for Cerebras.
+      let model;
+      if (provider.dedicated === "groq") {
+        model = createGroq({ apiKey: process.env[provider.apiKeyEnv]! })(
+          provider.model,
+        );
+      } else if (provider.dedicated === "mistral") {
+        model = createMistral({ apiKey: process.env[provider.apiKeyEnv]! })(
+          provider.model,
+        );
+      } else {
+        model = createOpenAI({
+          baseURL: provider.baseURL,
+          apiKey: process.env[provider.apiKeyEnv]!,
+        }).chat(provider.model);
+      }
 
       const result = streamText({
         model,
@@ -177,7 +187,29 @@ export async function routeChat(opts: RouterOpts): Promise<RouterResult> {
 
       // Awaiting result.response forces the initial API call and rejects if
       // the provider returns an error before we start streaming.
-      await result.response;
+      const response = await result.response;
+
+      // ── Groq tool_use_failed validation ─────────────────────────────────
+      // Groq sometimes returns HTTP 200 but with a tool_use_failed error in
+      // the response body. Detect this and treat it as a provider failure so
+      // we cascade to the next provider.
+      if (provider.name === "groq") {
+        const responseText = JSON.stringify(response);
+        if (
+          responseText.includes("tool_use_failed") ||
+          responseText.includes("Failed to call a function")
+        ) {
+          console.log(
+            JSON.stringify({
+              event: "router.fail.tool_use",
+              provider: provider.name,
+              error: "tool_use_failed detected in response",
+            }),
+          );
+          await redis.set(cooldownKey, "1", { ex: 30 });
+          continue;
+        }
+      }
 
       return {
         mode: "live",
@@ -197,6 +229,24 @@ export async function routeChat(opts: RouterOpts): Promise<RouterResult> {
     }
   }
 
-  // ── All legs failed → degraded mode ────────────────────────────────────────
+  // ── All legs failed → check if it's a cooldown issue ─────────────────────
+  // Determine if all providers were skipped due to cooldown (rate limit scenario)
+  // vs. actual failures (degraded mode)
+  let allCooledDown = true;
+  for (let i = startIndex; i < PROVIDER_CHAIN.length; i++) {
+    const provider = PROVIDER_CHAIN[i];
+    if (!process.env[provider.apiKeyEnv]) continue;
+    const cooldownKey = `chat:cooldown:${provider.name}`;
+    const cooled = await redis.exists(cooldownKey);
+    if (!cooled) {
+      allCooledDown = false;
+      break;
+    }
+  }
+
+  if (allCooledDown) {
+    return { mode: "cooldown", persona, userMessage };
+  }
+
   return { mode: "degraded", persona, userMessage };
 }

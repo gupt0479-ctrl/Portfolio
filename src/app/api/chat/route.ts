@@ -382,7 +382,12 @@ export async function POST(req: NextRequest) {
   console.log(
     JSON.stringify({
       event: "chat.request",
-      provider: routeResult.mode === "live" ? routeResult.provider : "degraded",
+      provider:
+        routeResult.mode === "live"
+          ? routeResult.provider
+          : routeResult.mode === "cooldown"
+            ? "cooldown"
+            : "degraded",
       mode: routeResult.mode,
       persona,
       sessionId,
@@ -400,6 +405,20 @@ export async function POST(req: NextRequest) {
   //   e:{error}\n                  — error
   const stream = new ReadableStream({
     async start(controller) {
+      // ── Cooldown mode — all providers rate-limited ────────────────────────
+      if (routeResult.mode === "cooldown") {
+        controller.enqueue(
+          encoder.encode(
+            `0:${JSON.stringify("Hit rate limits, on a cooldown. Try again in sometime.")}\n`,
+          ),
+        );
+        controller.enqueue(
+          encoder.encode(`d:${JSON.stringify({ finishReason: "cooldown" })}\n`),
+        );
+        controller.close();
+        return;
+      }
+
       // ── Degraded mode ────────────────────────────────────────────────────
       if (routeResult.mode === "degraded") {
         const sectionId = getDegradedNavigation(routeResult.userMessage);
@@ -568,7 +587,11 @@ export async function POST(req: NextRequest) {
   });
   response.headers.set(
     "X-Orby-Provider",
-    routeResult.mode === "live" ? routeResult.provider : "degraded",
+    routeResult.mode === "live"
+      ? routeResult.provider
+      : routeResult.mode === "cooldown"
+        ? "cooldown"
+        : "degraded",
   );
   response.headers.set("X-RateLimit-Remaining-Daily", String(dailyRemaining));
   return response;

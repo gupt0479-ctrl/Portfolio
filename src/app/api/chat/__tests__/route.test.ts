@@ -3,12 +3,12 @@
  *
  * Test A: tokenless call → 401
  * Test B: rate limit exceeded → 429
- * Test C: Gemini quota exhausted → Groq fallback → 200
- * Test D: both providers exhausted → degraded mode → 200
+ * Test C: Cerebras fails → Groq fallback → 200
+ * Test D: all providers exhausted → degraded mode → 200
  */
 
 import { NextRequest } from "next/server";
-import { beforeAll, describe, expect, it, vi } from "vitest";
+import { beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 // ── Shared test constants ──────────────────────────────────────────────────
 
@@ -16,7 +16,6 @@ const TEST_SECRET = "test-secret-that-is-long-enough-32c";
 
 // ── next/headers mock (cookies()) ─────────────────────────────────────────
 
-// We start with no cookie; tests that need one override this directly.
 let mockCookieValue: string | undefined;
 
 vi.mock("next/headers", () => ({
@@ -35,7 +34,23 @@ let burstSuccess = true;
 let dailySuccess = true;
 
 vi.mock("@upstash/redis", () => ({
-  Redis: class {},
+  Redis: class {
+    get() {
+      return Promise.resolve(null);
+    }
+    set() {
+      return Promise.resolve("OK");
+    }
+    incr() {
+      return Promise.resolve(1);
+    }
+    expire() {
+      return Promise.resolve(1);
+    }
+    exists() {
+      return Promise.resolve(0);
+    }
+  },
 }));
 
 vi.mock("@upstash/ratelimit", () => ({
@@ -54,49 +69,41 @@ vi.mock("@upstash/ratelimit", () => ({
   },
 }));
 
-// ── AI SDK provider mocks ──────────────────────────────────────────────────
+// ── Model router mock ──────────────────────────────────────────────────────
 
-vi.mock("@ai-sdk/google", () => ({
-  createGoogleGenerativeAI: () => () => "gemini-2.5-flash",
-}));
+let routerMode: "live" | "degraded" | "cooldown" = "live";
+let routerProvider: "cerebras" | "groq" | "mistral" = "cerebras";
 
-vi.mock("@ai-sdk/groq", () => ({
-  createGroq: () => () => "llama-3.3-70b-versatile",
-}));
-
-// ── Controlled streamText mock ─────────────────────────────────────────────
-// Tests A & B never reach streamText (they fail at an earlier gate).
-// Tests C & D exercise the quota-error fallback path.
-
-let geminiQuota = false; // true = simulate quota/429 error for Gemini
-let groqQuota = false; // true = simulate quota/429 error for Groq
-
-vi.mock("ai", () => ({
-  streamText: ({ model }: { model: string }) => {
-    const isGroq = model === "llama-3.3-70b-versatile";
-    const shouldFail = isGroq ? groqQuota : geminiQuota;
-
-    if (shouldFail) {
-      const quotaErr = Object.assign(new Error("quota exhausted"), {
-        status: 429,
+vi.mock("@/lib/model-router", () => ({
+  routeChat: () => {
+    if (routerMode === "degraded") {
+      return Promise.resolve({
+        mode: "degraded",
+        persona: "friend",
+        userMessage: "hello",
       });
-      return {
-        response: Promise.reject(quotaErr),
-        fullStream: (async function* () {})(),
-        usage: Promise.resolve({ inputTokens: 0, outputTokens: 0 }),
-      };
     }
-
-    return {
-      response: Promise.resolve({}),
-      fullStream: (async function* () {
-        yield { type: "text-delta", text: "hello" };
-        yield { type: "finish", finishReason: "stop" };
-      })(),
-      usage: Promise.resolve({ inputTokens: 10, outputTokens: 5 }),
-    };
+    if (routerMode === "cooldown") {
+      return Promise.resolve({
+        mode: "cooldown",
+        persona: "friend",
+        userMessage: "hello",
+      });
+    }
+    // Live mode — return a mock stream result
+    return Promise.resolve({
+      mode: "live",
+      provider: routerProvider,
+      result: {
+        response: Promise.resolve({}),
+        fullStream: (async function* () {
+          yield { type: "text-delta", text: "hello" };
+          yield { type: "finish", finishReason: "stop" };
+        })(),
+        usage: Promise.resolve({ inputTokens: 10, outputTokens: 5 }),
+      },
+    });
   },
-  stepCountIs: () => ({}),
 }));
 
 // ── chat-context mock (avoids Sanity network calls) ────────────────────────
@@ -118,6 +125,29 @@ vi.mock("@/lib/chat-context", () => ({
 
 vi.mock("@/lib/chat-tools", () => ({
   buildChatTools: () => ({}),
+}));
+
+// ── chat-sanitizer mock ────────────────────────────────────────────────────
+
+vi.mock("@/lib/chat-sanitizer", () => ({
+  sanitizeChatText: (text: string) => ({
+    cleanText: text,
+    orbyMessage: null,
+  }),
+}));
+
+// ── fixed-prompts mock ─────────────────────────────────────────────────────
+
+vi.mock("@/lib/fixed-prompts", () => ({
+  findFixedPrompt: () => null,
+}));
+
+// ── degraded-responses mock ────────────────────────────────────────────────
+
+vi.mock("@/lib/degraded-responses", () => ({
+  getDegradedNavigation: () => null,
+  getDegradedOrbyMessage: () => null,
+  getDegradedText: () => "I'm experiencing some issues right now.",
 }));
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -148,8 +178,16 @@ describe("POST /api/chat — security gates", () => {
     process.env.CHAT_TOKEN_SECRET = TEST_SECRET;
     process.env.UPSTASH_REDIS_REST_URL = "https://test.upstash.io";
     process.env.UPSTASH_REDIS_REST_TOKEN = "test-token";
-    process.env.GEMINI_API_KEY = "test-gemini-key";
+    process.env.CEREBRAS_API_KEY = "test-cerebras-key";
     process.env.GROQ_API_KEY = "test-groq-key";
+    process.env.MISTRAL_API_KEY = "test-mistral-key";
+  });
+
+  beforeEach(() => {
+    burstSuccess = true;
+    dailySuccess = true;
+    routerMode = "live";
+    routerProvider = "cerebras";
   });
 
   // ── Test A: tokenless call → 401 ────────────────────────────────────────
@@ -189,10 +227,6 @@ describe("POST /api/chat — security gates", () => {
       const { POST } = await import("../route");
       const res = await POST(makeRequest({ cookie: validToken }));
       expect(res.status).toBe(429);
-
-      // Restore for other tests
-      burstSuccess = true;
-      dailySuccess = true;
     });
 
     it("returns 429 when burst limit is exhausted (daily still fine)", async () => {
@@ -205,49 +239,52 @@ describe("POST /api/chat — security gates", () => {
       const res = await POST(makeRequest({ cookie: validToken }));
       expect(res.status).toBe(429);
       expect(res.headers.get("Retry-After")).toBeTruthy();
-
-      burstSuccess = true;
     });
   });
 
-  // ── Test C: Gemini quota → Groq fallback → 200 ──────────────────────────
+  // ── Test C: Cerebras fails → Groq fallback → 200 ────────────────────────
 
-  describe("Test C: Gemini quota exhausted → Groq fallback", () => {
-    it("returns 200 via Groq when Gemini quota is exhausted", async () => {
-      geminiQuota = true;
-      groqQuota = false;
+  describe("Test C: provider failover", () => {
+    it("returns 200 via Groq when Cerebras fails (model router handles fallback)", async () => {
+      routerMode = "live";
+      routerProvider = "groq";
       mockCookieValue = await signTestToken();
-      burstSuccess = true;
-      dailySuccess = true;
 
       const { POST } = await import("../route");
       const res = await POST(makeRequest({ cookie: mockCookieValue }));
       expect(res.status).toBe(200);
-
-      geminiQuota = false;
+      expect(res.headers.get("X-Orby-Provider")).toBe("groq");
     });
   });
 
-  // ── Test D: both providers exhausted → degraded mode → 200 ──────────────
+  // ── Test D: all providers exhausted → degraded mode → 200 ──────────────
 
-  describe("Test D: both providers exhausted → degraded mode", () => {
-    it("returns 200 with text delta and no error line in degraded mode", async () => {
-      geminiQuota = true;
-      groqQuota = true;
+  describe("Test D: all providers exhausted → degraded mode", () => {
+    it("returns 200 with text delta in degraded mode", async () => {
+      routerMode = "degraded";
       mockCookieValue = await signTestToken();
-      burstSuccess = true;
-      dailySuccess = true;
 
       const { POST } = await import("../route");
       const res = await POST(makeRequest({ cookie: mockCookieValue }));
       expect(res.status).toBe(200);
+      expect(res.headers.get("X-Orby-Provider")).toBe("degraded");
 
       const body = await res.text();
       expect(body).toMatch(/^0:/m); // has a text-delta line
       expect(body).not.toMatch(/^e:/m); // no error line
+    });
+  });
 
-      geminiQuota = false;
-      groqQuota = false;
+  // ── Test E: origin check rejects unknown origins ────────────────────────
+
+  describe("Test E: origin allowlist enforcement", () => {
+    it("returns 403 for unknown origin", async () => {
+      mockCookieValue = await signTestToken();
+      const { POST } = await import("../route");
+      const res = await POST(
+        makeRequest({ cookie: mockCookieValue, origin: "https://evil.com" }),
+      );
+      expect(res.status).toBe(403);
     });
   });
 });
