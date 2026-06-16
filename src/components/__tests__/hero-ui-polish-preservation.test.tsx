@@ -10,7 +10,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { render, screen } from "@testing-library/react";
-import React from "react";
+import type React from "react";
 import { describe, expect, it, vi } from "vitest";
 
 // ---------------------------------------------------------------------------
@@ -129,28 +129,28 @@ describe("3.1 Hover effects preserved", () => {
     const css = readGlobalsCss();
     const hoverRule = css.match(/\.float-btn:hover\s*\{[^}]+\}/s);
     expect(hoverRule).not.toBeNull();
-    expect(hoverRule![0]).toContain("transform");
+    expect(hoverRule?.[0]).toContain("transform");
   });
 
   it("float-btn:hover includes scale", () => {
     const css = readGlobalsCss();
     const hoverRule = css.match(/\.float-btn:hover\s*\{[^}]+\}/s);
     expect(hoverRule).not.toBeNull();
-    expect(hoverRule![0]).toContain("scale");
+    expect(hoverRule?.[0]).toContain("scale");
   });
 
   it("float-btn:hover includes perspective for depth effect", () => {
     const css = readGlobalsCss();
     const hoverRule = css.match(/\.float-btn:hover\s*\{[^}]+\}/s);
     expect(hoverRule).not.toBeNull();
-    expect(hoverRule![0]).toContain("perspective");
+    expect(hoverRule?.[0]).toContain("perspective");
   });
 
   it("float-btn:hover includes box-shadow for glow", () => {
     const css = readGlobalsCss();
     const hoverRule = css.match(/\.float-btn:hover\s*\{[^}]+\}/s);
     expect(hoverRule).not.toBeNull();
-    expect(hoverRule![0]).toContain("box-shadow");
+    expect(hoverRule?.[0]).toContain("box-shadow");
   });
 });
 
@@ -459,14 +459,14 @@ describe("3.11 Float-btn elements retain click/navigation behavior", () => {
     const source = readSourceFile(HERO_CONTENT_PATH);
     const socialAnchorSection = source.match(/socials\.map[\s\S]*?<\/a>/);
     expect(socialAnchorSection).not.toBeNull();
-    expect(socialAnchorSection![0]).toContain("float-btn");
-    expect(socialAnchorSection![0]).toContain("href={url}");
+    expect(socialAnchorSection?.[0]).toContain("float-btn");
+    expect(socialAnchorSection?.[0]).toContain("href={url}");
   });
 
   it("float-btn class does not use pointer-events-none (clicks work)", () => {
     const css = readGlobalsCss();
     const floatBtnRule = css.match(/\.float-btn\s*\{[^}]+\}/s);
     expect(floatBtnRule).not.toBeNull();
-    expect(floatBtnRule![0]).not.toContain("pointer-events-none");
+    expect(floatBtnRule?.[0]).not.toContain("pointer-events-none");
   });
 });

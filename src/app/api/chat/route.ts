@@ -18,6 +18,15 @@ import { routeChat } from "@/lib/model-router";
 import { PERSONAS, type Persona } from "@/lib/personas";
 
 // ---------------------------------------------------------------------------
+// Input sanitization — strip HTML tags from user messages before AI layer
+// ---------------------------------------------------------------------------
+
+const HTML_TAG_RE = /<[^>]*>/g;
+function stripHtml(s: string): string {
+  return s.replace(HTML_TAG_RE, "");
+}
+
+// ---------------------------------------------------------------------------
 // Singletons — constructed once per cold start, reused across requests
 // ---------------------------------------------------------------------------
 
@@ -61,6 +70,9 @@ function isAllowedOrigin(
   const base = process.env.NEXT_PUBLIC_BASE_URL;
   if (base) candidates.push(base);
 
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
+  if (siteUrl) candidates.push(siteUrl);
+
   // VERCEL_URL is set by Vercel for each specific deployment (not client-controlled)
   const vercelUrl = process.env.VERCEL_URL;
   if (vercelUrl) candidates.push(`https://${vercelUrl}`);
@@ -101,6 +113,12 @@ type CachedEntry = {
     itemSlug?: string | null;
     itemIndex?: number | null;
   } | null;
+  /** Non-navigate tool results (showProject, showExperience, lookupFact) to replay on cache hit */
+  toolResults?: Array<{
+    toolCallId: string;
+    toolName: string;
+    result: unknown;
+  }>;
 };
 
 // ---------------------------------------------------------------------------
@@ -193,6 +211,8 @@ export async function POST(req: NextRequest) {
       );
       return new NextResponse("Bad Request", { status: 400 });
     }
+    // Input validation — sanitize HTML before AI layer
+    m.content = stripHtml(m.content as string);
   }
 
   const persona: Persona = PERSONAS.includes(rawPersona as Persona)
@@ -214,33 +234,40 @@ export async function POST(req: NextRequest) {
 
   if (!isDevBypass) {
     // Rate limiting — burst then daily
-    const [burst, daily] = await Promise.all([
-      burstLimit.limit(ip),
-      dailyLimit.limit(ip),
-    ]);
+    // Wrapped in try/catch: if Upstash is unreachable, degrade gracefully
+    // rather than returning 500 to the user.
+    try {
+      const [burst, daily] = await Promise.all([
+        burstLimit.limit(ip),
+        dailyLimit.limit(ip),
+      ]);
 
-    dailyRemaining = daily.remaining;
+      dailyRemaining = daily.remaining;
 
-    if (!burst.success) {
-      return new NextResponse("Too Many Requests", {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.ceil((burst.reset - Date.now()) / 1000)),
-          "X-RateLimit-Limit": String(burst.limit),
-          "X-RateLimit-Remaining": "0",
-        },
-      });
-    }
+      if (!burst.success) {
+        return new NextResponse("Too Many Requests", {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil((burst.reset - Date.now()) / 1000)),
+            "X-RateLimit-Limit": String(burst.limit),
+            "X-RateLimit-Remaining": "0",
+          },
+        });
+      }
 
-    if (!daily.success) {
-      return new NextResponse("Too Many Requests", {
-        status: 429,
-        headers: {
-          "Retry-After": String(Math.ceil((daily.reset - Date.now()) / 1000)),
-          "X-RateLimit-Limit": String(daily.limit),
-          "X-RateLimit-Remaining": "0",
-        },
-      });
+      if (!daily.success) {
+        return new NextResponse("Too Many Requests", {
+          status: 429,
+          headers: {
+            "Retry-After": String(Math.ceil((daily.reset - Date.now()) / 1000)),
+            "X-RateLimit-Limit": String(daily.limit),
+            "X-RateLimit-Remaining": "0",
+          },
+        });
+      }
+    } catch (err) {
+      // Redis unavailable — log and allow the request rather than blocking users
+      console.warn("[chat] Upstash unreachable — rate limiting skipped", err);
     }
   }
 
@@ -303,6 +330,20 @@ export async function POST(req: NextRequest) {
                 })}\n`,
               ),
             );
+          }
+          // Emit non-navigate tool results (showProject, showExperience, etc.)
+          if (cached.toolResults) {
+            for (const tr of cached.toolResults) {
+              controller.enqueue(
+                encoder.encode(
+                  `a:${JSON.stringify({
+                    toolCallId: tr.toolCallId,
+                    toolName: tr.toolName,
+                    result: tr.result,
+                  })}\n`,
+                ),
+              );
+            }
           }
           // Emit text delta
           controller.enqueue(
@@ -396,6 +437,7 @@ export async function POST(req: NextRequest) {
       // Accumulate response for cache write after stream completes
       let accText = "";
       let accNav: CachedEntry["navigate"] = null;
+      const accToolResults: NonNullable<CachedEntry["toolResults"]> = [];
       let hasOrbyMessage = false;
 
       try {
@@ -431,6 +473,13 @@ export async function POST(req: NextRequest) {
                 };
                 if (navOutput.orbyMessage) hasOrbyMessage = true;
               }
+            } else {
+              // Accumulate non-navigate tool results for cache replay
+              accToolResults.push({
+                toolCallId: part.toolCallId,
+                toolName: part.toolName,
+                result: part.output,
+              });
             }
             controller.enqueue(
               encoder.encode(
@@ -473,7 +522,12 @@ export async function POST(req: NextRequest) {
               redis
                 .set<CachedEntry>(
                   cacheKey,
-                  { text: textForCache, navigate: accNav },
+                  {
+                    text: textForCache,
+                    navigate: accNav,
+                    toolResults:
+                      accToolResults.length > 0 ? accToolResults : undefined,
+                  },
                   { ex: 86400 },
                 )
                 .catch(() => {});

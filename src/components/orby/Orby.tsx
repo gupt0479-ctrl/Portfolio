@@ -407,7 +407,12 @@ export default function Orby() {
         className="absolute"
         style={{ transform: `translate(${arrowPos.x}px, ${arrowPos.y}px)` }}
       >
-        <OrbyArrow orbyPosition={arrowPos} visible={showArrow} sidebarOpen={sidebarOpen} isMobile={isMobile} />
+        <OrbyArrow
+          orbyPosition={arrowPos}
+          visible={showArrow}
+          sidebarOpen={sidebarOpen}
+          isMobile={isMobile}
+        />
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
 "use client";
 
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Bloom,
   ChromaticAberration,
   EffectComposer,
 } from "@react-three/postprocessing";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { useIsMobile } from "@/hooks/use-mobile";

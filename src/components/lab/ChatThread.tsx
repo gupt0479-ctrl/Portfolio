@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import type { Components } from "react-markdown";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import type { Components } from "react-markdown";
 import { cn } from "@/lib/utils";
 import { ToolResultRenderer } from "./cards/ToolResultRenderer";
 
@@ -144,7 +144,7 @@ export function ChatThread({ messages }: ChatThreadProps) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-4 py-8 text-center">
         <p className="text-sm text-white/30 font-sans">
-          No messages yet — say hi to Orby!
+          No messages yet - say hi to Orby!
         </p>
       </div>
     );

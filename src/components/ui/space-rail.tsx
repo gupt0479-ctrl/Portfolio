@@ -1,4 +1,5 @@
 "use client";
+
 /**
  * space-rail.tsx
  *
@@ -28,8 +29,8 @@
  *   property layer rather than a direct style.transform write.
  */
 
+import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { useEffect, useRef } from "react";
-import { useScroll, useSpring, useTransform, motion } from "motion/react";
 import { cn } from "@/lib/utils";
 
 export interface SpaceRailProps {

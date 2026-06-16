@@ -107,14 +107,17 @@ export type GetResumeResult = {
 export type ContactResult = { action: "open_contact" };
 
 // ---------------------------------------------------------------------------
-// Sanity client helper (same fallback pattern as chat-context.ts)
+// Sanity client helper — stega DISABLED for AI tool results.
+// Stega injects invisible Unicode into strings for click-to-edit in Studio.
+// These zero-width characters bloat token counts and break rendering when
+// tool results are streamed to the frontend or fed back to the model.
 // ---------------------------------------------------------------------------
 
 function getSanityClient() {
   try {
-    return getServerClient();
+    return getServerClient().withConfig({ stega: { enabled: false } });
   } catch {
-    return client;
+    return client.withConfig({ stega: { enabled: false } });
   }
 }
 
@@ -226,7 +229,7 @@ export function buildChatTools(catalog: Catalog) {
   // ── showProject ───────────────────────────────────────────────────────────
   const showProject = tool({
     description:
-      "Fetch full details for a specific project and surface them in the UI. Use when the user asks about a particular project.",
+      "Fetch full details for a specific project and surface them as a card in the UI. You MUST call this whenever your prose answer mentions or recommends a specific project by name — the card is the primary way users see project details. If you say 'look at BOOM' or 'Jarvis-OS proves this', call showProject with its slug.",
     inputSchema: z.object({
       slug: z
         .enum(slugValues)
