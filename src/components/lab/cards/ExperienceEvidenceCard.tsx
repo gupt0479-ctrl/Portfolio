@@ -11,7 +11,7 @@ interface Experience {
   startDate?: string | null;
   endDate?: string | null;
   current: boolean;
-  description?: string | null;
+  description?: unknown;
   responsibilities?: string[] | null;
   technologies?: Array<{ name: string }> | null;
 }
@@ -64,11 +64,28 @@ export function ExperienceEvidenceCard({
     experience.endDate,
     experience.current,
   );
-  const description = experience.description
-    ? experience.description.length > 200
-      ? `${experience.description.slice(0, 200)}…`
-      : experience.description
-    : null;
+  // Defensive: description may be Portable Text (array of blocks) from cached
+  // responses or unserialized tool results. Coerce to string safely.
+  let description: string | null = null;
+  if (experience.description) {
+    if (typeof experience.description === "string") {
+      description =
+        experience.description.length > 200
+          ? `${experience.description.slice(0, 200)}…`
+          : experience.description;
+    } else if (Array.isArray(experience.description)) {
+      // Portable Text blocks — extract plain text
+      const plain = (experience.description as Array<Record<string, unknown>>)
+        .filter((b) => b._type === "block")
+        .map((b) =>
+          ((b.children as Array<{ text?: string }>) || [])
+            .map((c) => c.text || "")
+            .join(""),
+        )
+        .join(" ");
+      description = plain.length > 200 ? `${plain.slice(0, 200)}…` : plain || null;
+    }
+  }
 
   return (
     <div className={cn("cosmic-card rounded-xl p-4")}>

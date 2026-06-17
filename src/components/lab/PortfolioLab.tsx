@@ -119,6 +119,7 @@ export function PortfolioLab() {
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
+          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages: [...conversationHistory, { role: "user", content: text }],

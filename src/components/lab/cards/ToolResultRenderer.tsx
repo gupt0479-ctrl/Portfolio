@@ -74,7 +74,7 @@ export function ToolResultRenderer({
                 startDate?: string | null;
                 endDate?: string | null;
                 current: boolean;
-                description?: string | null;
+                description?: unknown;
                 responsibilities?: string[] | null;
                 technologies?: Array<{ name: string }> | null;
               }

@@ -4,38 +4,54 @@ import { NextResponse } from "next/server";
 import { signToken, verifyToken } from "@/lib/chat-token";
 
 const TURNSTILE_SECRET_KEY = process.env.TURNSTILE_SECRET_KEY;
-const TURNSTILE_VERIFY_URL = process.env.TURNSTILE_VERIFY_URL;
+
+// Call Cloudflare's siteverify directly — no custom Worker intermediary.
+// This avoids the EXPECTED_HOSTNAME check in the Worker that blocks
+// localhost and Vercel preview URLs.
+const CF_SITEVERIFY_URL =
+  "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 /**
- * Verify a Turnstile token with the siteverify Worker.
- * Returns true if the token is valid, false otherwise.
+ * Verify a Turnstile token directly with Cloudflare's siteverify endpoint.
  */
 async function verifyTurnstile(
   token: string,
   remoteIp?: string,
 ): Promise<boolean> {
-  if (!TURNSTILE_SECRET_KEY || !TURNSTILE_VERIFY_URL) {
-    // If Turnstile is not configured, skip verification (dev/staging)
-    console.warn("[chat-token] Turnstile not configured — skipping verification");
+  if (!TURNSTILE_SECRET_KEY) {
+    console.warn("[chat-token] TURNSTILE_SECRET_KEY not set — skipping verification");
     return true;
   }
 
   try {
-    const body: Record<string, string> = { token };
-    if (remoteIp) body.remoteip = remoteIp;
+    const formData = new URLSearchParams();
+    formData.append("secret", TURNSTILE_SECRET_KEY);
+    formData.append("response", token);
+    if (remoteIp) formData.append("remoteip", remoteIp);
 
-    const res = await fetch(TURNSTILE_VERIFY_URL, {
+    const res = await fetch(CF_SITEVERIFY_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: formData.toString(),
     });
 
-    if (!res.ok) return false;
+    if (!res.ok) {
+      console.error(`[chat-token] CF siteverify returned ${res.status}`);
+      return false;
+    }
 
-    const data = (await res.json()) as { success: boolean };
+    const data = (await res.json()) as {
+      success: boolean;
+      "error-codes"?: string[];
+    };
+
+    if (!data.success) {
+      console.warn("[chat-token] Turnstile verification failed:", data["error-codes"]);
+    }
+
     return data.success === true;
   } catch (err) {
-    console.error("[chat-token] Turnstile verification failed:", err);
+    console.error("[chat-token] Turnstile verification error:", err);
     return false;
   }
 }
@@ -56,7 +72,7 @@ export async function GET(_req: NextRequest) {
   }
 
   // If Turnstile is configured, do NOT issue tokens via GET (require POST with token)
-  if (TURNSTILE_SECRET_KEY && TURNSTILE_VERIFY_URL) {
+  if (TURNSTILE_SECRET_KEY) {
     return new NextResponse(null, { status: 401 });
   }
 
@@ -99,7 +115,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Turnstile verification gate — BEFORE issuing HMAC cookie
-  if (TURNSTILE_SECRET_KEY && TURNSTILE_VERIFY_URL) {
+  if (TURNSTILE_SECRET_KEY) {
     if (!turnstileToken) {
       return NextResponse.json(
         { error: "Turnstile token required" },

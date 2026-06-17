@@ -50,7 +50,9 @@ const PROVIDER_CHAIN: ProviderConfig[] = [
     name: "cerebras",
     baseURL: "https://api.cerebras.ai/v1",
     apiKeyEnv: "CEREBRAS_API_KEY",
-    model: "gpt-oss-120b",
+    // zai-glm-4.7: purpose-built for tool use with constrained decoding (strict: true).
+    // Falls back properly when strict mode is enabled on tools.
+    model: "zai-glm-4.7",
   },
   {
     name: "groq",
@@ -191,19 +193,23 @@ export async function routeChat(opts: RouterOpts): Promise<RouterResult> {
 
       // ── Groq tool_use_failed validation ─────────────────────────────────
       // Groq sometimes returns HTTP 200 but with a tool_use_failed error in
-      // the response body. Detect this and treat it as a provider failure so
-      // we cascade to the next provider.
+      // the response headers/metadata. Detect this and treat it as a provider
+      // failure so we cascade to the next provider.
+      // NOTE: Some Groq tool_use_failed errors only surface during streaming
+      // (in the text content). Those are caught by the route handler's stream
+      // loop — see the `GROQ_TOOL_FAIL_RE` check in route.ts.
       if (provider.name === "groq") {
         const responseText = JSON.stringify(response);
         if (
           responseText.includes("tool_use_failed") ||
-          responseText.includes("Failed to call a function")
+          responseText.includes("Failed to call a function") ||
+          responseText.includes("failed_generation")
         ) {
           console.log(
             JSON.stringify({
               event: "router.fail.tool_use",
               provider: provider.name,
-              error: "tool_use_failed detected in response",
+              error: "tool_use_failed detected in response metadata",
             }),
           );
           await redis.set(cooldownKey, "1", { ex: 30 });
@@ -217,15 +223,31 @@ export async function routeChat(opts: RouterOpts): Promise<RouterResult> {
         provider: provider.name,
       };
     } catch (err) {
+      // Extract retry-after hint from the error if available (e.g., 429 responses).
+      // Use it for the cooldown duration so we don't retry before the provider is ready.
+      let cooldownSeconds = 30;
+      const errStr = String(err);
+      const retryMatch = errStr.match(/retry.?after[:\s]*(\d+)/i);
+      if (retryMatch) {
+        const parsed = Number.parseInt(retryMatch[1], 10);
+        if (parsed > cooldownSeconds) cooldownSeconds = Math.min(parsed, 120);
+      }
+      // Also catch common 429 patterns with seconds in the message
+      const secondsMatch = errStr.match(/try again in (\d+(?:\.\d+)?)\s*s/i);
+      if (secondsMatch) {
+        const parsed = Math.ceil(Number.parseFloat(secondsMatch[1]));
+        if (parsed > cooldownSeconds) cooldownSeconds = Math.min(parsed, 120);
+      }
+
       console.log(
         JSON.stringify({
           event: "router.fail",
           provider: provider.name,
-          error: String(err),
+          error: errStr.slice(0, 200),
+          cooldownSeconds,
         }),
       );
-      // Put provider in 30-second cooldown regardless of error type
-      await redis.set(cooldownKey, "1", { ex: 30 });
+      await redis.set(cooldownKey, "1", { ex: cooldownSeconds });
     }
   }
 

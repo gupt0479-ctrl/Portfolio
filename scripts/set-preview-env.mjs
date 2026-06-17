@@ -34,6 +34,7 @@ const vars = [
   ["NEXT_PUBLIC_CLERK_SIGN_IN_URL", "/sign-in"],
   ["NEXT_PUBLIC_CLERK_SIGN_UP_URL", "/sign-up"],
   ["NEXT_PUBLIC_SITE_URL", "https://anantgupta.dev"],
+  ["NEXT_PUBLIC_TURNSTILE_SITE_KEY", "0x4AAAAAADl43pk4QbNXvqw_"],
 ];
 
 async function upsert(key, value) {
