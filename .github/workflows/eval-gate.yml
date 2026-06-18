@@ -11,7 +11,7 @@ jobs:
     # Eval is advisory — failures don't block merge (API keys can expire, rate limits hit)
     continue-on-error: true
     env:
-      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
+      CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -23,8 +23,8 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install
       - name: Run eval suite
-        if: env.MISTRAL_API_KEY != ''
+        if: env.CEREBRAS_API_KEY != ''
         run: pnpm exec promptfoo eval --config evals/promptfooconfig.yaml --delay 3000
       - name: Skip eval (no API key)
-        if: env.MISTRAL_API_KEY == ''
-        run: echo "::warning::MISTRAL_API_KEY not set — eval skipped."
+        if: env.CEREBRAS_API_KEY == ''
+        run: echo "::warning::CEREBRAS_API_KEY not set — eval skipped."

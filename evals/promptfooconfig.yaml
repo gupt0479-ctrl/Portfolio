@@ -4,8 +4,11 @@ commandLineOptions:
   maxConcurrency: 1
 
 providers:
-  - id: mistral:mistral-small-latest
+  - id: openai:chat:zai-glm-4.7
     label: orby
+    config:
+      apiHost: api.cerebras.ai
+      apiKeyEnvar: CEREBRAS_API_KEY
 
 prompts:
   - file://fixtures/chat-template.json
