@@ -8,6 +8,8 @@ on:
 jobs:
   eval:
     runs-on: ubuntu-latest
+    env:
+      MISTRAL_API_KEY: ${{ secrets.MISTRAL_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -18,6 +20,9 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
       - run: pnpm install
-      - run: pnpm eval
-    env:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Run eval suite
+        if: env.MISTRAL_API_KEY != ''
+        run: promptfoo eval --config evals/promptfooconfig.yaml --delay 3000
+      - name: Skip eval (no API key)
+        if: env.MISTRAL_API_KEY == ''
+        run: echo "::warning::MISTRAL_API_KEY not set — eval skipped. Add it in Settings → Secrets."
