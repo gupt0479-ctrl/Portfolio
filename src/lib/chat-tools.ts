@@ -122,6 +122,41 @@ function getSanityClient() {
 }
 
 // ---------------------------------------------------------------------------
+// Portable Text → plain text helper
+// ---------------------------------------------------------------------------
+
+/**
+ * Converts a Sanity Portable Text field (array of blocks) to a plain string.
+ * If the value is already a string, returns it as-is. If null/undefined, returns null.
+ * This prevents React "Objects are not valid as a React child" crashes when
+ * tool results containing Portable Text are rendered in the chat UI.
+ */
+function portableTextToPlain(value: unknown): string | null {
+  if (value == null) return null;
+  if (typeof value === "string") return value;
+  if (Array.isArray(value)) {
+    return (
+      value
+        .filter(
+          (block: unknown) =>
+            typeof block === "object" &&
+            block !== null &&
+            (block as Record<string, unknown>)._type === "block",
+        )
+        .map((block: unknown) => {
+          const b = block as { children?: Array<{ text?: string }> };
+          return (
+            b.children?.map((child) => child.text || "").join("") || ""
+          );
+        })
+        .join("\n") || null
+    );
+  }
+  // Unknown shape — coerce to string as safety net
+  return String(value);
+}
+
+// ---------------------------------------------------------------------------
 // Section IDs — hardcoded portfolio sections
 // ---------------------------------------------------------------------------
 
@@ -172,33 +207,31 @@ export function buildChatTools(catalog: Catalog) {
   // ── navigate ──────────────────────────────────────────────────────────────
   const navigate = tool({
     description:
-      "Smooth-scroll the page to a portfolio section. Call this tool in EVERY turn where the user's question maps to a section — even if they don't explicitly ask to navigate. Examples: question about projects → navigate('projects'); about experience or work → navigate('experience'); about skills or tech → navigate('skills'); about education → navigate('education'); about certifications → navigate('certifications'); about blog posts → navigate('blog'); want to contact → navigate('contact'). Do NOT call it for generic greetings or questions that have no clear section. ALWAYS provide orbyMessage: a short, catchy, in-persona grounded line (under 120 chars) that Orby says on arrival. Make it unique to this specific question, in the active persona's voice. Never state a fact absent from the grounded catalog. Use itemSlug when navigating to a specific project (must be a known project slug). Use itemIndex (0-based) when navigating to a specific experience card.",
+      "Smooth-scroll the page to a portfolio section. Call this whenever the user's question maps to a section. Examples: question about projects → navigate('projects'); about experience → navigate('experience'); about skills → navigate('skills'). Do NOT call for generic greetings. ALWAYS provide orbyMessage.",
     inputSchema: z.object({
       sectionId: z
         .enum(SECTION_IDS)
         .describe("The portfolio section to navigate to."),
       orbyMessage: z
         .string()
-        .max(160)
-        .optional()
         .describe(
-          "Short persona-voiced arrival line Orby says when the section scrolls into view. Under 120 chars. One or two sentences max.",
+          "Required. Short persona-voiced arrival line Orby says. Under 120 chars. One or two sentences max.",
         ),
       itemSlug: z
         .string()
-        .optional()
+        .nullable()
         .describe(
-          "For projects: the project slug to center in the carousel. Must match one of the known project slugs.",
+          "Only for projects section: the project slug to highlight. Null if not applicable.",
         ),
       itemIndex: z
         .number()
         .int()
-        .min(0)
-        .optional()
+        .nullable()
         .describe(
-          "For experience: the 0-based index of the experience card to open and scroll to.",
+          "Only for experience section: the 0-based index of the card to open. Null if not applicable.",
         ),
     }),
+    strict: true,
     execute: async ({
       sectionId,
       orbyMessage,
@@ -209,7 +242,7 @@ export function buildChatTools(catalog: Catalog) {
         return {
           ok: true,
           sectionId,
-          orbyMessage: orbyMessage ?? null,
+          orbyMessage: orbyMessage || null,
           itemSlug: itemSlug ?? null,
           itemIndex: itemIndex ?? null,
         };
@@ -229,14 +262,13 @@ export function buildChatTools(catalog: Catalog) {
   // ── showProject ───────────────────────────────────────────────────────────
   const showProject = tool({
     description:
-      "Fetch full details for a specific project and surface them as a card in the UI. You MUST call this whenever your prose answer mentions or recommends a specific project by name — the card is the primary way users see project details. If you say 'look at BOOM' or 'Jarvis-OS proves this', call showProject with its slug.",
+      "Fetch full details for a specific project and render a card in the UI. Call this whenever you mention a specific project by name.",
     inputSchema: z.object({
       slug: z
         .enum(slugValues)
-        .describe(
-          "The URL slug of the project. Must be one of the known project slugs.",
-        ),
+        .describe("The project's URL slug."),
     }),
+    strict: true,
     execute: async ({ slug }): Promise<ShowProjectResult> => {
       try {
         if ((slug as string) === NONE_SENTINEL) {
@@ -246,7 +278,12 @@ export function buildChatTools(catalog: Catalog) {
         if (!project) {
           return { ok: false, error: `Project with slug "${slug}" not found.` };
         }
-        return { ok: true, project };
+        // Serialize any Portable Text fields to plain strings
+        const sanitized = {
+          ...project,
+          summary: portableTextToPlain((project as Record<string, unknown>).summary),
+        } as typeof project;
+        return { ok: true, project: sanitized };
       } catch (err) {
         return { ok: false, error: String(err) };
       }
@@ -262,6 +299,7 @@ export function buildChatTools(catalog: Catalog) {
         .enum(experienceIdValues)
         .describe("The Sanity _id of the experience document."),
     }),
+    strict: true,
     execute: async ({ id }): Promise<ShowExperienceResult> => {
       try {
         if ((id as string) === NONE_SENTINEL) {
@@ -274,7 +312,13 @@ export function buildChatTools(catalog: Catalog) {
         if (!experience) {
           return { ok: false, error: `Experience with id "${id}" not found.` };
         }
-        return { ok: true, experience };
+        // Serialize Portable Text fields to plain strings to prevent
+        // React "Objects are not valid as a React child" crashes.
+        const sanitized = {
+          ...experience,
+          description: portableTextToPlain(experience.description),
+        } as unknown as NonNullable<EXPERIENCE_BY_ID_QUERYResult>;
+        return { ok: true, experience: sanitized };
       } catch (err) {
         return { ok: false, error: String(err) };
       }
@@ -284,10 +328,11 @@ export function buildChatTools(catalog: Catalog) {
   // ── lookupFact ────────────────────────────────────────────────────────────
   const lookupFact = tool({
     description:
-      "Fuzzy-search the catalog for any fact about Anant (skills, projects, experience, certifications, achievements, education). Returns up to 5 matching records.",
+      "Search the catalog for facts about Anant (skills, projects, experience, certifications, achievements, education). Returns up to 5 matches.",
     inputSchema: z.object({
-      query: z.string().min(1).max(200).describe("The search query string."),
+      query: z.string().describe("Search query string."),
     }),
+    strict: true,
     execute: async ({ query }): Promise<LookupFactResult> => {
       try {
         const needle = query.toLowerCase();
@@ -366,6 +411,7 @@ export function buildChatTools(catalog: Catalog) {
     description:
       "Assemble a proof-pack resume summary from the live catalog — role, top skills, key projects, and current employer. Use when the user asks for a CV, resume, or summary.",
     inputSchema: z.object({}),
+    strict: true,
     execute: async (): Promise<GetResumeResult> => {
       try {
         const current = catalog.experience.find((e) => e.current) ?? null;
@@ -398,6 +444,7 @@ export function buildChatTools(catalog: Catalog) {
     description:
       "Open the contact form or direct the user to get in touch with Anant. Use when the user wants to reach out, hire, or collaborate.",
     inputSchema: z.object({}),
+    strict: true,
     execute: async (): Promise<ContactResult> => {
       try {
         return { action: "open_contact" };

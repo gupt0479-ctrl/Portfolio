@@ -119,6 +119,7 @@ export function PortfolioLab() {
       try {
         const res = await fetch("/api/chat", {
           method: "POST",
+          credentials: "same-origin",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             messages: [...conversationHistory, { role: "user", content: text }],
@@ -129,12 +130,16 @@ export function PortfolioLab() {
 
         if (!res.ok) {
           setPanelOrbyState("idle");
+          const errorText =
+            res.status === 429
+              ? "Hit rate limits, on a cooldown. Try again in sometime."
+              : "Couldn't reach Orby — try again?";
           setMessages((prev) => {
             const updated = [...prev];
             const lastIdx = updated.length - 1;
             updated[lastIdx] = {
               ...updated[lastIdx],
-              text: "Couldn't reach Orby — try again?",
+              text: errorText,
             };
             return updated;
           });

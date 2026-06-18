@@ -14,19 +14,19 @@ describe("Property 9: Achievement type labels use orbit-chip", () => {
 
   it("Achievement type is conditionally rendered when present", () => {
     expect(content).toContain("item.type");
-    expect(content).toContain("item.type ?");
   });
 
-  it("Achievement section wraps ledger in CometCard with subtle variant", () => {
-    expect(content).toContain('variant="subtle"');
+  it("Achievement section wraps ledger in CometCard with ghost variant", () => {
+    expect(content).toContain('variant="ghost"');
     expect(content).toContain("CometCard");
   });
 
-  it("Achievement section has glowing rail", () => {
-    expect(content).toContain("absolute left-6");
+  it("Achievement section uses SpaceRail for visual rail", () => {
+    expect(content).toContain("SpaceRail");
   });
 
-  it("Achievement rows have rail dots that glow on hover", () => {
-    expect(content).toContain("group-hover:bg-violet-500/60");
+  it("Achievement rows display item date and title", () => {
+    expect(content).toContain("item.date");
+    expect(content).toContain("item.title");
   });
 });

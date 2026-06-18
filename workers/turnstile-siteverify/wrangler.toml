@@ -1,0 +1,7 @@
+name = "turnstile-siteverify-portfolio"
+main = "src/index.js"
+compatibility_date = "2024-12-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://anantgupta.dev"
+EXPECTED_HOSTNAME = "anantgupta.dev"

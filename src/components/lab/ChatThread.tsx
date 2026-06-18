@@ -151,7 +151,7 @@ export function ChatThread({ messages }: ChatThreadProps) {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-3">
+    <div className="relative flex flex-1 flex-col gap-2 overflow-y-auto px-4 py-3">
       {messages.map((msg) =>
         msg.role === "user" ? (
           <div

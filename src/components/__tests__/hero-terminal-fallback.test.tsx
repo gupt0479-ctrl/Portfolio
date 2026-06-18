@@ -144,7 +144,7 @@ describe("HeroTerminal — Property 1: Hero terminal fallback rendering", () => 
     render(<HeroTerminal />);
     expect(
       screen.getByText(
-        "shipping → agentic systems · research · product engineering · ui/ux",
+        "shipping → agentic systems · research · product engineering",
       ),
     ).toBeInTheDocument();
   });

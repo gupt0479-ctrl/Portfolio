@@ -1,6 +1,5 @@
 "use client";
 
-import { ChatTokenInit } from "@/components/ChatTokenInit";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export default function Providers({ children }: { children: React.ReactNode }) {
@@ -11,7 +10,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
       enableSystem
       disableTransitionOnChange
     >
-      <ChatTokenInit />
       {children}
     </ThemeProvider>
   );

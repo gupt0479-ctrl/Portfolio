@@ -10,7 +10,7 @@ const csp = [
   "default-src 'self'",
   // Next.js App Router inlines bootstrap scripts; unsafe-eval kept to dev only (webpack HMR).
   // Clerk loads clerk-js from its FAPI domain at runtime.
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://${CLERK_FAPI}`,
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://${CLERK_FAPI} https://challenges.cloudflare.com`,
   // Tailwind v4 and Framer Motion apply inline styles at runtime.
   "style-src 'self' 'unsafe-inline'",
   // next/font/google self-hosts fonts at build time — no external font origin required.
@@ -22,7 +22,7 @@ const csp = [
   //   *.sanity.io      → sanityFetch CDN queries
   //   *.api.sanity.io  → Sanity Live content API (SSE EventSource)
   //   CLERK_FAPI       → Clerk session token sync
-  `connect-src 'self' https://*.sanity.io https://*.api.sanity.io https://${CLERK_FAPI}`,
+  `connect-src 'self' https://*.sanity.io https://*.api.sanity.io https://${CLERK_FAPI} https://challenges.cloudflare.com`,
   // Clerk sign-in Cloudflare Turnstile challenge renders in an iframe.
   "frame-src https://challenges.cloudflare.com",
   "frame-ancestors 'none'",

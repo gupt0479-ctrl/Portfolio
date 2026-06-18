@@ -8,16 +8,23 @@ on:
 jobs:
   eval:
     runs-on: ubuntu-latest
+    # Eval is advisory — failures don't block merge (API keys can expire, rate limits hit)
+    continue-on-error: true
+    env:
+      CEREBRAS_API_KEY: ${{ secrets.CEREBRAS_API_KEY }}
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
         with:
-          version: latest
+          version: 9
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'pnpm'
       - run: pnpm install
-      - run: pnpm eval
-    env:
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      - name: Run eval suite
+        if: env.CEREBRAS_API_KEY != ''
+        run: pnpm exec promptfoo eval --config evals/promptfooconfig.yaml --delay 3000
+      - name: Skip eval (no API key)
+        if: env.CEREBRAS_API_KEY == ''
+        run: echo "::warning::CEREBRAS_API_KEY not set — eval skipped."

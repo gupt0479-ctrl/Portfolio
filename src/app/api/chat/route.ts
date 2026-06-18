@@ -304,8 +304,8 @@ export async function POST(req: NextRequest) {
   // Fixed prompts use their promptId as the cache key for higher precision.
   const normalizedQ = normalizeQuestion(userMessage);
   const cacheKey = fixedPrompt
-    ? `chat:fixed:${fixedPrompt.persona}:${fixedPrompt.promptId}`
-    : `chat:cache:${persona}:${normalizedQ}`;
+    ? `chat:v2:fixed:${fixedPrompt.persona}:${fixedPrompt.promptId}`
+    : `chat:v2:${persona}:${normalizedQ}`;
 
   if (normalizedQ.length > 0) {
     const cached = await redis.get<CachedEntry>(cacheKey);
@@ -382,7 +382,12 @@ export async function POST(req: NextRequest) {
   console.log(
     JSON.stringify({
       event: "chat.request",
-      provider: routeResult.mode === "live" ? routeResult.provider : "degraded",
+      provider:
+        routeResult.mode === "live"
+          ? routeResult.provider
+          : routeResult.mode === "cooldown"
+            ? "cooldown"
+            : "degraded",
       mode: routeResult.mode,
       persona,
       sessionId,
@@ -400,6 +405,20 @@ export async function POST(req: NextRequest) {
   //   e:{error}\n                  — error
   const stream = new ReadableStream({
     async start(controller) {
+      // ── Cooldown mode — all providers rate-limited ────────────────────────
+      if (routeResult.mode === "cooldown") {
+        controller.enqueue(
+          encoder.encode(
+            `0:${JSON.stringify("Hit rate limits, on a cooldown. Try again in sometime.")}\n`,
+          ),
+        );
+        controller.enqueue(
+          encoder.encode(`d:${JSON.stringify({ finishReason: "cooldown" })}\n`),
+        );
+        controller.close();
+        return;
+      }
+
       // ── Degraded mode ────────────────────────────────────────────────────
       if (routeResult.mode === "degraded") {
         const sectionId = getDegradedNavigation(routeResult.userMessage);
@@ -440,14 +459,53 @@ export async function POST(req: NextRequest) {
       const accToolResults: NonNullable<CachedEntry["toolResults"]> = [];
       let hasOrbyMessage = false;
 
+      // Inline text buffer: holds back text fragments that look like the start
+      // of a leaked JSON tool call. Flushed when we can confirm it's safe text
+      // or at finish via the sanitizer.
+      let textBuffer = "";
+      const JSON_START_RE = /\{[\s\n]*"(?:tool|function|name|sectionId|navigate|ok|orbyMessage|action|records)/;
+
+      function flushTextBuffer() {
+        if (textBuffer.length > 0) {
+          controller.enqueue(
+            encoder.encode(`0:${JSON.stringify(textBuffer)}\n`),
+          );
+          textBuffer = "";
+        }
+      }
+
       try {
         for await (const part of routeResult.result.fullStream) {
           if (part.type === "text-delta") {
             accText += part.text;
-            controller.enqueue(
-              encoder.encode(`0:${JSON.stringify(part.text)}\n`),
-            );
+            textBuffer += part.text;
+
+            // If buffer has a complete JSON object that looks like a tool call,
+            // hold it (don't send). It'll be stripped at finish by the sanitizer.
+            if (JSON_START_RE.test(textBuffer)) {
+              // Check if we have a complete JSON object (balanced braces)
+              const openBraces = (textBuffer.match(/\{/g) || []).length;
+              const closeBraces = (textBuffer.match(/\}/g) || []).length;
+              if (closeBraces >= openBraces && openBraces > 0) {
+                // Complete JSON object detected — suppress entirely
+                // (sanitizer will strip it at finish and emit clean text via `t:`)
+                textBuffer = "";
+              } else if (textBuffer.length > 2000) {
+                // Safety cap: if buffer exceeds 2KB without braces balancing,
+                // it's not a real JSON leak — flush to avoid holding forever.
+                flushTextBuffer();
+              }
+              // Otherwise keep buffering — it's an incomplete JSON fragment
+            } else {
+              // No JSON-like pattern — safe to flush to client
+              flushTextBuffer();
+            }
           } else if (part.type === "tool-result") {
+            // Flush buffered text only if it's NOT a suspected JSON leak.
+            // If it IS a JSON pattern, leave it — the sanitizer will strip it at finish.
+            if (textBuffer.length > 0 && !JSON_START_RE.test(textBuffer)) {
+              flushTextBuffer();
+            }
             console.log(
               JSON.stringify({
                 event: "chat.tool",
@@ -491,13 +549,78 @@ export async function POST(req: NextRequest) {
               ),
             );
           } else if (part.type === "finish") {
+            // ── Groq tool_use_failed detection (in-stream) ────────────────
+            // Groq can emit "Failed to call a function" as the text content
+            // after a successful HTTP 200. Detect and surface as an error.
+            if (
+              routeResult.provider === "groq" &&
+              (accText.includes("Failed to call a function") ||
+                accText.includes("tool_use_failed") ||
+                accText.includes("failed_generation"))
+            ) {
+              console.log(
+                JSON.stringify({
+                  event: "chat.tool_use_failed.stream",
+                  provider: "groq",
+                  persona,
+                  sessionId,
+                }),
+              );
+              // Emit a user-friendly message instead of the error text
+              controller.enqueue(
+                encoder.encode(
+                  `t:${JSON.stringify("Couldn't reach Orby. Try again?")}\n`,
+                ),
+              );
+              controller.enqueue(
+                encoder.encode(
+                  `d:${JSON.stringify({ finishReason: "error" })}\n`,
+                ),
+              );
+              break;
+            }
+
+            // Do NOT flush the text buffer here — it may contain leaked JSON
+            // that should be stripped. The sanitizer handles the full text and
+            // emits a `t:` replacement line that the frontend uses.
+
             // Sanitize accumulated text to strip any pseudo-tool-call markup
             const sanitized = sanitizeChatText(accText);
 
-            // Emit text replacement with clean text if sanitizer changed anything
-            if (sanitized.cleanText !== accText) {
+            // Always emit the final clean text as a replacement (`t:` line)
+            // if either: (a) the sanitizer changed something, or (b) we held
+            // back buffered text that the client never received via `0:` lines.
+            if (sanitized.cleanText !== accText || textBuffer.length > 0) {
               controller.enqueue(
                 encoder.encode(`t:${JSON.stringify(sanitized.cleanText)}\n`),
+              );
+            }
+            textBuffer = "";
+
+            // If the model leaked a navigate result as text (instead of calling
+            // the tool API), emit a synthetic navigate tool result so the frontend
+            // still scrolls to the correct section.
+            if (sanitized.extractedSectionId && !accNav) {
+              accNav = {
+                sectionId: sanitized.extractedSectionId,
+                orbyMessage: sanitized.orbyMessage,
+                itemSlug: null,
+                itemIndex: null,
+              };
+              controller.enqueue(
+                encoder.encode(
+                  `a:${JSON.stringify({
+                    toolCallId: "sanitizer-nav",
+                    toolName: "navigate",
+                    result: {
+                      ok: true,
+                      sectionId: sanitized.extractedSectionId,
+                      orbyMessage: sanitized.orbyMessage,
+                      itemSlug: null,
+                      itemIndex: null,
+                    },
+                  })}\n`,
+                ),
               );
             }
 
@@ -568,7 +691,11 @@ export async function POST(req: NextRequest) {
   });
   response.headers.set(
     "X-Orby-Provider",
-    routeResult.mode === "live" ? routeResult.provider : "degraded",
+    routeResult.mode === "live"
+      ? routeResult.provider
+      : routeResult.mode === "cooldown"
+        ? "cooldown"
+        : "degraded",
   );
   response.headers.set("X-RateLimit-Remaining-Daily", String(dailyRemaining));
   return response;

@@ -40,6 +40,87 @@ export function sanitizeChatText(raw: string): {
   //    These can be multi-line. Match objects that start with the "tool" key.
   text = text.replace(/\{[\s\n]*"tool"\s*:\s*"[^"]*"[\s\S]*?\}/g, "");
 
+  // 5x. Strip leaked function-call objects: { "function": "..." ... } or { "name": "..." ... }
+  //     Cerebras/GPT-OSS sometimes emits tool calls in these alternate formats.
+  text = text.replace(/\{[\s\n]*"function"\s*:\s*"[^"]*"[\s\S]*?\}/g, "");
+  text = text.replace(
+    /\{[\s\n]*"name"\s*:\s*"(?:navigate|showProject|showExperience|lookupFact|getResume|contact)"[\s\S]*?\}/g,
+    (match) => {
+      // Try to extract navigation info from leaked tool call
+      if (!extractedSectionId) {
+        try {
+          const parsed = JSON.parse(match) as Record<string, unknown>;
+          const args = (parsed.arguments ?? parsed.args ?? parsed) as Record<
+            string,
+            unknown
+          >;
+          if (typeof args.sectionId === "string") {
+            extractedSectionId = args.sectionId;
+          }
+          if (typeof args.orbyMessage === "string" && !orbyMessage) {
+            orbyMessage = args.orbyMessage;
+          }
+        } catch {
+          // ignore malformed
+        }
+      }
+      return "";
+    },
+  );
+
+  // 5xx. Strip leaked navigate/showProject with "navigate" key pattern:
+  //      { "navigate": { "sectionId": "..." } } wrapper format
+  text = text.replace(
+    /\{[\s\n]*"navigate"\s*:\s*\{[\s\S]*?\}\s*\}/g,
+    (match) => {
+      if (!extractedSectionId) {
+        try {
+          const parsed = JSON.parse(match) as Record<string, unknown>;
+          const nav = parsed.navigate as Record<string, unknown> | undefined;
+          if (nav && typeof nav.sectionId === "string") {
+            extractedSectionId = nav.sectionId;
+            if (typeof nav.orbyMessage === "string") {
+              orbyMessage = nav.orbyMessage;
+            }
+          }
+        } catch {
+          // ignore malformed
+        }
+      }
+      return "";
+    },
+  );
+
+  // 5a. Strip leaked navigate results: { "sectionId": "...", "orbyMessage": "..." }
+  //     The model sometimes emits the tool result as text instead of via the tool API.
+  text = text.replace(
+    /\{[\s\n]*"sectionId"\s*:\s*"[^"]*"[\s\S]*?\}/g,
+    (match) => {
+      // Try to extract orbyMessage from the leaked JSON
+      if (!orbyMessage) {
+        try {
+          const parsed = JSON.parse(match) as Record<string, unknown>;
+          if (typeof parsed.orbyMessage === "string") {
+            orbyMessage = parsed.orbyMessage;
+          }
+          if (typeof parsed.sectionId === "string") {
+            extractedSectionId = parsed.sectionId;
+          }
+        } catch {
+          // ignore malformed
+        }
+      }
+      return "";
+    },
+  );
+
+  // 5b. Strip any remaining JSON-like objects with known tool-result keys
+  //     (ok, orbyMessage, itemSlug, toolName, result, action, records, etc.)
+  text = text.replace(
+    /\{[\s\n]*"(?:ok|orbyMessage|toolName|action|records)"\s*:[\s\S]*?\}/g,
+    "",
+  );
+
   // 6. Strip Navigation: {...} lines; extract sectionId if present
   text = text.replace(
     /^Navigation:\s*(\{[^\n]*\})\s*$/gim,
