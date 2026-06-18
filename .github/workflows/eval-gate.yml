@@ -22,7 +22,7 @@ jobs:
       - run: pnpm install
       - name: Run eval suite
         if: env.MISTRAL_API_KEY != ''
-        run: promptfoo eval --config evals/promptfooconfig.yaml --delay 3000
+        run: pnpm exec promptfoo eval --config evals/promptfooconfig.yaml --delay 3000
       - name: Skip eval (no API key)
         if: env.MISTRAL_API_KEY == ''
         run: echo "::warning::MISTRAL_API_KEY not set — eval skipped. Add it in Settings → Secrets."
